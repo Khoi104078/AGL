@@ -14,7 +14,6 @@ body{background:linear-gradient(135deg,#ff9a9e,#fad0c4);overflow-x:hidden}
  font-size:28px;background:#ff6a88;color:#fff;
  padding:8px 12px;border-radius:10px;cursor:pointer;z-index:1000;
 }
-
 .menu{
  position:fixed;top:0;left:-260px;width:230px;height:100%;
  background:#ff6a88;padding-top:70px;
@@ -28,7 +27,6 @@ body{background:linear-gradient(135deg,#ff9a9e,#fad0c4);overflow-x:hidden}
 }
 
 .page{display:none;padding-top:80px}
-
 .card{
  background:rgba(255,255,255,.95);
  padding:25px;border-radius:20px;
@@ -42,13 +40,16 @@ input{
  width:100%;padding:10px;margin:8px 0;
  border-radius:10px;border:1px solid pink;
 }
+input::placeholder{
+ color:#999;
+ font-style:italic;
+}
 
 button.main{
  width:100%;padding:10px;background:#ff6a88;color:#fff;
  border:none;border-radius:10px;cursor:pointer;
 }
 
-/* TABLE */
 table{width:100%;margin-top:10px;border-collapse:collapse}
 th,td{padding:10px;text-align:center}
 th{background:pink} td{background:#fff}
@@ -79,16 +80,19 @@ th{background:pink} td{background:#fff}
  <button onclick="go('participants')" class="adminOnly">📑 Người tham gia</button>
  <button onclick="go('join')">🙋 Tham gia</button>
  <button onclick="go('registerUser')">👤 Đăng ký tài khoản người tham gia</button>
- <button onclick="go('registerAdmin')">👑 Đăng ký tài khoản ban tổ chức</button>
+ <button onclick="go('registerAdmin')">👑 Đăng ký admin</button>
  <button onclick="go('login')">🔐 Đăng nhập</button>
  <button onclick="logout()">🚪 Đăng xuất</button>
 </div>
 
 <!-- HOME -->
 <div id="home" class="page">
-<div class="card">
+<div class="card" style="text-align:center;">
 <h2>🌸 Quản lý sự kiện CLB 🌸</h2>
-<p id="Welcome, chào mừng bạn đến với trang quản lý sự kiện CLB" style="text-align:center"></p>
+<p style="font-weight:bold;color:#ff6a88;">
+Chào mừng bạn đã đến với trang quản lý sự kiện CLB
+</p>
+<p id="welcome"></p>
 </div>
 </div>
 
@@ -96,7 +100,7 @@ th{background:pink} td{background:#fff}
 <div id="create" class="page">
 <div class="card">
 <h2>➕ Tạo sự kiện</h2>
-<input id="title" placeholder="Tên sự kiện">
+<input id="title" placeholder="Nhập tên sự kiện">
 <input id="leader" placeholder="Người phụ trách">
 <input id="date" type="date">
 <button class="main" onclick="addEvent()">Thêm</button>
@@ -108,7 +112,9 @@ th{background:pink} td{background:#fff}
 <div class="card">
 <h2>📋 Sự kiện</h2>
 <table>
-<thead><tr><th>Tên</th><th>Phụ trách</th><th>Ngày</th></tr></thead>
+<thead>
+<tr><th>Tên</th><th>Phụ trách</th><th>Ngày</th><th>Hành động</th></tr>
+</thead>
 <tbody id="eventTable"></tbody>
 </table>
 </div>
@@ -118,8 +124,8 @@ th{background:pink} td{background:#fff}
 <div id="join" class="page">
 <div class="card">
 <h2>🙋 Đăng ký tham gia</h2>
-<input id="pname" placeholder="Tên">
-<input id="pevent" placeholder="Sự kiện">
+<input id="pname" placeholder="Nhập tên của bạn">
+<input id="pevent" placeholder="Nhập tên sự kiện">
 <button class="main" onclick="addParticipant()">Đăng ký</button>
 </div>
 </div>
@@ -128,9 +134,9 @@ th{background:pink} td{background:#fff}
 <div id="participants" class="page">
 <div class="card">
 <h2>📑 Người tham gia</h2>
-<button class="main" onclick="exportCSV()">📥 Xuất CSV</button>
+<button class="main" onclick="exportCSV()">📥 Xuất Excel</button>
 <table>
-<thead><tr><th>Tên</th><th>Sự kiện</th><th></th></tr></thead>
+<thead><tr><th>Tên</th><th>Sự kiện</th><th>Hành động</th></tr></thead>
 <tbody id="pTable"></tbody>
 </table>
 </div>
@@ -140,9 +146,9 @@ th{background:pink} td{background:#fff}
 <div id="registerUser" class="page">
 <div class="card">
 <h2>👤 Đăng ký tài khoản người tham gia</h2>
-<input id="ru_name" placeholder="Tên">
-<input id="ru_email" placeholder="Email">
-<input id="ru_pass" type="password" placeholder="Mật khẩu">
+<input id="ru_name" placeholder="Nhập tên của bạn">
+<input id="ru_email" placeholder="Nhập email">
+<input id="ru_pass" type="password" placeholder="Nhập mật khẩu">
 <button class="main" onclick="register('user')">Đăng ký</button>
 </div>
 </div>
@@ -150,10 +156,10 @@ th{background:pink} td{background:#fff}
 <!-- REGISTER ADMIN -->
 <div id="registerAdmin" class="page">
 <div class="card">
-<h2>👑 Đăng ký tài khoản ban tổ chức</h2>
-<input id="ra_name" placeholder="Tên">
-<input id="ra_email" placeholder="Email">
-<input id="ra_pass" type="password" placeholder="Mật khẩu">
+<h2>👑 Đăng ký admin</h2>
+<input id="ra_name" placeholder="Nhập tên của bạn">
+<input id="ra_email" placeholder="Nhập email">
+<input id="ra_pass" type="password" placeholder="Nhập mật khẩu">
 <button class="main" onclick="register('admin')">Đăng ký</button>
 </div>
 </div>
@@ -162,23 +168,21 @@ th{background:pink} td{background:#fff}
 <div id="login" class="page">
 <div class="card">
 <h2>🔐 Đăng nhập</h2>
-<input id="login_email" placeholder="Email">
-<input id="login_pass" type="password" placeholder="Mật khẩu">
+<input id="login_email" placeholder="Nhập email">
+<input id="login_pass" type="password" placeholder="Nhập mật khẩu">
 <button class="main" onclick="login()">Đăng nhập</button>
 </div>
 </div>
 
 <script>
-let users = JSON.parse(localStorage.getItem("users")) || [];
-let events = JSON.parse(localStorage.getItem("events")) || [];
-let participants = JSON.parse(localStorage.getItem("participants")) || [];
-let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+let users=JSON.parse(localStorage.getItem("users"))||[];
+let events=JSON.parse(localStorage.getItem("events"))||[];
+let participants=JSON.parse(localStorage.getItem("participants"))||[];
+let currentUser=JSON.parse(localStorage.getItem("currentUser"));
 
-/* MENU */
 function toggleMenu(){menu.classList.toggle("show")}
 function go(p){showPage(p);menu.classList.remove("show")}
 
-/* PAGE */
 function showPage(id){
  document.querySelectorAll(".page").forEach(p=>p.style.display="none");
  document.getElementById(id).style.display="block";
@@ -198,41 +202,31 @@ setInterval(()=>{
 /* REGISTER */
 function register(role){
  let name,email,pass;
-
  if(role==="user"){
   name=ru_name.value; email=ru_email.value; pass=ru_pass.value;
  }else{
   name=ra_name.value; email=ra_email.value; pass=ra_pass.value;
  }
 
- if(!name||!email||!pass)return alert("Nhập đủ!");
- if(!email.includes("@"))return alert("Email sai!");
+ if(!name||!email||!pass)return alert("Vui lòng nhập đầy đủ!");
+ if(!email.includes("@"))return alert("Email không hợp lệ!");
 
  users.push({name,email,pass,role});
  localStorage.setItem("users",JSON.stringify(users));
-
  alert("Đăng ký thành công!");
 }
 
 /* LOGIN */
 function login(){
- let mail=document.getElementById("login_email").value;
- let pw=document.getElementById("login_pass").value;
-
- if(!mail||!pw)return alert("Nhập đủ!");
-
- let u=users.find(x=>x.email===mail && x.pass===pw);
+ let u=users.find(x=>x.email===login_email.value && x.pass===login_pass.value);
  if(!u)return alert("Sai tài khoản!");
 
  currentUser=u;
  localStorage.setItem("currentUser",JSON.stringify(u));
-
- alert("Xin chào "+u.name+" ("+u.role+")");
  updateUI();
  showPage("home");
 }
 
-/* LOGOUT */
 function logout(){
  localStorage.removeItem("currentUser");
  location.reload();
@@ -240,75 +234,131 @@ function logout(){
 
 /* UI */
 function updateUI(){
- if(!currentUser){
-  welcome.innerText="Chưa đăng nhập";
-  return;
- }
-
+ if(!currentUser)return;
  welcome.innerText="Xin chào "+currentUser.name+" ("+currentUser.role+")";
-
  document.querySelectorAll(".adminOnly").forEach(btn=>{
-  btn.style.display = currentUser.role==="admin" ? "block":"none";
+  btn.style.display=currentUser.role==="admin"?"block":"none";
  });
 }
 
 /* EVENT */
 function addEvent(){
- if(!currentUser)return alert("Chưa đăng nhập!");
- if(currentUser.role!=="admin")return alert("Chỉ admin!");
+ if(!currentUser || currentUser.role !== "admin"){
+  alert("Chỉ admin mới được tạo sự kiện!");
+  return;
+ }
 
- if(!title.value||!leader.value)return alert("Nhập đủ!");
+ let t = title.value.trim();
+ let l = leader.value.trim();
+ let d = date.value;
 
- events.push({t:title.value,l:leader.value,d:date.value});
- localStorage.setItem("events",JSON.stringify(events));
+ // Kiểm tra rỗng
+ if(!t || !l || !d){
+  alert("Vui lòng nhập đầy đủ thông tin!");
+  return;
+ }
+
+ // Kiểm tra trùng (so theo tên + ngày)
+ let exists = events.some(e => 
+   e.t.toLowerCase() === t.toLowerCase() && e.d === d
+ );
+
+ if(exists){
+  alert("❌ Sự kiện đã tồn tại!");
+  return;
+ }
+
+ // Nếu hợp lệ
+ events.push({t,l,d});
+ localStorage.setItem("events", JSON.stringify(events));
+
+ alert("✅ Tạo sự kiện thành công!");
+ 
+ // reset input cho đẹp
+ title.value = "";
+ leader.value = "";
+ date.value = "";
+
  renderEvents();
-
- alert("Tạo thành công!");
 }
-
-/* RENDER EVENT */
 function renderEvents(){
  eventTable.innerHTML="";
- events.forEach(e=>{
-  eventTable.innerHTML+=`<tr><td>${e.t}</td><td>${e.l}</td><td>${e.d}</td></tr>`;
+ events.forEach((e,i)=>{
+  let action = (currentUser && currentUser.role==="admin") ?
+   `<button class="edit" onclick="editEvent(${i})">✏️</button>
+    <button class="delete" onclick="delEvent(${i})">🗑️</button>` : "";
+
+  eventTable.innerHTML+=`
+  <tr>
+    <td>${e.t}</td>
+    <td>${e.l}</td>
+    <td>${e.d}</td>
+    <td>${action}</td>
+  </tr>`;
  });
+}
+
+function editEvent(i){
+ if(!currentUser||currentUser.role!=="admin")return alert("Chỉ admin!");
+
+ let t=prompt("Tên:",events[i].t);
+ let l=prompt("Phụ trách:",events[i].l);
+ let d=prompt("Ngày:",events[i].d);
+
+ if(t)events[i].t=t;
+ if(l)events[i].l=l;
+ if(d)events[i].d=d;
+
+ localStorage.setItem("events",JSON.stringify(events));
+ renderEvents();
+}
+
+function delEvent(i){
+ if(!currentUser||currentUser.role!=="admin")return alert("Chỉ admin!");
+
+ if(confirm("Xóa sự kiện này?")){
+  events.splice(i,1);
+  localStorage.setItem("events",JSON.stringify(events));
+  renderEvents();
+ }
 }
 
 /* PARTICIPANT */
 function addParticipant(){
- if(!pname.value||!pevent.value)return alert("Nhập đủ!");
-
  participants.push({name:pname.value,event:pevent.value});
  localStorage.setItem("participants",JSON.stringify(participants));
  renderParticipants();
-
- alert("Đăng ký thành công!");
 }
 
-/* RENDER PARTICIPANT */
 function renderParticipants(){
  pTable.innerHTML="";
  participants.forEach((p,i)=>{
+  let action=(currentUser && currentUser.role==="admin")?
+   `<button class="edit" onclick="editP(${i})">✏️</button>
+    <button class="delete" onclick="delP(${i})">🗑️</button>`:"";
+
   pTable.innerHTML+=`
   <tr>
-   <td>${p.name}</td>
-   <td>${p.event}</td>
-   <td>
-    <button class="edit" onclick="editP(${i})">✏️</button>
-    <button class="delete" onclick="delP(${i})">🗑️</button>
-   </td>
+    <td>${p.name}</td>
+    <td>${p.event}</td>
+    <td>${action}</td>
   </tr>`;
  });
 }
 
 function editP(i){
- let n=prompt("Sửa:",participants[i].name);
+ if(!currentUser||currentUser.role!=="admin")return alert("Chỉ admin!");
+ let n=prompt("Tên:",participants[i].name);
  if(n)participants[i].name=n;
  localStorage.setItem("participants",JSON.stringify(participants));
  renderParticipants();
 }
 
 function delP(i){
+ if(!currentUser||currentUser.role!=="admin"){
+  alert("Chỉ admin!");
+  return;
+ }
  participants.splice(i,1);
  localStorage.setItem("participants",JSON.stringify(participants));
  renderParticipants();
@@ -316,22 +366,18 @@ function delP(i){
 
 /* EXPORT */
 function exportCSV(){
-  let csv = "Tên;Sự kiện\n"; 
-
-  participants.forEach(p=>{
-    csv += `"${p.name}";"${p.event}"\n`;
-  });
-
-  // thêm BOM để Excel đọc UTF-8 chuẩn
-  let blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-
-  let link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "danhsach.csv";
-  link.click();
+ let csv="Tên;Sự kiện\n";
+ participants.forEach(p=>{
+  csv+=`"${p.name}";"${p.event}"\n`;
+ });
+ let blob=new Blob(["\uFEFF"+csv],{type:"text/csv"});
+ let a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download="danhsach.csv";
+ a.click();
 }
 
-/* LOAD */
+/* INIT */
 renderEvents();
 renderParticipants();
 updateUI();
