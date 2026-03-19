@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý sự kiện CLB</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+
+    <div class="menu" id="menu">
+        <button onclick="go('home')">🏠 Trang chủ</button>
+        <button onclick="go('create')" class="adminOnly">➕ Tạo sự kiện</button>
+        <button onclick="go('manage')" class="adminOnly">📋 Sự kiện</button>
+        <button onclick="go('participants')" class="adminOnly">📑 Người tham gia</button>
+        <button onclick="go('join')">🙋 Tham gia</button>
+        <button onclick="go('registerUser')">👤 Đăng ký tài khoản</button>
+        <button onclick="go('registerAdmin')">👑 Đăng ký admin</button>
+        <button onclick="go('login')">🔐 Đăng nhập</button>
+        <button onclick="logout()">🚪 Đăng xuất</button>
+    </div>
+
+    <div id="home" class="page">
+        <div class="card" style="text-align:center;">
+            <h2>🌸 Quản lý sự kiện CLB 🌸</h2>
+            <p style="font-weight:bold;color:#ff6a88;">Chào mừng bạn đã đến với hệ thống</p>
+            <p id="welcome"></p>
+        </div>
+    </div>
+
+    <div id="create" class="page">
+        <div class="card">
+            <h2>➕ Tạo sự kiện</h2>
+            <input id="title" placeholder="Nhập tên sự kiện">
+            <input id="leader" placeholder="Người phụ trách">
+            <input id="date" type="date">
+            <button class="main" onclick="addEvent()">Thêm</button>
+        </div>
+    </div>
+
+    <div id="manage" class="page">
+        <div class="card" style="width: 95%; max-width: 800px;">
+            <h2>📋 Danh sách sự kiện</h2>
+            <table>
+                <thead>
+                    <tr><th>Tên</th><th>Phụ trách</th><th>Ngày</th><th>Hành động</th></tr>
+                </thead>
+                <tbody id="eventTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="join" class="page">
+        <div class="card">
+            <h2>🙋 Đăng ký tham gia</h2>
+            <input id="pname" placeholder="Nhập tên của bạn">
+            <input id="pevent" placeholder="Nhập tên sự kiện">
+            <button class="main" onclick="addParticipant()">Đăng ký</button>
+        </div>
+    </div>
+
+    <div id="participants" class="page">
+        <div class="card" style="width: 95%; max-width: 800px;">
+            <h2>📑 Người tham gia</h2>
+            <button class="main" onclick="exportCSV()" style="margin-bottom: 10px;">📥 Xuất Excel (CSV)</button>
+            <table>
+                <thead><tr><th>Tên</th><th>Sự kiện</th><th>Hành động</th></tr></thead>
+                <tbody id="pTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="registerUser" class="page">
+        <div class="card">
+            <h2>👤 Đăng ký thành viên</h2>
+            <input id="ru_name" placeholder="Họ và tên">
+            <input id="ru_email" placeholder="Email">
+            <input id="ru_pass" type="password" placeholder="Mật khẩu">
+            <button class="main" onclick="register('user')">Đăng ký</button>
+        </div>
+    </div>
+
+    <div id="registerAdmin" class="page">
+        <div class="card">
+            <h2>👑 Đăng ký Quản trị viên</h2>
+            <input id="ra_name" placeholder="Họ và tên">
+            <input id="ra_email" placeholder="Email">
+            <input id="ra_pass" type="password" placeholder="Mật khẩu">
+            <button class="main" onclick="register('admin')">Đăng ký</button>
+        </div>
+    </div>
+
+    <div id="login" class="page">
+        <div class="card">
+            <h2>🔐 Đăng nhập</h2>
+            <input id="login_email" placeholder="Email">
+            <input id="login_pass" type="password" placeholder="Mật khẩu">
+            <button class="main" onclick="login()">Đăng nhập</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
