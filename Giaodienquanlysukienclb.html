@@ -147,6 +147,19 @@
         <input id="time" type="time" value="08:00">
       </div>
     </div>
+    <div class="form-row">
+  <div class="form-group">
+    <label>Địa điểm <span class="required">*</span></label>
+    <input id="location" type="text" placeholder="VD: Hội trường A">
+    <div class="err-msg" id="locationErr">Vui lòng nhập địa điểm!</div>
+  </div>
+
+  <div class="form-group">
+    <label>Số lượng tối đa <span class="required">*</span></label>
+    <input id="max" type="number" min="1" placeholder="VD: 50">
+    <div class="err-msg" id="maxErr">Vui lòng nhập số lượng!</div>
+  </div>
+</div>
     <div class="form-group">
       <label>Trạng thái</label>
       <div class="status-options">
@@ -164,9 +177,9 @@
 
     <!-- Buttons -->
     <div class="btn-group">
-      <button class="btn-reset" onclick="resetForm()">🔄 Nhập lại</button>
-      <button class="btn-submit" onclick="submitEvent()">🌸 Tạo sự kiện</button>
-    </div>
+  <button class="btn-reset" onclick="resetForm()">🔄 Nhập lại</button>
+  <button class="btn-submit" onclick="submitEvent()">🌸 Tạo sự kiện</button>
+</div>
 
   </div>
 </div>
@@ -181,7 +194,7 @@
     <h2>📋 Danh sách sự kiện</h2>
     <div class="table-container">
       <table>
-        <thead><tr><th>Sự kiện</th><th>Người trực</th><th>Ngày</th><th>Hành động</th></tr></thead>
+        <thead><tr><th>Sự kiện</th><th>Người trực</th><th>Ngày</th><th>Địa điểm</th><th>Số lượng</th><th>Hành động</th></tr></thead>
         <tbody id="eventTable"></tbody>
       </table>
     </div>
@@ -316,30 +329,60 @@ document.getElementById("title").addEventListener("input", function() {
 });
 
 function submitEvent() {
-  // Clear errors
   document.querySelectorAll(".err-msg").forEach(e => e.classList.remove("show"));
   document.querySelectorAll("input").forEach(i => i.classList.remove("error"));
 
-  let t = title.value.trim(); let l = leader.value.trim(); let d = date.value;
-  if(!t || !l || !d) {
+  let t = title.value.trim();
+  let l = leader.value.trim();
+  let d = date.value;
+ let loc = document.getElementById("location").value.trim();
+  let maxVal = max.value;
+
+  if(!t || !l || !d || !loc || !maxVal) {
     if(!t) { title.classList.add("error"); titleErr.classList.add("show"); }
     if(!l) { leader.classList.add("error"); leaderErr.classList.add("show"); }
     if(!d) { date.classList.add("error"); dateErr.classList.add("show"); }
+    if(!loc) { location.classList.add("error"); locationErr.classList.add("show"); }
+    if(!maxVal) { max.classList.add("error"); maxErr.classList.add("show"); }
     return;
   }
 
-  events.push({ t, l, d, time: time.value, status: selectedStatus });
+  events.push({
+    t,
+    l,
+    d,
+    time: time.value,
+    status: selectedStatus,
+    location: loc,
+    max: parseInt(maxVal)
+  });
+
   localStorage.setItem("events", JSON.stringify(events));
   showToast("🎉 Tạo sự kiện thành công!");
-  title.value = ""; leader.value = ""; go('manage');
+
+  title.value = "";
+  leader.value = "";
+  document.getElementById("location").value = "";
+  max.value = "";
+
+  go('manage');
 }
 
 function renderEvents() {
   eventTable.innerHTML = "";
   events.forEach((e, i) => {
-    let action = (currentUser?.role === "admin") ? 
-      `<button class="btn-del" onclick="delEvent(${i})">🗑️</button>` : "-";
-    eventTable.innerHTML += `<tr><td>${e.t}</td><td>${e.l}</td><td>${e.d}</td><td>${action}</td></tr>`;
+    eventTable.innerHTML += `
+      <tr>
+        <td>${e.t}</td>
+        <td>${e.l}</td>
+        <td>${e.d}</td>
+        <td>${e.location}</td>
+        <td>${e.max}</td>
+        <td>
+          <button class="btn-del" onclick="delEvent(${i})">🗑️</button>
+        </td>
+      </tr>
+    `;
   });
 }
 
@@ -354,10 +397,20 @@ function updateEventDropdown() {
 
 function addParticipant() {
   if(!pname.value) return showToast("Vui lòng nhập tên!", "error");
+
+  let selectedEvent = events.find(e => e.t === peventSelect.value);
+  let count = participants.filter(p => p.event === selectedEvent.t).length;
+
+  if(count >= selectedEvent.max) {
+    return showToast("❌ Sự kiện đã đủ người!", "error");
+  }
+
   participants.push({ name: pname.value, event: peventSelect.value });
   localStorage.setItem("participants", JSON.stringify(participants));
+
   showToast("✅ Đăng ký thành công!");
-  pname.value = ""; go('home');
+  pname.value = "";
+  go('home');
 }
 
 function renderParticipants() {
@@ -380,6 +433,24 @@ function exportCSV() {
   let csv = "Tên;Sự kiện\n" + participants.map(p => `"${p.name}";"${p.event}"`).join("\n");
   let blob = new Blob(["\uFEFF"+csv], {type:"text/csv"});
   let a = document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="danhsach.csv"; a.click();
+}
+
+function resetForm() {
+  title.value = "";
+  leader.value = "";
+  date.value = "";
+  time.value = "08:00";
+  document.getElementById("location").value = "";
+  max.value = "";
+  desc.value = "";
+
+  document.querySelectorAll(".err-msg").forEach(e => e.classList.remove("show"));
+  document.querySelectorAll("input").forEach(i => i.classList.remove("error"));
+
+  document.querySelectorAll(".status-tag").forEach(t => t.classList.remove("active"));
+  document.querySelector(".status-tag").classList.add("active");
+
+  selectedStatus = "Mở";
 }
 
 /* INIT */
