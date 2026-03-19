@@ -286,19 +286,43 @@ function toggleAuthMode() {
 }
 
 function handleAuth() {
-  let email = auth_email.value; let pass = auth_pass.value;
+  let email = auth_email.value.trim();
+  let pass = auth_pass.value.trim();
+
   if(isLoginMode) {
     let u = users.find(x => x.email === email && x.pass === pass);
     if(!u) return showToast("Sai tài khoản hoặc mật khẩu!", "error");
+
     currentUser = u;
     localStorage.setItem("currentUser", JSON.stringify(u));
     showToast("Chào mừng quay trở lại!");
-    updateUI(); go('home');
+    updateUI(); 
+    go('home');
+
   } else {
-    let name = auth_name.value; let role = auth_role.value;
-    if(!name || !email || !pass) return showToast("Vui lòng nhập đủ!", "error");
+    let name = auth_name.value.trim();
+    let role = auth_role.value;
+
+    // ❗ kiểm tra nhập đủ
+    if(!name || !email || !pass) {
+      return showToast("Vui lòng nhập đủ!", "error");
+    }
+
+    // ❗ kiểm tra gmail hợp lệ
+    if(!email.endsWith("@gmail.com")) {
+      return showToast("Email phải có đuôi @gmail.com!", "error");
+    }
+
+    // ❗ kiểm tra trùng email
+    let exist = users.find(u => u.email === email);
+    if(exist) {
+      return showToast("Email này đã được sử dụng!", "error");
+    }
+
+    // ✅ thêm user
     users.push({name, email, pass, role});
     localStorage.setItem("users", JSON.stringify(users));
+
     showToast("Đăng ký thành công! Hãy đăng nhập.");
     toggleAuthMode();
   }
