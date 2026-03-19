@@ -1,0 +1,168 @@
+/* RESET & BASE */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* MENU */
+.menu-toggle {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    font-size: 28px;
+    background: #ff6a88;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+.menu {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    width: 230px;
+    height: 100%;
+    background: #ff6a88;
+    padding-top: 70px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: 0.3s;
+    z-index: 999;
+}
+
+.menu.show {
+    left: 0;
+}
+
+.menu button {
+    margin: 0 10px;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    text-align: left;
+    transition: 0.2s;
+}
+
+.menu button:hover {
+    background: #ffe4e1;
+}
+
+/* LAYOUT */
+.page {
+    display: none;
+    padding-top: 80px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 25px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 500px;
+    margin: 20px auto;
+    box-shadow: 0 10px 25px rgba(255, 105, 180, 0.3);
+}
+
+h2 {
+    text-align: center;
+    color: #e84393;
+    margin-bottom: 15px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 10px;
+    border: 1px solid pink;
+    outline: none;
+}
+
+input::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+button.main {
+    width: 100%;
+    padding: 10px;
+    background: #ff6a88;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+button.main:hover {
+    background: #e84393;
+}
+
+/* TABLE */
+table {
+    width: 100%;
+    margin-top: 10px;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background: pink;
+    color: #d81b60;
+}
+
+td {
+    background: #fff;
+}
+
+.edit {
+    background: orange;
+    color: #fff;
+    border: none;
+    padding: 5px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.delete {
+    background: red;
+    color: #fff;
+    border: none;
+    padding: 5px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* HIỆU ỨNG HOA RƠI */
+.flower {
+    position: fixed;
+    top: -50px;
+    font-size: 20px;
+    animation: fall linear infinite;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+@keyframes fall {
+    0% { transform: translateY(-50px) rotate(0deg); }
+    100% { transform: translateY(110vh) rotate(360deg); }
+}
