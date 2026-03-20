@@ -1,401 +1,628 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quản lý sự kiện CLB </title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý sự kiện CLB </title>
 
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap');
-  
-  * { margin:0; padding:0; box-sizing:border-box; font-family: 'Nunito', sans-serif; }
-  body { background: linear-gradient(135deg,#ff9a9e,#fad0c4); min-height: 100vh; overflow-x: hidden; }
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap');
 
-  /* MENU & NAVIGATION */
-  .menu-toggle {
-    position: fixed; top: 15px; left: 15px;
-    font-size: 26px; background: #ff6a88; color: #fff;
-    padding: 8px 13px; border-radius: 12px; cursor: pointer; z-index: 1000;
-    box-shadow: 0 4px 12px rgba(255,106,136,.4);
-  }
-  .menu {
-    position: fixed; top: 0; left: -270px; width: 240px; height: 100%;
-    background: linear-gradient(180deg,#ff6a88,#ff8fab); padding-top: 70px;
-    display: flex; flex-direction: column; gap: 8px; transition: .3s; z-index: 999;
-  }
-  .menu.show { left: 0; }
-  .menu button {
-    margin: 0 12px; padding: 11px 14px; border: none; border-radius: 12px;
-    background: rgba(255,255,255,.9); cursor: pointer; text-align: left;
-    font-weight: 600; color: #c0395e; transition: .2s;
-  }
-  .menu button:hover { background: #fff; transform: translateX(4px); }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Nunito', sans-serif;
+    }
 
-  /* LAYOUT */
-  .page { display: none; padding: 80px 20px 40px; animation: fadeIn 0.5s; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  
-  .card {
-    background: rgba(255,255,255,.97); padding: 30px; border-radius: 24px;
-    max-width: 520px; margin: 0 auto;
-    box-shadow: 0 16px 48px rgba(255,105,180,.2);
-  }
-  h2 { text-align: center; color: #e84393; margin-bottom: 20px; font-family: 'Quicksand'; }
+    body {
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-  /* FORM ELEMENTS */
-  .form-group { margin-bottom: 15px; text-align: left; }
-  .form-group label { display: block; font-size: 13px; font-weight: 700; color: #c0395e; margin-bottom: 5px; }
-  input, textarea, select {
-    width: 100%; padding: 12px; border: 2px solid #ffe0ea; border-radius: 12px;
-    background: #fff9fb; outline: none; transition: 0.2s;
-  }
-  input:focus { border-color: #ff6a88; box-shadow: 0 0 0 3px rgba(255,106,136,0.1); }
-  .required { color: #ff4d88; }
-  
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .char-counter { font-size: 11px; color: #ccc; text-align: right; margin-top: 2px; }
-  
-  /* STATUS TAGS */
-  .status-options { display: flex; gap: 8px; }
-  .status-tag {
-    flex: 1; padding: 8px; border: 2px solid #ffe0ea; border-radius: 10px;
-    text-align: center; font-size: 12px; font-weight: 600; cursor: pointer; background: #fff;
-  }
-  .status-tag.active { background: #ff6a88; color: #fff; border-color: #ff6a88; }
+    /* MENU & NAVIGATION */
+    .menu-toggle {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      font-size: 26px;
+      background: #ff6a88;
+      color: #fff;
+      padding: 8px 13px;
+      border-radius: 12px;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(255, 106, 136, .4);
+    }
 
-  /* BUTTONS */
-  button.main {
-    width: 100%; padding: 13px; background: linear-gradient(135deg,#ff6a88,#e84393);
-    color: #fff; border: none; border-radius: 14px; font-weight: 700;
-    cursor: pointer; margin-top: 10px; transition: 0.3s;
-  }
-  button.main:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,106,136,0.4); }
+    .menu {
+      position: fixed;
+      top: 0;
+      left: -270px;
+      width: 240px;
+      height: 100%;
+      background: linear-gradient(180deg, #ff6a88, #ff8fab);
+      padding-top: 70px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: .3s;
+      z-index: 999;
+    }
 
-  /* TABLE */
-  .table-container { overflow-x: auto; margin-top: 15px; }
-  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; }
-  th, td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; }
-  th { background: #ffe0ea; color: #c0395e; }
-  .btn-edit { background: #ff9f43; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; }
-  .btn-del { background: #ff4757; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; }
+    .menu.show {
+      left: 0;
+    }
 
-  /* DECORATION */
-  .flower { position: fixed; top: -50px; font-size: 20px; animation: fall linear infinite; pointer-events: none; z-index: 0; }
-  @keyframes fall { 0% { transform: translateY(-50px) rotate(0deg); } 100% { transform: translateY(110vh) rotate(360deg); } }
+    .menu button {
+      margin: 0 12px;
+      padding: 11px 14px;
+      border: none;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .9);
+      cursor: pointer;
+      text-align: left;
+      font-weight: 600;
+      color: #c0395e;
+      transition: .2s;
+    }
 
-  /* VALIDATION & TOAST */
-  .err-msg { font-size: 12px; color: #ff6b6b; display: none; margin-top: 4px; }
-  .err-msg.show { display: block; }
-  input.error { border-color: #ff6b6b !important; }
-  .toast {
-    position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%) translateY(100px);
-    padding: 12px 25px; border-radius: 12px; color: #fff; font-weight: 700;
-    transition: 0.4s; z-index: 10001; opacity: 0;
-  }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-  .toast.success { background: #2ecc71; }
-  .toast.error { background: #e74c3c; }
-</style>
+    .menu button:hover {
+      background: #fff;
+      transform: translateX(4px);
+    }
+
+    /* LAYOUT */
+    .page {
+      display: none;
+      padding: 80px 20px 40px;
+      animation: fadeIn 0.5s;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card {
+      background: rgba(255, 255, 255, .97);
+      padding: 30px;
+      border-radius: 24px;
+      max-width: 520px;
+      margin: 0 auto;
+      box-shadow: 0 16px 48px rgba(255, 105, 180, .2);
+    }
+
+    h2 {
+      text-align: center;
+      color: #e84393;
+      margin-bottom: 20px;
+      font-family: 'Quicksand';
+    }
+
+    /* FORM ELEMENTS */
+    .form-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: #c0395e;
+      margin-bottom: 5px;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ffe0ea;
+      border-radius: 12px;
+      background: #fff9fb;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    input:focus {
+      border-color: #ff6a88;
+      box-shadow: 0 0 0 3px rgba(255, 106, 136, 0.1);
+    }
+
+    .required {
+      color: #ff4d88;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .char-counter {
+      font-size: 11px;
+      color: #ccc;
+      text-align: right;
+      margin-top: 2px;
+    }
+
+    /* STATUS TAGS */
+    .status-options {
+      display: flex;
+      gap: 8px;
+    }
+
+    .status-tag {
+      flex: 1;
+      padding: 8px;
+      border: 2px solid #ffe0ea;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #fff;
+    }
+
+    .status-tag.active {
+      background: #ff6a88;
+      color: #fff;
+      border-color: #ff6a88;
+    }
+
+    /* BUTTONS */
+    button.main {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, #ff6a88, #e84393);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: 0.3s;
+    }
+
+    button.main:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 106, 136, 0.4);
+    }
+
+    /* TABLE */
+    .table-container {
+      overflow-x: auto;
+      margin-top: 15px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background: #ffe0ea;
+      color: #c0395e;
+    }
+
+    .btn-edit {
+      background: #ff9f43;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btn-del {
+      background: #ff4757;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    /* DECORATION */
+    .flower {
+      position: fixed;
+      top: -50px;
+      font-size: 20px;
+      animation: fall linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(-50px) rotate(0deg);
+      }
+
+      100% {
+        transform: translateY(110vh) rotate(360deg);
+      }
+    }
+
+    /* VALIDATION & TOAST */
+    .err-msg {
+      font-size: 12px;
+      color: #ff6b6b;
+      display: none;
+      margin-top: 4px;
+    }
+
+    .err-msg.show {
+      display: block;
+    }
+
+    input.error {
+      border-color: #ff6b6b !important;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      padding: 12px 25px;
+      border-radius: 12px;
+      color: #fff;
+      font-weight: 700;
+      transition: 0.4s;
+      z-index: 10001;
+      opacity: 0;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.success {
+      background: #2ecc71;
+    }
+
+    .toast.error {
+      background: #e74c3c;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="menu-toggle" onclick="toggleMenu()">☰</div>
+  <div class="menu-toggle" onclick="toggleMenu()">☰</div>
 
-<div class="menu" id="menu">
-  <button onclick="go('home')">🏠 Trang chủ</button>
-  <button onclick="go('create')" class="adminOnly">➕ Tạo sự kiện</button>
-  <button onclick="go('manage')" class="adminOnly">📋 Quản lý sự kiện</button>
-  <button onclick="go('participants')" class="adminOnly">📑 Người tham gia</button>
-  <button onclick="go('join')">🙋 Tham gia</button>
-  <button onclick="go('login')">🔐 Đăng nhập / Đăng ký</button>
-  <button onclick="logout()">🚪 Đăng xuất</button>
-</div>
+  <div class="menu" id="menu">
+    <button onclick="go('home')">🏠 Trang chủ</button>
+    <button onclick="go('create')" class="adminOnly">➕ Tạo sự kiện</button>
+    <button onclick="go('manage')" class="adminOnly">📋 Quản lý sự kiện</button>
+    <button onclick="go('participants')" class="adminOnly">📑 Người tham gia</button>
+    <button onclick="go('join')">🙋 Tham gia</button>
+    <button onclick="go('login')">🔐 Đăng nhập / Đăng ký</button>
+    <button onclick="logout()">🚪 Đăng xuất</button>
+  </div>
 
-<div id="home" class="page" style="display: block;">
-  <div class="card">
-    <h2>🌸 Quản lý sự kiện CLB 🌸</h2>
-    <p style="text-align: center; color: #ff6a88; font-weight: bold;" id="welcome">Chào mừng bạn!</p>
-    <div style="margin-top: 20px; text-align: center; font-size: 14px; color: #666;">
-      Hệ thống quản lý sự kiện dành cho thành viên CLB.
+  <div id="home" class="page" style="display: block;">
+    <div class="card">
+      <h2>🌸 Quản lý sự kiện CLB 🌸</h2>
+      <p style="text-align: center; color: #ff6a88; font-weight: bold;" id="welcome">Chào mừng bạn!</p>
+      <div style="margin-top: 20px; text-align: center; font-size: 14px; color: #666;">
+        Hệ thống quản lý sự kiện dành cho thành viên CLB.
+      </div>
     </div>
   </div>
-</div>
 
-<div id="create" class="page">
-  <div class="card">
-    <h2>➕ Tạo sự kiện mới</h2>
-    <div class="form-group">
-      <label>Tên sự kiện <span class="required">*</span></label>
-      <input id="title" type="text" placeholder="VD: Hội thảo kỹ năng..." maxlength="100">
-      <div class="char-counter" id="titleCount">0 / 100</div>
-      <div class="err-msg" id="titleErr">Vui lòng nhập tên sự kiện!</div>
-    </div>
-    <div class="form-group">
-      <label>Người phụ trách <span class="required">*</span></label>
-      <input id="leader" type="text" placeholder="Họ và tên...">
-      <div class="err-msg" id="leaderErr">Vui lòng nhập người phụ trách!</div>
-    </div>
-    <div class="form-row">
+  <div id="create" class="page">
+    <div class="card">
+      <h2>➕ Tạo sự kiện mới</h2>
       <div class="form-group">
-        <label>Ngày diễn ra <span class="required">*</span></label>
-        <input id="date" type="date">
-        <div class="err-msg" id="dateErr">Vui lòng chọn ngày!</div>
+        <label>Tên sự kiện <span class="required">*</span></label>
+        <input id="title" type="text" placeholder="VD: Hội thảo kỹ năng..." maxlength="100">
+        <div class="char-counter" id="titleCount">0 / 100</div>
+        <div class="err-msg" id="titleErr">Vui lòng nhập tên sự kiện!</div>
       </div>
       <div class="form-group">
-        <label>Giờ bắt đầu</label>
-        <input id="time" type="time" value="08:00">
+        <label>Người phụ trách <span class="required">*</span></label>
+        <input id="leader" type="text" placeholder="Họ và tên...">
+        <div class="err-msg" id="leaderErr">Vui lòng nhập người phụ trách!</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ngày diễn ra <span class="required">*</span></label>
+          <input id="date" type="date">
+          <div class="err-msg" id="dateErr">Vui lòng chọn ngày!</div>
+        </div>
+        <div class="form-group">
+          <label>Giờ bắt đầu</label>
+          <input id="time" type="time" value="08:00">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Địa điểm <span class="required">*</span></label>
+          <input id="location" type="text" placeholder="VD: Hội trường A">
+          <div class="err-msg" id="locationErr">Vui lòng nhập địa điểm!</div>
+        </div>
+
+        <div class="form-group">
+          <label>Số lượng tối đa <span class="required">*</span></label>
+          <input id="max" type="number" min="1" placeholder="VD: 50">
+          <div class="err-msg" id="maxErr">Vui lòng nhập số lượng!</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Trạng thái</label>
+        <div class="status-options">
+          <div class="status-tag active" data-val="Mở" onclick="selectStatus(this)">🟢 Mở</div>
+          <div class="status-tag" data-val="Sắp mở" onclick="selectStatus(this)">🟡 Sắp mở</div>
+          <div class="status-tag" data-val="Đóng" onclick="selectStatus(this)">🔴 Đóng</div>
+        </div>
+      </div>
+      <!-- Mô tả -->
+      <div class="form-group">
+        <label>Mô tả sự kiện</label>
+        <textarea id="desc" placeholder="Mô tả ngắn về nội dung, chương trình sự kiện..." maxlength="300"></textarea>
+        <div class="char-counter" id="descCount">0 / 300</div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="btn-group">
+        <button class="btn-reset" onclick="resetForm()">🔄 Nhập lại</button>
+        <button class="btn-submit" onclick="submitEvent()">🌸 Tạo sự kiện</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+
+
+  <div id="manage" class="page">
+    <div class="card" style="max-width: 800px;">
+      <h2>📋 Danh sách sự kiện</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Sự kiện</th>
+              <th>Người trực</th>
+              <th>Ngày</th>
+              <th>Địa điểm</th>
+              <th>Số lượng</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody id="eventTable"></tbody>
+        </table>
       </div>
     </div>
-    <div class="form-row">
-  <div class="form-group">
-    <label>Địa điểm <span class="required">*</span></label>
-    <input id="location" type="text" placeholder="VD: Hội trường A">
-    <div class="err-msg" id="locationErr">Vui lòng nhập địa điểm!</div>
   </div>
 
-  <div class="form-group">
-    <label>Số lượng tối đa <span class="required">*</span></label>
-    <input id="max" type="number" min="1" placeholder="VD: 50">
-    <div class="err-msg" id="maxErr">Vui lòng nhập số lượng!</div>
+  <div id="join" class="page">
+    <div class="card">
+      <h2>🙋 Đăng ký tham gia</h2>
+      <div class="form-group">
+        <label>Họ tên</label>
+        <input id="pname" placeholder="Nhập tên của bạn">
+      </div>
+      <div class="form-group">
+        <label>Chọn sự kiện</label>
+        <select id="peventSelect"></select>
+      </div>
+      <button class="main" onclick="addParticipant()">Đăng ký ngay</button>
+    </div>
   </div>
-</div>
-    <div class="form-group">
-      <label>Trạng thái</label>
-      <div class="status-options">
-        <div class="status-tag active" data-val="Mở" onclick="selectStatus(this)">🟢 Mở</div>
-        <div class="status-tag" data-val="Sắp mở" onclick="selectStatus(this)">🟡 Sắp mở</div>
-        <div class="status-tag" data-val="Đóng" onclick="selectStatus(this)">🔴 Đóng</div>
+
+  <div id="participants" class="page">
+    <div class="card" style="max-width: 800px;">
+      <h2>📑 Danh sách người tham gia</h2>
+      <button onclick="exportCSV()" style="padding: 5px 15px; margin-bottom: 10px; cursor:pointer;">📥 Xuất CSV</button>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Họ tên</th>
+              <th>Sự kiện</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody id="pTable"></tbody>
+        </table>
       </div>
     </div>
-    <!-- Mô tả -->
-    <div class="form-group">
-      <label>Mô tả sự kiện</label>
-      <textarea id="desc" placeholder="Mô tả ngắn về nội dung, chương trình sự kiện..." maxlength="300"></textarea>
-      <div class="char-counter" id="descCount">0 / 300</div>
-    </div>
-
-    <!-- Buttons -->
-    <div class="btn-group">
-  <button class="btn-reset" onclick="resetForm()">🔄 Nhập lại</button>
-  <button class="btn-submit" onclick="submitEvent()">🌸 Tạo sự kiện</button>
-</div>
-
   </div>
-</div>
 
-<!-- Toast -->
-<div class="toast" id="toast"></div>
-    
-
-
-<div id="manage" class="page">
-  <div class="card" style="max-width: 800px;">
-    <h2>📋 Danh sách sự kiện</h2>
-    <div class="table-container">
-      <table>
-        <thead><tr><th>Sự kiện</th><th>Người trực</th><th>Ngày</th><th>Địa điểm</th><th>Số lượng</th><th>Hành động</th></tr></thead>
-        <tbody id="eventTable"></tbody>
-      </table>
+  <div id="login" class="page">
+    <div class="card">
+      <h2 id="authTitle">🔐 Đăng nhập</h2>
+      <input id="auth_email" placeholder="Email" style="margin-bottom: 10px;">
+      <input id="auth_pass" type="password" placeholder="Mật khẩu" style="margin-bottom: 10px;">
+      <div id="regFields" style="display: none;">
+        <input id="auth_name" placeholder="Họ tên" style="margin-bottom: 10px;">
+        <select id="auth_role" style="margin-bottom: 10px;">
+          <option value="user">Thành viên</option>
+          <option value="admin">Quản trị viên (Admin)</option>
+        </select>
+      </div>
+      <button class="main" id="btnAuth" onclick="handleAuth()">Đăng nhập</button>
+      <p style="text-align:center; margin-top:15px; font-size:13px; cursor:pointer; color:#e84393"
+        onclick="toggleAuthMode()">
+        Chưa có tài khoản? Đăng ký ngay
+      </p>
     </div>
   </div>
-</div>
 
-<div id="join" class="page">
-  <div class="card">
-    <h2>🙋 Đăng ký tham gia</h2>
-    <div class="form-group">
-      <label>Họ tên</label>
-      <input id="pname" placeholder="Nhập tên của bạn">
-    </div>
-    <div class="form-group">
-      <label>Chọn sự kiện</label>
-      <select id="peventSelect"></select>
-    </div>
-    <button class="main" onclick="addParticipant()">Đăng ký ngay</button>
-  </div>
-</div>
+  <div class="toast" id="toast"></div>
 
-<div id="participants" class="page">
-  <div class="card" style="max-width: 800px;">
-    <h2>📑 Danh sách người tham gia</h2>
-    <button onclick="exportCSV()" style="padding: 5px 15px; margin-bottom: 10px; cursor:pointer;">📥 Xuất CSV</button>
-    <div class="table-container">
-      <table>
-        <thead><tr><th>Họ tên</th><th>Sự kiện</th><th>Hành động</th></tr></thead>
-        <tbody id="pTable"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
+  <script>
+    /* DỮ LIỆU GỐC */
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+    let events = JSON.parse(localStorage.getItem("events")) || [];
+    let participants = JSON.parse(localStorage.getItem("participants")) || [];
+    let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    let isLoginMode = true;
+    let selectedStatus = "Mở";
 
-<div id="login" class="page">
-  <div class="card">
-    <h2 id="authTitle">🔐 Đăng nhập</h2>
-    <input id="auth_email" placeholder="Email" style="margin-bottom: 10px;">
-    <input id="auth_pass" type="password" placeholder="Mật khẩu" style="margin-bottom: 10px;">
-    <div id="regFields" style="display: none;">
-      <input id="auth_name" placeholder="Họ tên" style="margin-bottom: 10px;">
-      <select id="auth_role" style="margin-bottom: 10px;">
-        <option value="user">Thành viên</option>
-        <option value="admin">Quản trị viên (Admin)</option>
-      </select>
-    </div>
-    <button class="main" id="btnAuth" onclick="handleAuth()">Đăng nhập</button>
-    <p style="text-align:center; margin-top:15px; font-size:13px; cursor:pointer; color:#e84393" onclick="toggleAuthMode()">
-      Chưa có tài khoản? Đăng ký ngay
-    </p>
-  </div>
-</div>
+    /* HIỆU ỨNG HOA RƠI */
+    setInterval(() => {
+      let f = document.createElement("div"); f.className = "flower"; f.innerHTML = "🌸";
+      f.style.left = Math.random() * 100 + "vw"; f.style.animationDuration = (3 + Math.random() * 5) + "s";
+      document.body.appendChild(f); setTimeout(() => f.remove(), 8000);
+    }, 300);
 
-<div class="toast" id="toast"></div>
-
-<script>
-/* DỮ LIỆU GỐC */
-let users = JSON.parse(localStorage.getItem("users")) || [];
-let events = JSON.parse(localStorage.getItem("events")) || [];
-let participants = JSON.parse(localStorage.getItem("participants")) || [];
-let currentUser = JSON.parse(localStorage.getItem("currentUser"));
-let isLoginMode = true;
-let selectedStatus = "Mở";
-
-/* HIỆU ỨNG HOA RƠI */
-setInterval(() => {
-  let f = document.createElement("div"); f.className="flower"; f.innerHTML="🌸";
-  f.style.left = Math.random()*100+"vw"; f.style.animationDuration = (3+Math.random()*5)+"s";
-  document.body.appendChild(f); setTimeout(()=>f.remove(), 8000);
-}, 300);
-
-/* ĐIỀU HƯỚNG */
-function toggleMenu() { document.getElementById("menu").classList.toggle("show"); }
-function go(id) {
-  document.querySelectorAll(".page").forEach(p => p.style.display="none");
-  document.getElementById(id).style.display="block";
-  document.getElementById("menu").classList.remove("show");
-  if(id === 'manage') renderEvents();
-  if(id === 'participants') renderParticipants();
-  if(id === 'join') updateEventDropdown();
-}
-
-/* AUTHENTICATION */
-function toggleAuthMode() {
-  isLoginMode = !isLoginMode;
-  document.getElementById("authTitle").innerText = isLoginMode ? "🔐 Đăng nhập" : "👤 Đăng ký";
-  document.getElementById("regFields").style.display = isLoginMode ? "none" : "block";
-  document.getElementById("btnAuth").innerText = isLoginMode ? "Đăng nhập" : "Tạo tài khoản";
-}
-
-function handleAuth() {
-  let email = auth_email.value.trim();
-  let pass = auth_pass.value.trim();
-
-  if(isLoginMode) {
-    let u = users.find(x => x.email === email && x.pass === pass);
-    if(!u) return showToast("Sai tài khoản hoặc mật khẩu!", "error");
-
-    currentUser = u;
-    localStorage.setItem("currentUser", JSON.stringify(u));
-    showToast("Chào mừng quay trở lại!");
-    updateUI(); 
-    go('home');
-
-  } else {
-    let name = auth_name.value.trim();
-    let role = auth_role.value;
-
-    // ❗ kiểm tra nhập đủ
-    if(!name || !email || !pass) {
-      return showToast("Vui lòng nhập đủ!", "error");
+    /* ĐIỀU HƯỚNG */
+    function toggleMenu() { document.getElementById("menu").classList.toggle("show"); }
+    function go(id) {
+      document.querySelectorAll(".page").forEach(p => p.style.display = "none");
+      document.getElementById(id).style.display = "block";
+      document.getElementById("menu").classList.remove("show");
+      if (id === 'manage') renderEvents();
+      if (id === 'participants') renderParticipants();
+      if (id === 'join') updateEventDropdown();
     }
 
-    // ❗ kiểm tra gmail hợp lệ
-    if(!email.endsWith("@gmail.com")) {
-      return showToast("Email phải có đuôi @gmail.com!", "error");
+    /* AUTHENTICATION */
+    function toggleAuthMode() {
+      isLoginMode = !isLoginMode;
+      document.getElementById("authTitle").innerText = isLoginMode ? "🔐 Đăng nhập" : "👤 Đăng ký";
+      document.getElementById("regFields").style.display = isLoginMode ? "none" : "block";
+      document.getElementById("btnAuth").innerText = isLoginMode ? "Đăng nhập" : "Tạo tài khoản";
     }
 
-    // ❗ kiểm tra trùng email
-    let exist = users.find(u => u.email === email);
-    if(exist) {
-      return showToast("Email này đã được sử dụng!", "error");
+    function handleAuth() {
+      let email = auth_email.value.trim();
+      let pass = auth_pass.value.trim();
+
+      if (isLoginMode) {
+        let u = users.find(x => x.email === email && x.pass === pass);
+        if (!u) return showToast("Sai tài khoản hoặc mật khẩu!", "error");
+
+        currentUser = u;
+        localStorage.setItem("currentUser", JSON.stringify(u));
+        showToast("Chào mừng quay trở lại!");
+        updateUI();
+        go('home');
+
+      } else {
+        let name = auth_name.value.trim();
+        let role = auth_role.value;
+
+        // ❗ kiểm tra nhập đủ
+        if (!name || !email || !pass) {
+          return showToast("Vui lòng nhập đủ!", "error");
+        }
+
+        // ❗ kiểm tra gmail hợp lệ
+        if (!email.endsWith("@gmail.com")) {
+          return showToast("Email phải có đuôi @gmail.com!", "error");
+        }
+
+        // ❗ kiểm tra trùng email
+        let exist = users.find(u => u.email === email);
+        if (exist) {
+          return showToast("Email này đã được sử dụng!", "error");
+        }
+
+        // ✅ thêm user
+        users.push({ name, email, pass, role });
+        localStorage.setItem("users", JSON.stringify(users));
+
+        showToast("Đăng ký thành công! Hãy đăng nhập.");
+        toggleAuthMode();
+      }
     }
 
-    // ✅ thêm user
-    users.push({name, email, pass, role});
-    localStorage.setItem("users", JSON.stringify(users));
+    function logout() { localStorage.removeItem("currentUser"); location.reload(); }
 
-    showToast("Đăng ký thành công! Hãy đăng nhập.");
-    toggleAuthMode();
-  }
-}
+    function updateUI() {
+      if (!currentUser) {
+        document.querySelectorAll(".adminOnly").forEach(b => b.style.display = "none");
+        welcome.innerText = "Khách hàng (Vui lòng đăng nhập)";
+      } else {
+        welcome.innerText = `Xin chào ${currentUser.name} (${currentUser.role})`;
+        document.querySelectorAll(".adminOnly").forEach(b => {
+          b.style.display = currentUser.role === "admin" ? "block" : "none";
+        });
+      }
+    }
 
-function logout() { localStorage.removeItem("currentUser"); location.reload(); }
+    /* EVENT LOGIC (Tích hợp từ file taosukien.html) */
+    function selectStatus(el) {
+      document.querySelectorAll(".status-tag").forEach(t => t.classList.remove("active"));
+      el.classList.add("active"); selectedStatus = el.dataset.val;
+    }
 
-function updateUI() {
-  if(!currentUser) {
-    document.querySelectorAll(".adminOnly").forEach(b => b.style.display = "none");
-    welcome.innerText = "Khách hàng (Vui lòng đăng nhập)";
-  } else {
-    welcome.innerText = `Xin chào ${currentUser.name} (${currentUser.role})`;
-    document.querySelectorAll(".adminOnly").forEach(b => {
-      b.style.display = currentUser.role === "admin" ? "block" : "none";
+    document.getElementById("title").addEventListener("input", function () {
+      document.getElementById("titleCount").textContent = this.value.length + " / 100";
     });
-  }
-}
 
-/* EVENT LOGIC (Tích hợp từ file taosukien.html) */
-function selectStatus(el) {
-  document.querySelectorAll(".status-tag").forEach(t => t.classList.remove("active"));
-  el.classList.add("active"); selectedStatus = el.dataset.val;
-}
+    function submitEvent() {
+      document.querySelectorAll(".err-msg").forEach(e => e.classList.remove("show"));
+      document.querySelectorAll("input").forEach(i => i.classList.remove("error"));
 
-document.getElementById("title").addEventListener("input", function() {
-  document.getElementById("titleCount").textContent = this.value.length + " / 100";
-});
+      let t = title.value.trim();
+      let l = leader.value.trim();
+      let d = date.value;
+      let loc = document.getElementById("location").value.trim();
+      let maxVal = max.value;
 
-function submitEvent() {
-  document.querySelectorAll(".err-msg").forEach(e => e.classList.remove("show"));
-  document.querySelectorAll("input").forEach(i => i.classList.remove("error"));
+      if (!t || !l || !d || !loc || !maxVal) {
+        if (!t) { title.classList.add("error"); titleErr.classList.add("show"); }
+        if (!l) { leader.classList.add("error"); leaderErr.classList.add("show"); }
+        if (!d) { date.classList.add("error"); dateErr.classList.add("show"); }
+        if (!loc) { location.classList.add("error"); locationErr.classList.add("show"); }
+        if (!maxVal) { max.classList.add("error"); maxErr.classList.add("show"); }
+        return;
+      }
 
-  let t = title.value.trim();
-  let l = leader.value.trim();
-  let d = date.value;
- let loc = document.getElementById("location").value.trim();
-  let maxVal = max.value;
+      events.push({
+        t,
+        l,
+        d,
+        time: time.value,
+        status: selectedStatus,
+        location: loc,
+        max: parseInt(maxVal)
+      });
 
-  if(!t || !l || !d || !loc || !maxVal) {
-    if(!t) { title.classList.add("error"); titleErr.classList.add("show"); }
-    if(!l) { leader.classList.add("error"); leaderErr.classList.add("show"); }
-    if(!d) { date.classList.add("error"); dateErr.classList.add("show"); }
-    if(!loc) { location.classList.add("error"); locationErr.classList.add("show"); }
-    if(!maxVal) { max.classList.add("error"); maxErr.classList.add("show"); }
-    return;
-  }
+      localStorage.setItem("events", JSON.stringify(events));
+      showToast("🎉 Tạo sự kiện thành công!");
 
-  events.push({
-    t,
-    l,
-    d,
-    time: time.value,
-    status: selectedStatus,
-    location: loc,
-    max: parseInt(maxVal)
-  });
+      title.value = "";
+      leader.value = "";
+      document.getElementById("location").value = "";
+      max.value = "";
 
-  localStorage.setItem("events", JSON.stringify(events));
-  showToast("🎉 Tạo sự kiện thành công!");
+      go('manage');
+    }
 
-  title.value = "";
-  leader.value = "";
-  document.getElementById("location").value = "";
-  max.value = "";
-
-  go('manage');
-}
-
-function renderEvents() {
-  eventTable.innerHTML = "";
-  events.forEach((e, i) => {
-    eventTable.innerHTML += `
+    function renderEvents() {
+      eventTable.innerHTML = "";
+      events.forEach((e, i) => {
+        eventTable.innerHTML += `
       <tr>
         <td>${e.t}</td>
         <td>${e.l}</td>
@@ -403,83 +630,85 @@ function renderEvents() {
         <td>${e.location}</td>
         <td>${e.max}</td>
         <td>
+          <button class="btn-edit" onclick="openEditModal(${i})" style="margin-right:5px;">✏️ Sửa</button>
           <button class="btn-del" onclick="delEvent(${i})">🗑️</button>
         </td>
       </tr>
     `;
-  });
-}
+      });
+    }
 
-function delEvent(i) {
-  if(confirm("Xóa sự kiện này?")) { events.splice(i,1); localStorage.setItem("events", JSON.stringify(events)); renderEvents(); }
-}
+    function delEvent(i) {
+      if (confirm("Xóa sự kiện này?")) { events.splice(i, 1); localStorage.setItem("events", JSON.stringify(events)); renderEvents(); }
+    }
 
-/* PARTICIPANT LOGIC */
-function updateEventDropdown() {
-  peventSelect.innerHTML = events.map(e => `<option value="${e.t}">${e.t}</option>`).join("");
-}
+    /* PARTICIPANT LOGIC */
+    function updateEventDropdown() {
+      peventSelect.innerHTML = events.map(e => `<option value="${e.t}">${e.t}</option>`).join("");
+    }
 
-function addParticipant() {
-  if(!pname.value) return showToast("Vui lòng nhập tên!", "error");
+    function addParticipant() {
+      if (!pname.value) return showToast("Vui lòng nhập tên!", "error");
 
-  let selectedEvent = events.find(e => e.t === peventSelect.value);
-  let count = participants.filter(p => p.event === selectedEvent.t).length;
+      let selectedEvent = events.find(e => e.t === peventSelect.value);
+      let count = participants.filter(p => p.event === selectedEvent.t).length;
 
-  if(count >= selectedEvent.max) {
-    return showToast("❌ Sự kiện đã đủ người!", "error");
-  }
+      if (count >= selectedEvent.max) {
+        return showToast("❌ Sự kiện đã đủ người!", "error");
+      }
 
-  participants.push({ name: pname.value, event: peventSelect.value });
-  localStorage.setItem("participants", JSON.stringify(participants));
+      participants.push({ name: pname.value, event: peventSelect.value });
+      localStorage.setItem("participants", JSON.stringify(participants));
 
-  showToast("✅ Đăng ký thành công!");
-  pname.value = "";
-  go('home');
-}
+      showToast("✅ Đăng ký thành công!");
+      pname.value = "";
+      go('home');
+    }
 
-function renderParticipants() {
-  pTable.innerHTML = participants.map((p, i) => `
+    function renderParticipants() {
+      pTable.innerHTML = participants.map((p, i) => `
     <tr><td>${p.name}</td><td>${p.event}</td>
     <td><button class="btn-del" onclick="delP(${i})">🗑️</button></td></tr>
   `).join("");
-}
+    }
 
-function delP(i) { participants.splice(i,1); localStorage.setItem("participants", JSON.stringify(participants)); renderParticipants(); }
+    function delP(i) { participants.splice(i, 1); localStorage.setItem("participants", JSON.stringify(participants)); renderParticipants(); }
 
-/* UTILS */
-function showToast(msg, type = "success") {
-  const t = document.getElementById("toast");
-  t.innerText = msg; t.className = `toast ${type} show`;
-  setTimeout(() => t.classList.remove("show"), 3000);
-}
+    /* UTILS */
+    function showToast(msg, type = "success") {
+      const t = document.getElementById("toast");
+      t.innerText = msg; t.className = `toast ${type} show`;
+      setTimeout(() => t.classList.remove("show"), 3000);
+    }
 
-function exportCSV() {
-  let csv = "Tên;Sự kiện\n" + participants.map(p => `"${p.name}";"${p.event}"`).join("\n");
-  let blob = new Blob(["\uFEFF"+csv], {type:"text/csv"});
-  let a = document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="danhsach.csv"; a.click();
-}
+    function exportCSV() {
+      let csv = "Tên;Sự kiện\n" + participants.map(p => `"${p.name}";"${p.event}"`).join("\n");
+      let blob = new Blob(["\uFEFF" + csv], { type: "text/csv" });
+      let a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "danhsach.csv"; a.click();
+    }
 
-function resetForm() {
-  title.value = "";
-  leader.value = "";
-  date.value = "";
-  time.value = "08:00";
-  document.getElementById("location").value = "";
-  max.value = "";
-  desc.value = "";
+    function resetForm() {
+      title.value = "";
+      leader.value = "";
+      date.value = "";
+      time.value = "08:00";
+      document.getElementById("location").value = "";
+      max.value = "";
+      desc.value = "";
 
-  document.querySelectorAll(".err-msg").forEach(e => e.classList.remove("show"));
-  document.querySelectorAll("input").forEach(i => i.classList.remove("error"));
+      document.querySelectorAll(".err-msg").forEach(e => e.classList.remove("show"));
+      document.querySelectorAll("input").forEach(i => i.classList.remove("error"));
 
-  document.querySelectorAll(".status-tag").forEach(t => t.classList.remove("active"));
-  document.querySelector(".status-tag").classList.add("active");
+      document.querySelectorAll(".status-tag").forEach(t => t.classList.remove("active"));
+      document.querySelector(".status-tag").classList.add("active");
 
-  selectedStatus = "Mở";
-}
+      selectedStatus = "Mở";
+    }
 
-/* INIT */
-updateUI();
-</script>
-
+    /* INIT */
+    updateUI();
+  </script>
+  <script src="xemVaChinhSuaThongTinSuKien.js"></script>
 </body>
+
 </html>
