@@ -1,106 +1,164 @@
 <!DOCTYPE html>
+
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý sự kiện CLB</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quản lý sự kiện CLB</title>
+
+<!-- LINK CSS -->
+
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+<div class="menu-toggle" onclick="toggleMenu()">☰</div>
 
-    <div class="menu" id="menu">
-        <button onclick="go('home')">🏠 Trang chủ</button>
-        <button onclick="go('create')" class="adminOnly">➕ Tạo sự kiện</button>
-        <button onclick="go('manage')" class="adminOnly">📋 Sự kiện</button>
-        <button onclick="go('participants')" class="adminOnly">📑 Người tham gia</button>
-        <button onclick="go('join')">🙋 Tham gia</button>
-        <button onclick="go('registerUser')">👤 Đăng ký tài khoản</button>
-        <button onclick="go('registerAdmin')">👑 Đăng ký admin</button>
-        <button onclick="go('login')">🔐 Đăng nhập</button>
-        <button onclick="logout()">🚪 Đăng xuất</button>
+<div class="menu" id="menu">
+  <button onclick="go('home')">🏠 Trang chủ</button>
+  <button onclick="go('create')" class="adminOnly">➕ Tạo sự kiện</button>
+  <button onclick="go('manage')" class="adminOnly">📋 Quản lý sự kiện</button>
+  <button onclick="go('participants')" class="adminOnly">📑 Người tham gia</button>
+  <button onclick="go('join')">🙋 Tham gia</button>
+  <button onclick="go('login')">🔐 Đăng nhập / Đăng ký</button>
+  <button onclick="logout()">🚪 Đăng xuất</button>
+</div>
+
+<!-- HOME -->
+
+<div id="home" class="page" style="display: block;">
+  <div class="card">
+    <h2>🌸 Quản lý sự kiện CLB 🌸</h2>
+    <p id="welcome" style="text-align: center; color: #ff6a88; font-weight: bold;">Chào mừng bạn!</p>
+    <div style="margin-top: 20px; text-align: center; font-size: 14px; color: #666;">
+      Hệ thống quản lý sự kiện dành cho thành viên CLB.
     </div>
+  </div>
+</div>
 
-    <div id="home" class="page">
-        <div class="card" style="text-align:center;">
-            <h2>🌸 Quản lý sự kiện CLB 🌸</h2>
-            <p style="font-weight:bold;color:#ff6a88;">Chào mừng bạn đã đến với hệ thống</p>
-            <p id="welcome"></p>
-        </div>
-    </div>
+<!-- CREATE -->
 
-    <div id="create" class="page">
-        <div class="card">
-            <h2>➕ Tạo sự kiện</h2>
-            <input id="title" placeholder="Nhập tên sự kiện">
-            <input id="leader" placeholder="Người phụ trách">
-            <input id="date" type="date">
-            <button class="main" onclick="addEvent()">Thêm</button>
-        </div>
-    </div>
+<div id="create" class="page">
+  <div class="card">
+    <h2>➕ Tạo sự kiện mới</h2>
 
-    <div id="manage" class="page">
-        <div class="card" style="width: 95%; max-width: 800px;">
-            <h2>📋 Danh sách sự kiện</h2>
-            <table>
-                <thead>
-                    <tr><th>Tên</th><th>Phụ trách</th><th>Ngày</th><th>Hành động</th></tr>
-                </thead>
-                <tbody id="eventTable"></tbody>
-            </table>
-        </div>
-    </div>
+```
+<div class="form-group">
+  <label>Tên sự kiện <span class="required">*</span></label>
+  <input id="title" type="text" maxlength="100">
+  <div class="char-counter" id="titleCount">0 / 100</div>
+  <div class="err-msg" id="titleErr">Vui lòng nhập tên sự kiện!</div>
+</div>
 
-    <div id="join" class="page">
-        <div class="card">
-            <h2>🙋 Đăng ký tham gia</h2>
-            <input id="pname" placeholder="Nhập tên của bạn">
-            <input id="pevent" placeholder="Nhập tên sự kiện">
-            <button class="main" onclick="addParticipant()">Đăng ký</button>
-        </div>
-    </div>
+<div class="form-group">
+  <label>Người phụ trách <span class="required">*</span></label>
+  <input id="leader" type="text">
+  <div class="err-msg" id="leaderErr">Vui lòng nhập!</div>
+</div>
 
-    <div id="participants" class="page">
-        <div class="card" style="width: 95%; max-width: 800px;">
-            <h2>📑 Người tham gia</h2>
-            <button class="main" onclick="exportCSV()" style="margin-bottom: 10px;">📥 Xuất Excel (CSV)</button>
-            <table>
-                <thead><tr><th>Tên</th><th>Sự kiện</th><th>Hành động</th></tr></thead>
-                <tbody id="pTable"></tbody>
-            </table>
-        </div>
-    </div>
+<div class="form-row">
+  <div class="form-group">
+    <label>Ngày diễn ra <span class="required">*</span></label>
+    <input id="date" type="date">
+    <div class="err-msg" id="dateErr">Vui lòng chọn ngày!</div>
+  </div>
+  <div class="form-group">
+    <label>Giờ</label>
+    <input id="time" type="time" value="08:00">
+  </div>
+</div>
 
-    <div id="registerUser" class="page">
-        <div class="card">
-            <h2>👤 Đăng ký thành viên</h2>
-            <input id="ru_name" placeholder="Họ và tên">
-            <input id="ru_email" placeholder="Email">
-            <input id="ru_pass" type="password" placeholder="Mật khẩu">
-            <button class="main" onclick="register('user')">Đăng ký</button>
-        </div>
-    </div>
+<div class="form-group">
+  <label>Trạng thái</label>
+  <div class="status-options">
+    <div class="status-tag active" data-val="Mở" onclick="selectStatus(this)">🟢 Mở</div>
+    <div class="status-tag" data-val="Sắp mở" onclick="selectStatus(this)">🟡 Sắp mở</div>
+    <div class="status-tag" data-val="Đóng" onclick="selectStatus(this)">🔴 Đóng</div>
+  </div>
+</div>
 
-    <div id="registerAdmin" class="page">
-        <div class="card">
-            <h2>👑 Đăng ký Quản trị viên</h2>
-            <input id="ra_name" placeholder="Họ và tên">
-            <input id="ra_email" placeholder="Email">
-            <input id="ra_pass" type="password" placeholder="Mật khẩu">
-            <button class="main" onclick="register('admin')">Đăng ký</button>
-        </div>
-    </div>
+<div class="form-group">
+  <label>Mô tả sự kiện</label>
+  <textarea id="desc" maxlength="300"></textarea>
+  <div class="char-counter" id="descCount">0 / 300</div>
+</div>
 
-    <div id="login" class="page">
-        <div class="card">
-            <h2>🔐 Đăng nhập</h2>
-            <input id="login_email" placeholder="Email">
-            <input id="login_pass" type="password" placeholder="Mật khẩu">
-            <button class="main" onclick="login()">Đăng nhập</button>
-        </div>
-    </div>
+<button class="main" onclick="submitEvent()">🌸 Tạo sự kiện</button>
+```
 
-    <script src="script.js"></script>
+  </div>
+</div>
+
+<!-- MANAGE -->
+
+<div id="manage" class="page">
+  <div class="card" style="max-width: 800px;">
+    <h2>📋 Danh sách sự kiện</h2>
+    <table>
+      <tbody id="eventTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- JOIN -->
+
+<div id="join" class="page">
+  <div class="card">
+    <h2>🙋 Đăng ký tham gia</h2>
+    <input id="pname" placeholder="Nhập tên">
+    <select id="peventSelect"></select>
+    <button class="main" onclick="addParticipant()">Đăng ký</button>
+  </div>
+</div>
+
+<!-- PARTICIPANTS -->
+
+<div id="participants" class="page">
+  <div class="card" style="max-width: 800px;">
+    <h2>📑 Danh sách người tham gia</h2>
+    <button onclick="exportCSV()">📥 Xuất CSV</button>
+    <table>
+      <tbody id="pTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- LOGIN -->
+
+<div id="login" class="page">
+  <div class="card">
+    <h2 id="authTitle">🔐 Đăng nhập</h2>
+
+```
+<input id="auth_email" placeholder="Email">
+<input id="auth_pass" type="password" placeholder="Mật khẩu">
+
+<div id="regFields" style="display: none;">
+  <input id="auth_name" placeholder="Họ tên">
+  <select id="auth_role">
+    <option value="user">Thành viên</option>
+    <option value="admin">Admin</option>
+  </select>
+</div>
+
+<button class="main" onclick="handleAuth()">Đăng nhập</button>
+
+<p onclick="toggleAuthMode()" style="text-align:center; cursor:pointer; color:#e84393;">
+  Chưa có tài khoản? Đăng ký
+</p>
+```
+
+  </div>
+</div>
+
+<!-- TOAST -->
+
+<div class="toast" id="toast"></div>
+
+<!-- LINK JS -->
+
+<script src="script.js"></script>
+
 </body>
 </html>

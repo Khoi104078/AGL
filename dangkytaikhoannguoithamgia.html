@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Đăng ký tài khoản tham gia CLB</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  min-height: 100vh;
+}
+
+/* layout */
+.wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  padding: 40px;
+}
+
+/* card */
+.card {
+  background: rgba(255,255,255,0.9);
+  padding: 25px;
+  border-radius: 20px;
+  width: 400px;
+  box-shadow: 0 10px 25px rgba(255,105,180,0.3);
+}
+
+/* title */
+h2 {
+  text-align: center;
+  color: #e84393;
+  margin-bottom: 20px;
+}
+
+/* input */
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 10px;
+  border: 1px solid #ffc0cb;
+}
+
+/* button */
+button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #ff6a88, #ff99ac);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background: #ffb6c1;
+  padding: 10px;
+}
+
+td {
+  padding: 10px;
+  text-align: center;
+  background: white;
+}
+
+/* toast */
+#toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: #ff6a88;
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  opacity: 0;
+  transform: translateY(50px);
+  transition: 0.5s;
+}
+
+#toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* hoa rơi */
+.flower {
+  position: fixed;
+  top: -50px;
+  font-size: 24px;
+  pointer-events: none;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  0% { transform: translateY(-50px) rotate(0deg); }
+  100% { transform: translateY(110vh) rotate(360deg); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+  <!-- FORM -->
+  <div class="card">
+    <h2>🌸 Đăng ký tài khoản tham gia 🌸</h2>
+
+    <input type="text" id="fullname" placeholder="Họ và tên">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Mật khẩu">
+    <input type="text" id="phone" placeholder="SĐT (tùy chọn)">
+
+    <button onclick="register()">Đăng ký</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card">
+    <h2>📋 Danh sách đăng ký</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Họ tên</th>
+          <th>Email</th>
+          <th>SĐT</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<div id="toast">Thông báo</div>
+
+<script>
+let users = [];
+
+// đăng ký
+function register() {
+  const fullname = document.getElementById("fullname").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+
+  // kiểm tra rỗng
+  if (fullname === "" || email === "" || password === "") {
+    showToast("❌ Vui lòng nhập đầy đủ thông tin!");
+    return;
+  }
+
+  // kiểm tra email hợp lệ (bắt buộc có @ và .)
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(email)) {
+    showToast("❌ Email không hợp lệ!");
+    return;
+  }
+
+  // kiểm tra trùng email
+  for (let i = 0; i < users.length; i++) {
+    if (users[i].email === email) {
+      showToast("❌ Email đã tồn tại!");
+      return;
+    }
+  }
+
+  // thêm user
+  users.push({
+    fullname: fullname,
+    email: email,
+    phone: phone
+  });
+
+  render();
+
+  // reset form
+  document.getElementById("fullname").value = "";
+  document.getElementById("email").value = "";
+  document.getElementById("password").value = "";
+  document.getElementById("phone").value = "";
+
+  showToast("💖 Đăng ký thành công!");
+}
+
+// hiển thị bảng
+function render() {
+  const body = document.getElementById("tableBody");
+  body.innerHTML = "";
+
+  for (let i = 0; i < users.length; i++) {
+    body.innerHTML +=
+      "<tr>" +
+      "<td>" + users[i].fullname + "</td>" +
+      "<td>" + users[i].email + "</td>" +
+      "<td>" + (users[i].phone || "N/A") + "</td>" +
+      "</tr>";
+  }
+}
+
+// toast
+function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.innerText = msg;
+  toast.classList.add("show");
+
+  setTimeout(function() {
+    toast.classList.remove("show");
+  }, 2000);
+}
+
+// hoa rơi
+function createFlower() {
+  const flower = document.createElement("div");
+  flower.className = "flower";
+  flower.innerHTML = "🌸";
+
+  flower.style.left = Math.random() * 100 + "vw";
+  flower.style.animationDuration = (3 + Math.random() * 5) + "s";
+
+  document.body.appendChild(flower);
+
+  setTimeout(function() {
+    flower.remove();
+  }, 8000);
+}
+
+setInterval(createFlower, 200);
+</script>
+
+</body>
+</html>
