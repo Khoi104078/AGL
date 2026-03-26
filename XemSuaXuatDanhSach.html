@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý Sự Kiện</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { color: #2c3e50; text-align: center; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        
+        /* Form styling */
+        .form-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; background: #eef2f3; padding: 15px; border-radius: 5px; }
+        input, select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        
+        /* Button styling */
+        .btn-group { margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+        button { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; color: white; transition: 0.3s; }
+        .btn-add { background-color: #27ae60; }
+        .btn-search { background-color: #3498db; }
+        .btn-filter { background-color: #f39c12; }
+        .btn-export { background-color: #8e44ad; }
+        .btn-edit { background-color: #2980b9; padding: 5px 10px; }
+        button:hover { opacity: 0.8; }
+
+        /* Table styling */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #34495e; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .status-checkin { color: #27ae60; font-weight: bold; }
+        .status-not { color: #e74c3c; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Quản Lý Người Tham Gia Sự Kiện</h2>
+
+    <div class="form-group">
+        <input type="text" id="mssv" placeholder="Mã số sinh viên (MSSV)">
+        <input type="text" id="hoTen" placeholder="Họ và tên">
+        <input type="email" id="email" placeholder="Email">
+        <input type="text" id="sdt" placeholder="Số điện thoại">
+        <select id="trangThai">
+            <option value="Chua Check-in">Chưa Check-in</option>
+            <option value="Da Check-in">Đã Check-in</option>
+        </select>
+        <button class="btn-add" onclick="themThanhVien()">Thêm / Cập Nhật Thành Viên</button>
+    </div>
+
+    <div class="btn-group">
+        <input type="text" id="searchKey" placeholder="Tìm tên hoặc MSSV..." onkeyup="timKiem()">
+        <select id="filterStatus" onchange="locDanhSach()">
+            <option value="All">Tất cả trạng thái</option>
+            <option value="Chua Check-in">Chưa Check-in</option>
+            <option value="Da Check-in">Đã Check-in</option>
+        </select>
+        <button class="btn-export" onclick="xuatFile()">Xuất File CSV (Excel)</button>
+    </div>
+
+    <table id="listTable">
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>MSSV</th>
+                <th>Họ Tên</th>
+                <th>Email</th>
+                <th>SĐT</th>
+                <th>Trạng Thái</th>
+                <th>Thao Tác</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            </tbody>
+    </table>
+</div>
+
+<script>
+    // Khởi tạo danh sách (Tương đương vector<NguoiThamGia> danhSach)
+    let danhSach = [];
+    let editIndex = -1;
+
+    // 1. Hàm thêm hoặc cập nhật người tham gia
+    function themThanhVien() {
+        const mssv = document.getElementById('mssv').value;
+        const hoTen = document.getElementById('hoTen').value;
+        const email = document.getElementById('email').value;
+        const sdt = document.getElementById('sdt').value;
+        const trangThai = document.getElementById('trangThai').value;
+
+        if (!mssv || !hoTen) {
+            alert("Vui lòng nhập ít nhất MSSV và Họ Tên!");
+            return;
+        }
+
+        const thanhVien = { mssv, hoTen, email, sdt, trangThai };
+
+        if (editIndex === -1) {
+            // Thêm mới
+            danhSach.push(thanhVien);
+        } else {
+            // Sửa thông tin (Tương đương hàm suaThongTin)
+            danhSach[editIndex] = thanhVien;
+            editIndex = -1;
+        }
+
+        clearForm();
+        hienThiDanhSach(danhSach);
+    }
+
+    // 2. Hàm hiển thị danh sách
+    function hienThiDanhSach(data) {
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = "";
+
+        data.forEach((item, index) => {
+            const row = `<tr>
+                <td>${index + 1}</td>
+                <td>${item.mssv}</td>
+                <td>${item.hoTen}</td>
+                <td>${item.email}</td>
+                <td>${item.sdt}</td>
+                <td class="${item.trangThai === 'Da Check-in' ? 'status-checkin' : 'status-not'}">${item.trangThai}</td>
+                <td>
+                    <button class="btn-edit" onclick="chuanBiSua(${index})">Sửa</button>
+                    <button style="background: #e74c3c; padding: 5px 10px;" onclick="xoaThanhVien(${index})">Xóa</button>
+                </td>
+            </tr>`;
+            tableBody.innerHTML += row;
+        });
+    }
+
+    // 3. Hàm tìm kiếm (Tương đương hàm timKiem)
+    function timKiem() {
+        const key = document.getElementById('searchKey').value.toLowerCase();
+        const filteredData = danhSach.filter(item => 
+            item.mssv.toLowerCase().includes(key) || 
+            item.hoTen.toLowerCase().includes(key)
+        );
+        hienThiDanhSach(filteredData);
+    }
+
+    // 4. Hàm lọc theo trạng thái (Tương đương hàm locDanhSach)
+    function locDanhSach() {
+        const status = document.getElementById('filterStatus').value;
+        if (status === "All") {
+            hienThiDanhSach(danhSach);
+        } else {
+            const filteredData = danhSach.filter(item => item.trangThai === status);
+            hienThiDanhSach(filteredData);
+        }
+    }
+
+    // 5. Hàm chuẩn bị sửa thông tin
+    function chuanBiSua(index) {
+        const item = danhSach[index];
+        document.getElementById('mssv').value = item.mssv;
+        document.getElementById('hoTen').value = item.hoTen;
+        document.getElementById('email').value = item.email;
+        document.getElementById('sdt').value = item.sdt;
+        document.getElementById('trangThai').value = item.trangThai;
+        editIndex = index;
+    }
+
+    function xoaThanhVien(index) {
+        if(confirm("Bạn có chắc chắn muốn xóa thành viên này?")) {
+            danhSach.splice(index, 1);
+            hienThiDanhSach(danhSach);
+        }
+    }
+
+    // 6. Hàm xuất file CSV (Tương đương hàm xuatFile)
+    function xuatFile() {
+        if (danhSach.length === 0) {
+            alert("Danh sách trống, không thể xuất file!");
+            return;
+        }
+
+        let csvContent = "data:text/csv;charset=utf-8,STT,MSSV,Ho Ten,Email,SDT,Trang Thai\n";
+        danhSach.forEach((item, index) => {
+            csvContent += `${index + 1},${item.mssv},${item.hoTen},${item.email},${item.sdt},${item.trangThai}\n`;
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "danh_sach_su_kien.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function clearForm() {
+        document.getElementById('mssv').value = "";
+        document.getElementById('hoTen').value = "";
+        document.getElementById('email').value = "";
+        document.getElementById('sdt').value = "";
+    }
+</script>
+
+</body>
+</html>
