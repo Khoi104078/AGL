@@ -314,6 +314,16 @@
   <div class="menu-toggle" onclick="toggleMenu()">☰</div>
 
   <div class="menu" id="menu">
+    <!-- 🔍 THANH SEARCH  -->
+<div style="position:fixed; top:15px; left:70px; right:15px; z-index:1000;">
+  <input 
+    type="text" 
+    id="globalSearch"
+    placeholder="🔍 Tìm kiếm: trang, sự kiện, người tham gia..." 
+    style="width:100%; padding:10px 15px; border-radius:20px; border:none; outline:none; box-shadow:0 4px 12px rgba(0,0,0,0.15);"
+    oninput="globalSearchFunction()"
+  >
+</div>
     <button onclick="go('home')">🏠 Trang chủ</button>
     <button onclick="go('create')" class="adminOnly">➕ Tạo sự kiện</button>
     <button onclick="go('manage')" class="adminOnly">📋 Quản lý sự kiện</button>
@@ -707,6 +717,61 @@
 
     /* INIT */
     updateUI();
+
+    /* 🔍 SEARCH TOÀN HỆ THỐNG  */
+function globalSearchFunction() {
+  let keyword = document.getElementById("globalSearch").value.toLowerCase().trim();
+
+  if (!keyword) return;
+
+  /* ===== ĐIỀU HƯỚNG ===== */
+  if (keyword === "trang chủ") return go('home');
+  if (keyword.includes("tạo")) return go('create');
+  if (keyword.includes("quản lý")) {
+    go('manage');
+    setTimeout(renderEvents, 100);
+    return;
+  }
+  if (keyword.includes("người tham gia")) {
+    go('participants');
+    setTimeout(renderParticipants, 100);
+    return;
+  }
+  if (keyword === "tham gia") return go('join');
+  if (keyword.includes("đăng nhập")) return go('login');
+
+  /* ===== TÌM EVENT ===== */
+  go('manage');
+  setTimeout(() => {
+    let found = false;
+    let rows = document.querySelectorAll("#eventTable tr");
+
+    rows.forEach(row => {
+      let text = row.innerText.toLowerCase();
+      if (text.includes(keyword)) {
+        row.style.display = "";
+        found = true;
+      } else {
+        row.style.display = "none";
+      }
+    });
+
+    /* ===== NẾU KHÔNG THẤY → TÌM PARTICIPANT ===== */
+    if (!found) {
+      go('participants');
+      setTimeout(() => {
+        let pRows = document.querySelectorAll("#pTable tr");
+
+        pRows.forEach(row => {
+          let text = row.innerText.toLowerCase();
+          row.style.display = text.includes(keyword) ? "" : "none";
+        });
+      }, 100);
+    }
+
+  }, 100);
+}
+
   </script>
   <script src="xemVaChinhSuaThongTinSuKien.js"></script>
   <script src="quanLyChiTieu.js"></script>
