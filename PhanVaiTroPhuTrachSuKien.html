@@ -210,15 +210,15 @@
         oninput="globalSearchFunction()"
       >
     </div>
-    <button onclick="window.location.href='Giaodienquanlysukienclb.html'">🏠 Trang chủ</button>
-    <button onclick="window.location.href='Giaodienquanlysukienclb.html'">➕ Tạo sự kiện</button>
-    <button onclick="window.location.href='Giaodienquanlysukienclb.html'">📋 Quản lý sự kiện</button>
-    <button class="current">📋 Phân chia vai trò</button>
-    <button onclick="window.location.href='Giaodienquanlysukienclb.html'">📑 Người tham gia</button>
+    <button onclick="go('home')">🏠 Trang chủ</button>
+    <button onclick="go('create')" class="adminOnly">➕ Tạo sự kiện</button>
+    <button onclick="go('manage')" class="adminOnly">📋 Quản lý sự kiện</button>
+    <button onclick="window.location.href='PhanVaiTroPhuTrachSuKien.html'">📋 Phân chia vai trò</button>
+    <button onclick="go('participants')" class="adminOnly">📑 Người tham gia</button>
     <button onclick="window.location.href='XemSuaXuatDanhSach.html'">🔍 Quản lý chi tiết</button>
-    <button onclick="window.location.href='Giaodienquanlysukienclb.html'">🙋 Tham gia</button>
-    <button onclick="window.location.href='Giaodienquanlysukienclb.html'">🔐 Đăng nhập / Đăng ký</button>
-    <button onclick="window.location.href='Giaodienquanlysukienclb.html'">🚪 Đăng xuất</button>
+    <button onclick="go('join')">🙋 Tham gia</button>
+    <button onclick="go('login')">🔐 Đăng nhập / Đăng ký</button>
+    <button onclick="logout()">🚪 Đăng xuất</button>
   </div>
 
   <!-- ===== NỘI DUNG CHÍNH ===== -->
