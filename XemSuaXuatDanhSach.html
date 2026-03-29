@@ -3,54 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Quản Lý Chi Tiết & Điểm Danh</title>
+    <title>Chi Tiết Người Tham Gia - CLB</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
-        .container { max-width: 1100px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: #e84393; text-align: center; border-bottom: 3px solid #ff6a88; padding-bottom: 15px; margin-top: 0; }
-        .form-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 25px; background: #fff5f7; padding: 20px; border-radius: 8px; border: 1px solid #ffe0ea; }
-        input, select { padding: 10px; border: 1px solid #ced4da; border-radius: 5px; font-size: 14px; outline: none; }
-        .btn-group { margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: #fff; padding: 10px 0; position: sticky; top: 0; z-index: 10; }
-        button { padding: 10px 18px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: all 0.2s; color: white; }
-        .btn-add { background-color: #ff6a88; }
-        .btn-export { background-color: #8e44ad; }
-        .btn-back { background-color: #34495e; text-decoration: none; display: inline-block; text-align: center; font-size: 14px; }
-        .btn-edit { background-color: #2980b9; padding: 6px 12px; font-size: 12px; }
-        .btn-delete { background-color: #e74c3c; padding: 6px 12px; font-size: 12px; }
-        .table-container { overflow-x: auto; max-height: 500px; border: 1px solid #eee; border-radius: 8px; }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th { background-color: #ff6a88; color: white; position: sticky; top: 0; padding: 15px; text-align: left; }
-        td { border-bottom: 1px solid #eee; padding: 12px; font-size: 14px; }
-        .status-checkin { color: #27ae60; background: #eafaf1; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
-        .status-not { color: #e67e22; background: #fef5e7; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
-        #searchKey { flex-grow: 1; }
+        /* Tích hợp CSS từ file giaodien.css */
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Nunito', sans-serif; }
+        body { 
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4); 
+            min-height: 100vh; 
+            padding: 40px 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, .97);
+            padding: 30px;
+            border-radius: 24px;
+            max-width: 1000px;
+            margin: 0 auto;
+            box-shadow: 0 16px 48px rgba(255, 105, 180, .2);
+        }
+
+        h2 { 
+            text-align: center; 
+            color: #e84393; 
+            margin-bottom: 25px; 
+            font-family: 'Quicksand'; 
+            font-weight: 700;
+        }
+
+        /* Form điều khiển */
+        .control-panel {
+            background: #fff9fb;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #ffe0ea;
+            margin-bottom: 25px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ffe0ea;
+            border-radius: 12px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus { border-color: #ff6a88; }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button.main {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #ff6a88, #e84393);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button.main:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 106, 136, 0.4); }
+
+        /* Bảng dữ liệu */
+        .table-container { overflow-x: auto; margin-top: 10px; border-radius: 15px; }
+        table { width: 100%; border-collapse: collapse; background: #fff; min-width: 700px; }
+        th, td { padding: 15px; text-align: center; border-bottom: 1px solid #ffe0ea; }
+        th { background: #ffe0ea; color: #c0395e; font-weight: 700; }
+
+        .status-checkin { color: #27ae60; background: #eafaf1; padding: 5px 10px; border-radius: 8px; font-weight: bold; }
+        .status-not { color: #e67e22; background: #fef5e7; padding: 5px 10px; border-radius: 8px; font-weight: bold; }
+
+        .btn-edit { background: #3498db; color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+        .btn-del { background: #ff4757; color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+
+        .back-link { 
+            display: inline-block; 
+            margin-bottom: 15px; 
+            color: #c0395e; 
+            text-decoration: none; 
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>🔍 Quản Lý Chi Tiết & Điểm Danh</h2>
+<div class="card">
+    <a href="Giaodienquanlysukienclb.html" class="back-link">← Quay lại trang chủ</a>
+    <h2>🔍 Quản Lý & Điểm Danh Thành Viên</h2>
 
-    <div class="form-group">
-        <input type="text" id="hoTen" placeholder="Họ và tên">
-        <input type="text" id="mssv" placeholder="MSSV">
-        <input type="text" id="event" placeholder="Tên sự kiện" readonly style="background: #eee;">
-        <select id="trangThai">
-            <option value="Chưa Check-in">Chưa Check-in</option>
-            <option value="Đã Check-in">Đã Check-in</option>
-        </select>
-        <button class="btn-add" onclick="capNhatThanhVien()">Lưu Thay Đổi</button>
+    <div class="control-panel">
+        <div>
+            <label style="font-size: 12px; font-weight: bold; color: #c0395e;">Họ tên</label>
+            <input type="text" id="edit_name" placeholder="Họ tên">
+        </div>
+        <div>
+            <label style="font-size: 12px; font-weight: bold; color: #c0395e;">Trạng thái</label>
+            <select id="edit_status">
+                <option value="Chưa Check-in">Chưa Check-in</option>
+                <option value="Đã Check-in">Đã Check-in</option>
+            </select>
+        </div>
+        <div style="display: flex; align-items: flex-end;">
+            <button class="main" style="width: 100%;" onclick="saveChanges()">Lưu Cập Nhật</button>
+        </div>
     </div>
 
     <div class="btn-group">
-        <a href="Giaodienquanlysukienclb.html" class="btn-back">🏠 Quay lại trang chủ</a>
-        <input type="text" id="searchKey" placeholder="Tìm nhanh theo Tên hoặc MSSV..." oninput="filterData()">
-        <select id="filterStatus" onchange="filterData()">
-            <option value="All">Tất cả trạng thái</option>
-            <option value="Chưa Check-in">Chưa Check-in</option>
-            <option value="Đã Check-in">Đã Check-in</option>
-        </select>
-        <button class="btn-export" onclick="xuatFile()">📥 Xuất Excel (CSV)</button>
+        <input type="text" id="searchBox" placeholder="Tìm theo tên hoặc MSSV..." oninput="renderTable()" style="flex: 2;">
+        <button class="main" style="background: #8e44ad;" onclick="exportCSV()">📥 Xuất CSV</button>
     </div>
 
     <div class="table-container">
@@ -65,123 +135,85 @@
                     <th>Thao Tác</th>
                 </tr>
             </thead>
-            <tbody id="tableBody"></tbody>
+            <tbody id="memberTableBody"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-    let danhSach = [];
-    let editIndex = -1;
-    // ĐÃ ĐỔI ĐỂ KHỚP VỚI FILE CHÍNH
-    const STORAGE_KEY = 'participants';
+    const STORAGE_KEY = 'participants'; // Đồng bộ với file chính
+    let participants = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    let currentEditIdx = -1;
 
-    // Tải dữ liệu từ LocalStorage của file chính
-    function taiDuLieu() {
-        const dataRaw = localStorage.getItem(STORAGE_KEY);
-        if (dataRaw) {
-            danhSach = JSON.parse(dataRaw);
-            hienThiDanhSach(danhSach);
-        }
-    }
+    function renderTable() {
+        const tbody = document.getElementById('memberTableBody');
+        const keyword = document.getElementById('searchBox').value.toLowerCase();
+        
+        const filtered = participants.filter(p => 
+            (p.name || p.hoTen || "").toLowerCase().includes(keyword) || 
+            (p.mssv || "").toLowerCase().includes(keyword)
+        );
 
-    window.onload = taiDuLieu;
-
-    function hienThiDanhSach(data) {
-        const tableBody = document.getElementById('tableBody');
-        if (data.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Chưa có người đăng ký</td></tr>`;
-            return;
-        }
-
-        tableBody.innerHTML = data.map((item, index) => {
-            const statusClass = (item.status === 'Đã Check-in') ? 'status-checkin' : 'status-not';
-            // Tìm index thật trong mảng gốc để sửa/xóa chính xác
-            const realIdx = danhSach.findIndex(d => d.mssv === item.mssv && d.event === item.event);
+        tbody.innerHTML = filtered.map((p, index) => {
+            const realIdx = participants.findIndex(item => item.mssv === p.mssv && item.event === p.event);
+            const statusStyle = p.status === 'Đã Check-in' ? 'status-checkin' : 'status-not';
             return `
                 <tr>
                     <td>${index + 1}</td>
-                    <td>${item.name || item.hoTen}</td>
-                    <td>${item.mssv}</td>
-                    <td><small>${item.event}</small></td>
-                    <td><span class="${statusClass}">${item.status || 'Chưa Check-in'}</span></td>
+                    <td>${p.name || p.hoTen}</td>
+                    <td>${p.mssv}</td>
+                    <td><small>${p.event}</small></td>
+                    <td><span class="${statusStyle}">${p.status || 'Chưa Check-in'}</span></td>
                     <td>
-                        <button class="btn-edit" onclick="chuanBiSua(${realIdx})">Sửa</button>
-                        <button class="btn-delete" onclick="xoaThanhVien(${realIdx})">Xóa</button>
+                        <button class="btn-edit" onclick="editMode(${realIdx})">Sửa</button>
+                        <button class="btn-del" onclick="deleteUser(${realIdx})">Xóa</button>
                     </td>
                 </tr>`;
         }).join('');
     }
 
-    function chuanBiSua(index) {
-        const item = danhSach[index];
-        document.getElementById('hoTen').value = item.name || item.hoTen;
-        document.getElementById('mssv').value = item.mssv;
-        document.getElementById('event').value = item.event;
-        document.getElementById('trangThai').value = item.status || "Chưa Check-in";
-        editIndex = index;
+    function editMode(idx) {
+        currentEditIdx = idx;
+        const p = participants[idx];
+        document.getElementById('edit_name').value = p.name || p.hoTen;
+        document.getElementById('edit_status').value = p.status || 'Chưa Check-in';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function capNhatThanhVien() {
-        if (editIndex === -1) {
-            alert("Vui lòng nhấn nút 'Sửa' ở bảng bên dưới trước!");
-            return;
-        }
-
-        // Cập nhật thông tin vào mảng
-        danhSach[editIndex].name = document.getElementById('hoTen').value.trim();
-        danhSach[editIndex].mssv = document.getElementById('mssv').value.trim();
-        danhSach[editIndex].status = document.getElementById('trangThai').value;
-
-        // Lưu lại vào LocalStorage chung
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(danhSach));
+    function saveChanges() {
+        if (currentEditIdx === -1) return alert("Vui lòng chọn một người để sửa!");
         
-        alert("Cập nhật thành công!");
-        editIndex = -1;
+        participants[currentEditIdx].name = document.getElementById('edit_name').value;
+        participants[currentEditIdx].status = document.getElementById('edit_status').value;
         
-        // Reset form
-        document.getElementById('hoTen').value = "";
-        document.getElementById('mssv').value = "";
-        document.getElementById('event').value = "";
-        
-        filterData();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(participants));
+        alert("Đã cập nhật thành công!");
+        currentEditIdx = -1;
+        renderTable();
     }
 
-    function xoaThanhVien(index) {
-        if (confirm("Bạn có chắc chắn muốn xóa thành viên này?")) {
-            danhSach.splice(index, 1);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(danhSach));
-            filterData();
+    function deleteUser(idx) {
+        if (confirm("Xóa thành viên này khỏi danh sách?")) {
+            participants.splice(idx, 1);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(participants));
+            renderTable();
         }
     }
 
-    function filterData() {
-        const key = document.getElementById('searchKey').value.toLowerCase();
-        const status = document.getElementById('filterStatus').value;
-        const ketQua = danhSach.filter(item => {
-            const name = (item.name || item.hoTen || "").toLowerCase();
-            const mssv = (item.mssv || "").toLowerCase();
-            const matchKey = name.includes(key) || mssv.includes(key);
-            const matchStatus = (status === "All") || (item.status === status);
-            return matchKey && matchStatus;
-        });
-        hienThiDanhSach(ketQua);
-    }
-
-    function xuatFile() {
-        if (danhSach.length === 0) return alert("Không có dữ liệu để xuất!");
-        const BOM = '\uFEFF';
-        let csv = BOM + "STT,Họ Tên,MSSV,Sự kiện,Trạng Thái\n";
-        danhSach.forEach((item, i) => {
-            csv += `${i+1},"${item.name || item.hoTen}","${item.mssv}","${item.event}","${item.status || 'Chưa Check-in'}"\n`;
+    function exportCSV() {
+        if (participants.length === 0) return alert("Không có dữ liệu!");
+        let csv = "\uFEFFSTT,Họ Tên,MSSV,Sự kiện,Trạng Thái\n";
+        participants.forEach((p, i) => {
+            csv += `${i+1},"${p.name || p.hoTen}","${p.mssv}","${p.event}","${p.status || 'Chưa Check-in'}"\n`;
         });
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = "danh_sach_diem_danh.csv";
+        link.download = "danh_sach_clb_chi_tiet.csv";
         link.click();
     }
+
+    window.onload = renderTable;
 </script>
 </body>
 </html>
