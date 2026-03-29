@@ -524,47 +524,60 @@
     }
 
     function handleAuth() {
-      let email = auth_email.value.trim();
-      let pass = auth_pass.value.trim();
+  let email = auth_email.value.trim();
+  let pass = auth_pass.value.trim();
 
-      if (isLoginMode) {
-        let u = users.find(x => x.email === email && x.pass === pass);
-        if (!u) return showToast("Sai tài khoản hoặc mật khẩu!", "error");
+  if (isLoginMode) {
+    // ---- ĐĂNG NHẬP (giữ nguyên) ----
+    let u = users.find(x => x.email === email && x.pass === pass);
+    if (!u) return showToast("❌ Sai tài khoản hoặc mật khẩu!", "error");
 
-        currentUser = u;
-        localStorage.setItem("currentUser", JSON.stringify(u));
-        showToast("Chào mừng quay trở lại!");
-        updateUI();
-        go('home');
+    currentUser = u;
+    localStorage.setItem("currentUser", JSON.stringify(u));
+    showToast("🎉 Chào mừng quay trở lại!");
+    updateUI();
+    go('home');
 
-      } else {
-        let name = auth_name.value.trim();
-        let role = auth_role.value;
+  } else {
+    // ---- ĐĂNG KÝ (logic từ dangkitaikhoan) ----
+    let name = auth_name.value.trim();
+    let role = auth_role.value;
 
-        // ❗ kiểm tra nhập đủ
-        if (!name || !email || !pass) {
-          return showToast("Vui lòng nhập đủ!", "error");
-        }
-
-        // ❗ kiểm tra gmail hợp lệ
-        if (!email.endsWith("@gmail.com")) {
-          return showToast("Email phải có đuôi @gmail.com!", "error");
-        }
-
-        // ❗ kiểm tra trùng email
-        let exist = users.find(u => u.email === email);
-        if (exist) {
-          return showToast("Email này đã được sử dụng!", "error");
-        }
-
-        // ✅ thêm user
-        users.push({ name, email, pass, role });
-        localStorage.setItem("users", JSON.stringify(users));
-
-        showToast("Đăng ký thành công! Hãy đăng nhập.");
-        toggleAuthMode();
-      }
+    // Kiểm tra nhập đủ thông tin
+    if (!name || !email || !pass) {
+      return showToast("❌ Vui lòng nhập đầy đủ thông tin!", "error");
     }
+
+    // Kiểm tra email hợp lệ (@gmail.com hoặc @student.hcmue.edu.vn)
+    if (!(email.endsWith("@gmail.com") || email.endsWith("@student.hcmue.edu.vn"))) {
+      return showToast("❌ Email phải là @gmail.com hoặc @student.hcmue.edu.vn!", "error");
+    }
+
+    // Kiểm tra mật khẩu mạnh
+    if (
+      pass.length < 6 ||
+      !/[a-zA-Z]/.test(pass) ||
+      !/[0-9]/.test(pass) ||
+      !/^[A-Z]/.test(pass) ||
+      !/[!@#$%^&*(),.?":{}|<>]/.test(pass)
+    ) {
+      return showToast("❌ Mật khẩu ≥6 ký tự, có chữ, số, ký tự đặc biệt và viết hoa chữ đầu!", "error");
+    }
+
+    // Kiểm tra trùng email
+    let exist = users.find(u => u.email === email);
+    if (exist) {
+      return showToast("❌ Email này đã được sử dụng!", "error");
+    }
+
+    // Lưu tài khoản
+    users.push({ name, email, pass, role });
+    localStorage.setItem("users", JSON.stringify(users));
+
+    showToast("🎉 Đăng ký thành công! Hãy đăng nhập.");
+    toggleAuthMode();
+  }
+}
 
     function logout() { localStorage.removeItem("currentUser"); location.reload(); }
 
