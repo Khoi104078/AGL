@@ -436,13 +436,31 @@
       <h2>🙋 Đăng ký tham gia</h2>
       <div class="form-group">
         <label>Họ tên</label>
-        <input id="pname" placeholder="Nhập tên của bạn">
+        <input id="pname" placeholder="Nhập họ tên của bạn">
+      </div>
+      <div class="form-group">
+        <label>MSSV</label>
+        <input id="pmssv" placeholder="Nhập MSSV">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input id="pemail" type="email" placeholder="Nhập email @gmail.com">
+      </div>
+      <div class="form-group">
+        <label>Khóa</label>
+        <select id="pkhoa">
+          <option value="">-- Chọn khóa --</option>
+          <option>K48</option>
+          <option>K49</option>
+          <option>K50</option>
+          <option>K51</option>
+        </select>
       </div>
       <div class="form-group">
         <label>Chọn sự kiện</label>
         <select id="peventSelect"></select>
       </div>
-      <button class="main" onclick="addParticipant()">Đăng ký ngay</button>
+      <button class="main" onclick="addParticipant()">💖 Đăng ký ngay</button>
     </div>
   </div>
 
@@ -472,6 +490,7 @@
       <input id="auth_pass" type="password" placeholder="Mật khẩu" style="margin-bottom: 10px;">
       <div id="regFields" style="display: none;">
         <input id="auth_name" placeholder="Họ tên" style="margin-bottom: 10px;">
+        <input id="auth_chucvu" placeholder="Chức vụ trong CLB" style="margin-bottom: 10px;">
         <select id="auth_role" style="margin-bottom: 10px;">
           <option value="user">Thành viên</option>
           <option value="admin">Quản trị viên (Admin)</option>
@@ -541,9 +560,9 @@
     // ---- ĐĂNG KÝ (logic từ dangkitaikhoan) ----
     let name = auth_name.value.trim();
     let role = auth_role.value;
-
+    let chucvu = document.getElementById("auth_chucvu").value.trim();
     // Kiểm tra nhập đủ thông tin
-    if (!name || !email || !pass) {
+    if (!name || !email || !pass || !chucvu) {
       return showToast("❌ Vui lòng nhập đầy đủ thông tin!", "error");
     }
 
@@ -570,7 +589,7 @@
     }
 
     // Lưu tài khoản
-    users.push({ name, email, pass, role });
+    users.push({ name, email, pass, role, chucvu });
     localStorage.setItem("users", JSON.stringify(users));
 
     showToast("🎉 Đăng ký thành công! Hãy đăng nhập.");
@@ -671,20 +690,50 @@
     }
 
     function addParticipant() {
-      if (!pname.value) return showToast("Vui lòng nhập tên!", "error");
+      let hoten = pname.value.trim();
+      let mssv = document.getElementById("pmssv").value.trim();
+      let email = document.getElementById("pemail").value.trim();
+      let khoa = document.getElementById("pkhoa").value;
 
+      // Kiểm tra nhập đủ thông tin
+      if (!hoten || !mssv || !email || !khoa) {
+        return showToast("❌ Vui lòng nhập đầy đủ thông tin!", "error");
+      }
+
+      // Kiểm tra email hợp lệ
+      if (!email.endsWith("@gmail.com")) {
+        return showToast("❌ Email phải có đuôi @gmail.com!", "error");
+      }
+
+      // Kiểm tra trùng MSSV
+      if (participants.some(p => p.mssv === mssv)) {
+        return showToast("❌ MSSV đã tồn tại!", "error");
+      }
+
+      // Kiểm tra trùng Email
+      if (participants.some(p => p.email === email)) {
+        return showToast("❌ Email đã tồn tại!", "error");
+      }
+
+      // Kiểm tra sự kiện còn chỗ không
       let selectedEvent = events.find(e => e.t === peventSelect.value);
       let count = participants.filter(p => p.event === selectedEvent.t).length;
-
       if (count >= selectedEvent.max) {
         return showToast("❌ Sự kiện đã đủ người!", "error");
       }
 
-      participants.push({ name: pname.value, event: peventSelect.value });
+      // Lưu đăng ký
+      participants.push({ name: hoten, mssv, email, khoa, event: peventSelect.value });
       localStorage.setItem("participants", JSON.stringify(participants));
 
-      showToast("✅ Đăng ký thành công!");
+      showToast("🎉 Đăng ký thành công!");
+
+      // Xóa form
       pname.value = "";
+      document.getElementById("pmssv").value = "";
+      document.getElementById("pemail").value = "";
+      document.getElementById("pkhoa").value = "";
+
       go('home');
     }
 
