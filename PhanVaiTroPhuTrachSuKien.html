@@ -6,18 +6,6 @@
     <title>Quản lý Nhiệm vụ Sự kiện</title>
     <link rel="stylesheet" href="giaodien.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        /* Bổ sung một chút style cho nút đóng menu */
-        .close-menu {
-            align-self: flex-end;
-            margin-right: 15px;
-            margin-top: -50px;
-            margin-bottom: 20px;
-            font-size: 20px;
-            color: #fff;
-            cursor: pointer;
-        }
-    </style>
 </head>
 <body>
 
@@ -26,38 +14,41 @@
     </div>
 
     <nav class="menu" id="sideMenu">
-        <div class="close-menu" onclick="toggleMenu()"><i class="fas fa-times"></i></div>
-        
-        <button onclick="goHome()"><i class="fas fa-home"></i> Trang chủ / Menu chính</button>
+        <div style="text-align: right; padding: 10px; color: white; cursor: pointer;" onclick="toggleMenu()">
+            <i class="fas fa-times"></i>
+        </div>
+        <button onclick="goHome()"><i class="fas fa-home"></i> Menu chính</button>
         <button onclick="showPage('listPage')"><i class="fas fa-tasks"></i> Xem phân vai</button>
-        <button onclick="showPage('assignPage')"><i id="lockIcon" class="fas fa-lock"></i> Gán vai trò</button>
-        
+        <button onclick="showPage('assignPage')"><i class="fas fa-user-plus"></i> Gán vai trò</button>
         <hr style="border: 0.5px solid rgba(255,255,255,0.3); margin: 10px 12px;">
-        <button onclick="toggleAdmin()"><i class="fas fa-user-shield"></i> Chế độ: <span id="roleStatus">User</span></button>
+        <button onclick="toggleAdmin()"><i class="fas fa-shield-alt"></i> Quyền: <span id="roleStatus">User</span></button>
     </nav>
 
     <main id="homePage" class="page" style="display: block;">
         <div class="card" style="text-align: center;">
-            <h2>Chào mừng bạn!</h2>
-            <p style="color: #c0395e; margin-bottom: 20px;">Hệ thống quản lý phụ trách nhiệm vụ sự kiện</p>
-            <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="font-size: 50px; color: #ff6a88; margin-bottom: 15px;"><i class="fas fa-calendar-check"></i></div>
+            <h2>Menu Chính</h2>
+            <p style="color: #c0395e; margin-bottom: 25px;">Hệ thống quản lý sự kiện nội bộ</p>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
                 <button class="main" onclick="showPage('listPage')">Xem danh sách phân công</button>
-                <button class="main" style="background: white; color: #ff6a88; border: 2px solid #ff6a88;" onclick="showPage('assignPage')">Bắt đầu phân công mới</button>
+                <button class="main" style="background: white; color: #ff6a88; border: 2px solid #ff6a88;" onclick="showPage('assignPage')">Phân công nhiệm vụ mới</button>
             </div>
         </div>
     </main>
 
     <main id="listPage" class="page">
         <div class="card" style="max-width: 850px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <button onclick="goHome()" style="background:none; border:none; color:#ff6a88; cursor:pointer;"><i class="fas fa-chevron-left"></i> Quay lại</button>
-                <h2 style="margin-bottom: 0;">Phụ trách nhiệm vụ</h2>
-                <div style="width: 50px;"></div> </div>
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                <button onclick="goHome()" style="background:#ffe0ea; border:none; color:#ff6a88; padding:8px 15px; border-radius:10px; cursor:pointer;">
+                    <i class="fas fa-arrow-left"></i> Về Menu chính
+                </button>
+            </div>
+            <h2>Phụ trách nhiệm vụ sự kiện</h2>
             <table>
                 <thead>
                     <tr>
                         <th>Thành viên</th>
-                        <th>Phụ trách</th>
+                        <th>Công việc</th>
                         <th>Hạn chót</th>
                         <th>Thao tác</th>
                     </tr>
@@ -69,15 +60,22 @@
 
     <main id="assignPage" class="page">
         <div class="card">
-            <h2 id="formTitle">Phân công nhiệm vụ</h2>
+            <div style="margin-bottom: 15px;">
+                <button onclick="goHome()" style="background: none; border: 1px solid #ff6a88; color: #ff6a88; padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 13px;">
+                    <i class="fas fa-home"></i> Quay lại Trang chủ
+                </button>
+            </div>
+
+            <h2 id="formTitle">Phân chia nhiệm vụ</h2>
+            
             <div class="form-group">
                 <label>Tên thành viên</label>
-                <input type="text" id="memberName" placeholder="Nhập tên...">
+                <input type="text" id="memberName" placeholder="Nhập tên người phụ trách...">
             </div>
             <div class="form-group">
                 <label>Phụ trách công việc</label>
                 <select id="taskWork">
-                    <option value="">-- Chọn mảng phụ trách --</option>
+                    <option value="">-- Chọn mảng công việc --</option>
                     <option value="Hậu cần">Hậu cần</option>
                     <option value="Âm thanh - Ánh sáng">Âm thanh - Ánh sáng</option>
                     <option value="Truyền thông">Truyền thông</option>
@@ -89,8 +87,7 @@
                 <input type="date" id="taskDeadline">
             </div>
             <input type="hidden" id="editIndex" value="-1">
-            <button class="main" onclick="saveAssignment()">Lưu dữ liệu</button>
-            <button onclick="goHome()" style="margin-top:10px; background:none; border:none; color:#999; cursor:pointer; width:100%;">Thoát ra Menu chính</button>
+            <button class="main" onclick="saveAssignment()">Lưu phân công</button>
         </div>
     </main>
 
@@ -107,30 +104,28 @@
             document.getElementById('sideMenu').classList.toggle('show');
         }
 
-        // Quay lại trang chủ và reset form
+        // Hàm đưa người dùng về Trang chủ
         function goHome() {
             resetForm();
-            showPage('homePage');
+            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+            document.getElementById('homePage').style.display = 'block';
+            if(document.getElementById('sideMenu').classList.contains('show')) toggleMenu();
         }
 
         function showPage(pageId) {
             if (pageId === 'assignPage' && !isAdmin) {
-                showToast("Vui lòng bật quyền Admin để gán vai trò!", "error");
+                showToast("Bạn cần bật quyền Admin để phân chia vai trò!", "error");
                 return;
             }
             document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
             document.getElementById(pageId).style.display = 'block';
-            
-            // Đóng menu nếu đang mở
-            const menu = document.getElementById('sideMenu');
-            if(menu.classList.contains('show')) menu.classList.remove('show');
+            if(document.getElementById('sideMenu').classList.contains('show')) toggleMenu();
         }
 
         function toggleAdmin() {
             isAdmin = !isAdmin;
             document.getElementById('roleStatus').innerText = isAdmin ? "Admin" : "User";
-            document.getElementById('lockIcon').className = isAdmin ? "fas fa-user-plus" : "fas fa-lock";
-            showToast(isAdmin ? "Đã cấp quyền chỉnh sửa" : "Đã hủy quyền chỉnh sửa", "success");
+            showToast(isAdmin ? "Đã bật chế độ Admin" : "Đã tắt chế độ Admin", "success");
             renderTable();
         }
 
@@ -139,13 +134,13 @@
             tbody.innerHTML = tasks.map((item, index) => `
                 <tr>
                     <td><b>${item.name}</b></td>
-                    <td><span class="status-tag active" style="font-size:11px; padding:4px 8px;">${item.work}</span></td>
+                    <td><span class="status-tag active" style="font-size:11px;">${item.work}</span></td>
                     <td>${item.deadline}</td>
                     <td>
                         ${isAdmin ? `
                             <i class="fas fa-edit" onclick="editItem(${index})" style="color:#2ecc71; cursor:pointer; margin-right:10px;"></i>
                             <i class="fas fa-trash-alt" onclick="deleteItem(${index})" style="color:#e74c3c; cursor:pointer;"></i>
-                        ` : '<i class="fas fa-shield" style="color:#eee"></i>'}
+                        ` : '<i class="fas fa-lock" style="color:#ddd"></i>'}
                     </td>
                 </tr>
             `).join('');
@@ -158,21 +153,20 @@
             const editIndex = parseInt(document.getElementById('editIndex').value);
 
             if (!name || !work || !deadline) {
-                showToast("Thiếu thông tin rồi bạn ơi!", "error");
+                showToast("Vui lòng điền đủ thông tin!", "error");
                 return;
             }
 
-            const data = { name, work, deadline };
             if (editIndex > -1) {
-                tasks[editIndex] = data;
+                tasks[editIndex] = { name, work, deadline };
                 showToast("Cập nhật thành công!", "success");
             } else {
-                tasks.push(data);
-                showToast("Đã thêm phân công mới!", "success");
+                tasks.push({ name, work, deadline });
+                showToast("Đã lưu phân công!", "success");
             }
 
             renderTable();
-            goHome(); // Quay lại trang chủ sau khi lưu
+            goHome(); // Sau khi lưu xong tự động quay về trang chủ
         }
 
         function editItem(index) {
@@ -181,12 +175,12 @@
             document.getElementById('taskWork').value = item.work;
             document.getElementById('taskDeadline').value = item.deadline;
             document.getElementById('editIndex').value = index;
-            document.getElementById('formTitle').innerText = "Sửa nhiệm vụ";
+            document.getElementById('formTitle').innerText = "Chỉnh sửa phân công";
             showPage('assignPage');
         }
 
         function deleteItem(index) {
-            if (confirm("Xóa dòng này nhé?")) {
+            if (confirm("Xác nhận xóa?")) {
                 tasks.splice(index, 1);
                 renderTable();
                 showToast("Đã xóa!", "success");
@@ -198,7 +192,7 @@
             document.getElementById('taskWork').value = "";
             document.getElementById('taskDeadline').value = "";
             document.getElementById('editIndex').value = "-1";
-            document.getElementById('formTitle').innerText = "Phân công nhiệm vụ";
+            document.getElementById('formTitle').innerText = "Phân chia nhiệm vụ";
         }
 
         function showToast(msg, type) {
@@ -211,13 +205,13 @@
         function createFlowers() {
             const container = document.getElementById('flowerContainer');
             setInterval(() => {
-                const flower = document.createElement('div');
-                flower.className = 'flower';
-                flower.innerText = '🌸';
-                flower.style.left = Math.random() * 100 + 'vw';
-                flower.style.animationDuration = (Math.random() * 3 + 2) + 's';
-                container.appendChild(flower);
-                setTimeout(() => flower.remove(), 5000);
+                const f = document.createElement('div');
+                f.className = 'flower';
+                f.innerText = '🌸';
+                f.style.left = Math.random() * 100 + 'vw';
+                f.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                container.appendChild(f);
+                setTimeout(() => f.remove(), 5000);
             }, 800);
         }
 
