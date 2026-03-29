@@ -3,47 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Nhiệm vụ Sự kiện</title>
+    <title>Quản lý sự kiện CLB</title>
     <link rel="stylesheet" href="giaodien.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-    <div class="menu-toggle" onclick="toggleMenu()">
-        <i class="fas fa-bars"></i>
+    <div style="position: fixed; top: 0; left: 0; right: 0; height: 60px; background: white; display: flex; align-items: center; padding: 0 20px; z-index: 1001; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <div class="menu-toggle" onclick="toggleMenu()" style="position: static; margin-right: 20px; box-shadow: none;">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div style="flex: 1; position: relative;">
+            <i class="fas fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #aaa;"></i>
+            <input type="text" placeholder="Tìm kiếm: trang, sự kiện, người tham gia..." 
+                   style="width: 100%; padding: 10px 10px 10px 40px; border-radius: 20px; border: 1px solid #eee; background: #f9f9f9;">
+        </div>
     </div>
 
-    <nav class="menu" id="sideMenu">
-        <div style="text-align: right; padding: 10px; color: white; cursor: pointer;" onclick="toggleMenu()">
-            <i class="fas fa-times"></i>
-        </div>
-        <button onclick="goHome()"><i class="fas fa-home"></i> Menu chính</button>
-        <button onclick="showPage('listPage')"><i class="fas fa-tasks"></i> Xem phân vai</button>
-        <button onclick="showPage('assignPage')"><i class="fas fa-user-plus"></i> Gán vai trò</button>
-        <hr style="border: 0.5px solid rgba(255,255,255,0.3); margin: 10px 12px;">
-        <button onclick="toggleAdmin()"><i class="fas fa-shield-alt"></i> Quyền: <span id="roleStatus">User</span></button>
+    <nav class="menu show" id="sideMenu" style="left: 0; width: 200px; padding-top: 80px;">
+        <button onclick="goHome()"><i class="fas fa-home"></i> Trang chủ</button>
+        <button><i class="fas fa-plus"></i> Tạo sự kiện</button>
+        <button><i class="fas fa-wallet"></i> Quản lý ngân sách</button>
+        <button><i class="fas fa-calendar-alt"></i> Quản lý sự kiện</button>
+        <button onclick="showPage('listPage')"><i class="fas fa-user-tag"></i> Phân chia vai trò</button>
+        <button><i class="fas fa-users"></i> Người tham gia</button>
+        <button><i class="fas fa-search-plus"></i> Quản lý chi tiết</button>
+        <button><i class="fas fa-hand-holding-heart"></i> Tham gia</button>
+        <button><i class="fas fa-lock"></i> Đăng nhập / Đăng ký</button>
+        <button><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
     </nav>
 
-    <main id="homePage" class="page" style="display: block;">
-        <div class="card" style="text-align: center;">
-            <div style="font-size: 50px; color: #ff6a88; margin-bottom: 15px;"><i class="fas fa-calendar-check"></i></div>
-            <h2>Menu Chính</h2>
-            <p style="color: #c0395e; margin-bottom: 25px;">Hệ thống quản lý sự kiện nội bộ</p>
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <button class="main" onclick="showPage('listPage')">Xem danh sách phân công</button>
-                <button class="main" style="background: white; color: #ff6a88; border: 2px solid #ff6a88;" onclick="showPage('assignPage')">Phân công nhiệm vụ mới</button>
+    <main id="homePage" class="page" style="display: block; margin-left: 200px;">
+        <div style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
+            <div class="card" style="text-align: center; width: 500px; padding: 40px; border-radius: 30px;">
+                <h2 style="color: #ff6a88; font-size: 24px;">🌸 Quản lý sự kiện CLB 🌸</h2>
+                <p style="color: #ff6a88; margin: 15px 0; font-weight: bold;">Xin chào Minh Khôi (admin)</p>
+                <p style="color: #888; font-size: 14px;">Hệ thống quản lý sự kiện dành cho thành viên CLB.</p>
             </div>
         </div>
     </main>
 
-    <main id="listPage" class="page">
-        <div class="card" style="max-width: 850px;">
-            <div style="display: flex; align-items: center; margin-bottom: 20px;">
-                <button onclick="goHome()" style="background:#ffe0ea; border:none; color:#ff6a88; padding:8px 15px; border-radius:10px; cursor:pointer;">
-                    <i class="fas fa-arrow-left"></i> Về Menu chính
+    <main id="listPage" class="page" style="margin-left: 200px;">
+        <div class="card" style="max-width: 800px;">
+            <div style="margin-bottom: 20px;">
+                <button onclick="goHome()" style="background: none; border: 1px solid #ff6a88; color: #ff6a88; padding: 8px 15px; border-radius: 20px; cursor: pointer;">
+                    <i class="fas fa-arrow-left"></i> Quay lại giao diện chính
                 </button>
             </div>
-            <h2>Phụ trách nhiệm vụ sự kiện</h2>
+            <h2>Danh sách Phụ trách nhiệm vụ</h2>
             <table>
                 <thead>
                     <tr>
@@ -55,31 +62,26 @@
                 </thead>
                 <tbody id="assignmentTable"></tbody>
             </table>
+            <button class="main" style="margin-top: 20px;" onclick="showPage('assignPage')">+ Thêm phân công mới</button>
         </div>
     </main>
 
-    <main id="assignPage" class="page">
+    <main id="assignPage" class="page" style="margin-left: 200px;">
         <div class="card">
-            <div style="margin-bottom: 15px;">
-                <button onclick="goHome()" style="background: none; border: 1px solid #ff6a88; color: #ff6a88; padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 13px;">
-                    <i class="fas fa-home"></i> Quay lại Trang chủ
-                </button>
-            </div>
-
+            <button onclick="showPage('listPage')" style="background: none; border: none; color: #ff6a88; cursor: pointer; margin-bottom: 10px;">
+                <i class="fas fa-chevron-left"></i> Quay lại danh sách
+            </button>
             <h2 id="formTitle">Phân chia nhiệm vụ</h2>
-            
             <div class="form-group">
                 <label>Tên thành viên</label>
-                <input type="text" id="memberName" placeholder="Nhập tên người phụ trách...">
+                <input type="text" id="memberName" placeholder="Nhập tên...">
             </div>
             <div class="form-group">
                 <label>Phụ trách công việc</label>
                 <select id="taskWork">
-                    <option value="">-- Chọn mảng công việc --</option>
                     <option value="Hậu cần">Hậu cần</option>
-                    <option value="Âm thanh - Ánh sáng">Âm thanh - Ánh sáng</option>
+                    <option value="Âm thanh">Âm thanh</option>
                     <option value="Truyền thông">Truyền thông</option>
-                    <option value="Nội dung">Nội dung</option>
                 </select>
             </div>
             <div class="form-group">
@@ -87,7 +89,7 @@
                 <input type="date" id="taskDeadline">
             </div>
             <input type="hidden" id="editIndex" value="-1">
-            <button class="main" onclick="saveAssignment()">Lưu phân công</button>
+            <button class="main" onclick="saveAssignment()">Lưu dữ liệu</button>
         </div>
     </main>
 
@@ -95,38 +97,24 @@
     <div id="flowerContainer"></div>
 
     <script>
-        let tasks = [
-            { name: "Nguyễn Văn A", work: "Hậu cần", deadline: "2026-04-05" }
-        ];
-        let isAdmin = false;
+        let tasks = [{ name: "Minh Khôi", work: "Admin hệ thống", deadline: "2026-12-31" }];
 
         function toggleMenu() {
-            document.getElementById('sideMenu').classList.toggle('show');
+            const menu = document.getElementById('sideMenu');
+            menu.classList.toggle('show');
+            // Điều chỉnh lề của nội dung khi đóng/mở menu
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(p => p.style.marginLeft = menu.classList.contains('show') ? "200px" : "0");
         }
 
-        // Hàm đưa người dùng về Trang chủ
         function goHome() {
-            resetForm();
             document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
             document.getElementById('homePage').style.display = 'block';
-            if(document.getElementById('sideMenu').classList.contains('show')) toggleMenu();
         }
 
         function showPage(pageId) {
-            if (pageId === 'assignPage' && !isAdmin) {
-                showToast("Bạn cần bật quyền Admin để phân chia vai trò!", "error");
-                return;
-            }
             document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
             document.getElementById(pageId).style.display = 'block';
-            if(document.getElementById('sideMenu').classList.contains('show')) toggleMenu();
-        }
-
-        function toggleAdmin() {
-            isAdmin = !isAdmin;
-            document.getElementById('roleStatus').innerText = isAdmin ? "Admin" : "User";
-            showToast(isAdmin ? "Đã bật chế độ Admin" : "Đã tắt chế độ Admin", "success");
-            renderTable();
         }
 
         function renderTable() {
@@ -134,13 +122,11 @@
             tbody.innerHTML = tasks.map((item, index) => `
                 <tr>
                     <td><b>${item.name}</b></td>
-                    <td><span class="status-tag active" style="font-size:11px;">${item.work}</span></td>
+                    <td><span class="status-tag active">${item.work}</span></td>
                     <td>${item.deadline}</td>
                     <td>
-                        ${isAdmin ? `
-                            <i class="fas fa-edit" onclick="editItem(${index})" style="color:#2ecc71; cursor:pointer; margin-right:10px;"></i>
-                            <i class="fas fa-trash-alt" onclick="deleteItem(${index})" style="color:#e74c3c; cursor:pointer;"></i>
-                        ` : '<i class="fas fa-lock" style="color:#ddd"></i>'}
+                        <i class="fas fa-edit" onclick="editItem(${index})" style="color:#2ecc71; cursor:pointer; margin-right:10px;"></i>
+                        <i class="fas fa-trash" onclick="deleteItem(${index})" style="color:#e74c3c; cursor:pointer;"></i>
                     </td>
                 </tr>
             `).join('');
@@ -152,21 +138,12 @@
             const deadline = document.getElementById('taskDeadline').value;
             const editIndex = parseInt(document.getElementById('editIndex').value);
 
-            if (!name || !work || !deadline) {
-                showToast("Vui lòng điền đủ thông tin!", "error");
-                return;
-            }
-
-            if (editIndex > -1) {
-                tasks[editIndex] = { name, work, deadline };
-                showToast("Cập nhật thành công!", "success");
-            } else {
-                tasks.push({ name, work, deadline });
-                showToast("Đã lưu phân công!", "success");
-            }
+            if (editIndex > -1) tasks[editIndex] = { name, work, deadline };
+            else tasks.push({ name, work, deadline });
 
             renderTable();
-            goHome(); // Sau khi lưu xong tự động quay về trang chủ
+            showPage('listPage');
+            showToast("Thành công!", "success");
         }
 
         function editItem(index) {
@@ -175,39 +152,26 @@
             document.getElementById('taskWork').value = item.work;
             document.getElementById('taskDeadline').value = item.deadline;
             document.getElementById('editIndex').value = index;
-            document.getElementById('formTitle').innerText = "Chỉnh sửa phân công";
             showPage('assignPage');
         }
 
         function deleteItem(index) {
-            if (confirm("Xác nhận xóa?")) {
-                tasks.splice(index, 1);
-                renderTable();
-                showToast("Đã xóa!", "success");
-            }
-        }
-
-        function resetForm() {
-            document.getElementById('memberName').value = "";
-            document.getElementById('taskWork').value = "";
-            document.getElementById('taskDeadline').value = "";
-            document.getElementById('editIndex').value = "-1";
-            document.getElementById('formTitle').innerText = "Phân chia nhiệm vụ";
+            tasks.splice(index, 1);
+            renderTable();
+            showToast("Đã xóa!", "error");
         }
 
         function showToast(msg, type) {
-            const toast = document.getElementById('toast');
-            toast.innerText = msg;
-            toast.className = `toast show ${type}`;
-            setTimeout(() => toast.classList.remove('show'), 2500);
+            const t = document.getElementById('toast');
+            t.innerText = msg; t.className = `toast show ${type}`;
+            setTimeout(() => t.classList.remove('show'), 2000);
         }
 
         function createFlowers() {
             const container = document.getElementById('flowerContainer');
             setInterval(() => {
                 const f = document.createElement('div');
-                f.className = 'flower';
-                f.innerText = '🌸';
+                f.className = 'flower'; f.innerText = '🌸';
                 f.style.left = Math.random() * 100 + 'vw';
                 f.style.animationDuration = (Math.random() * 3 + 2) + 's';
                 container.appendChild(f);
