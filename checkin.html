@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Check-in sự kiện</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: sans-serif;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 400px;
+      margin: auto;
+      text-align: center;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 10px;
+      background: #ff6a88;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+
+    #qrVideo {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>📷 Check-in sự kiện</h2>
+
+  <div id="qrVideo"></div>
+  <button onclick="startScan()">📸 Quét QR</button>
+
+  <hr>
+
+  <input id="manualCode" placeholder="Nhập MSSV|Sự kiện">
+  <button onclick="manualCheckin()">✅ Check-in thủ công</button>
+
+  <button onclick="goBack()">⬅️ Quay lại</button>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<script>
+let participants = JSON.parse(localStorage.getItem("participants")) || [];
+
+function handleCheckin(code) {
+  let [mssv, event] = code.split("|");
+
+  if (!mssv || !event) {
+    return alert("❌ Mã không hợp lệ!");
+  }
+
+  let p = participants.find(x => x.mssv === mssv && x.event === event);
+
+  if (!p) {
+    return alert("❌ Không tìm thấy!");
+  }
+
+  if (p.checkedIn) {
+    return alert("⚠️ Đã check-in rồi!");
+  }
+
+  p.checkedIn = true;
+  localStorage.setItem("participants", JSON.stringify(participants));
+
+  alert("✅ Thành công: " + p.name);
+}
+
+function manualCheckin() {
+  let code = document.getElementById("manualCode").value.trim();
+  handleCheckin(code);
+}
+
+let scanner;
+
+function startScan() {
+  scanner = new Html5Qrcode("qrVideo");
+
+  Html5Qrcode.getCameras().then(devices => {
+    if (devices.length) {
+      scanner.start(
+        devices[0].id,
+        { fps: 10, qrbox: 250 },
+        (text) => {
+          handleCheckin(text);
+          scanner.stop();
+        }
+      );
+    }
+  });
+}
+
+function goBack() {
+  window.location.href = "giaodienquanlysukien.html";
+}
+</script>
+
+</body>
+</html>
