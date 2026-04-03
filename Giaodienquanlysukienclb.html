@@ -329,11 +329,12 @@
     <button onclick="go('manage')" class="adminOnly">📋 Quản lý sự kiện</button>
     <button onclick="window.location.href='PhanVaiTroPhuTrachSuKien.html'">📋 Phân chia vai trò</button>
     <button onclick="go('participants')" class="adminOnly">📑 Người tham gia</button>
-    <button onclick="location.href='huydangky.html'">❌ Hủy đăng ký</button>
     <button onclick="window.location.href='XemSuaXuatDanhSach.html'">🔍 Quản lý chi tiết</button>
     <button onclick="go('join')">🙋 Tham gia</button>
     <button onclick="go('login')">🔐 Đăng nhập / Đăng ký</button>
     <button onclick="logout()">🚪 Đăng xuất</button>
+    <button onclick="go('checkin')" class="adminOnly">📷 Check-in</button>
+    <button onclick="go('dashboard')" class="adminOnly">📊 Thống kê</button>
   </div>
 
   <div id="home" class="page" style="display: block;">
@@ -409,6 +410,21 @@
   </div>
 
   <!-- Toast -->
+   <div id="checkin" class="page">
+  <div class="card">
+    <h2>📷 Check-in sự kiện</h2>
+
+    <!-- Camera -->
+    <div id="qrVideo" style="width:100%"></div>
+    <button class="main" onclick="startScan()">📸 Bật camera quét QR</button>
+
+    <hr style="margin:15px 0">
+
+    <!-- Nhập tay -->
+    <input id="manualCode" placeholder="Nhập mã (MSSV|Tên sự kiện)">
+    <button class="main" onclick="manualCheckin()">✅ Check-in thủ công</button>
+  </div>
+</div>
   <div class="toast" id="toast"></div>
 
 
@@ -464,6 +480,7 @@
         <select id="peventSelect"></select>
       </div>
       <button class="main" onclick="addParticipant()">💖 Đăng ký ngay</button>
+      <div id="myQR" style="text-align:center; margin-top:15px;"></div>
     </div>
   </div>
 
@@ -477,6 +494,7 @@
             <tr>
               <th>Họ tên</th>
               <th>Sự kiện</th>
+              <th>Trạng thái</th>
               <th>Hành động</th>
             </tr>
           </thead>
@@ -485,6 +503,20 @@
       </div>
     </div>
   </div>
+
+  <div id="dashboard" class="page">
+  <div class="card">
+    <h2>📊 Thống kê Check-in</h2>
+
+    <p>👥 Tổng đăng ký: <b id="totalP"></b></p>
+    <p>✅ Đã tham gia: <b id="checkedInP"></b></p>
+    <p>⏳ Chưa tham gia: <b id="notCheckedP"></b></p>
+
+    <hr>
+
+    <div id="eventStats"></div>
+  </div>
+</div>
 
   <div id="login" class="page">
     <div class="card">
@@ -528,6 +560,7 @@
     /* ĐIỀU HƯỚNG */
     function toggleMenu() { document.getElementById("menu").classList.toggle("show"); }
     function go(id) {
+    if (id === 'dashboard') renderDashboard();
       document.querySelectorAll(".page").forEach(p => p.style.display = "none");
       document.getElementById(id).style.display = "block";
       document.getElementById("menu").classList.remove("show");
@@ -549,7 +582,7 @@
   let pass = auth_pass.value.trim();
 
   if (isLoginMode) {
-    // ---- ĐĂNG NHẬP (giữ nguyên) ----
+    // ---- ĐĂNG NHẬP 
     let u = users.find(x => x.email === email && x.pass === pass);
     if (!u) return showToast("❌ Sai tài khoản hoặc mật khẩu!", "error");
 
@@ -664,24 +697,18 @@
       go('manage');
     }
 
-    function renderEvents() {
-      eventTable.innerHTML = "";
-      events.forEach((e, i) => {
-        eventTable.innerHTML += `
-      <tr>
-        <td>${e.t}</td>
-        <td>${e.l}</td>
-        <td>${e.d}</td>
-        <td>${e.location}</td>
-        <td>${e.max}</td>
-        <td>
-          <button class="btn-edit" onclick="openEditModal(${i})" style="margin-right:5px;">✏️ Sửa</button>
-          <button class="btn-del" onclick="delEvent(${i})">🗑️</button>
-        </td>
-      </tr>
-    `;
-      });
-    }
+    function renderParticipants() {
+  pTable.innerHTML = participants.map((p, i) => `
+    <tr>
+      <td>${p.name}</td>
+      <td>${p.event}</td>
+      <td>${p.checkedIn ? "✅ Đã tham gia" : "⏳ Chưa"}</td>
+      <td>
+        <button class="btn-del" onclick="delP(${i})">🗑️</button>
+      </td>
+    </tr>
+  `).join("");
+}
 
     function delEvent(i) {
       if (confirm("Xóa sự kiện này?")) { events.splice(i, 1); localStorage.setItem("events", JSON.stringify(events)); renderEvents(); }
@@ -692,54 +719,85 @@
       peventSelect.innerHTML = events.map(e => `<option value="${e.t}">${e.t}</option>`).join("");
     }
 
-    function addParticipant() {
-      let hoten = pname.value.trim();
-      let mssv = document.getElementById("pmssv").value.trim();
-      let email = document.getElementById("pemail").value.trim();
-      let khoa = document.getElementById("pkhoa").value;
+   function addParticipant() {
+  let hoten = document.getElementById("pname").value.trim();
+  let mssv = document.getElementById("pmssv").value.trim();
+  let email = document.getElementById("pemail").value.trim();
+  let khoa = document.getElementById("pkhoa").value;
+  let eventName = peventSelect.value;
 
-      // Kiểm tra nhập đủ thông tin
-      if (!hoten || !mssv || !email || !khoa) {
-        return showToast("❌ Vui lòng nhập đầy đủ thông tin!", "error");
-      }
+  // VALIDATION
+  if (!hoten || !mssv || !email || !khoa) {
+    return showToast("❌ Vui lòng nhập đầy đủ thông tin!", "error");
+  }
 
-      // Kiểm tra email hợp lệ
-      if (!email.endsWith("@gmail.com")) {
-        return showToast("❌ Email phải có đuôi @gmail.com!", "error");
-      }
+  if (!email.endsWith("@gmail.com")) {
+    return showToast("❌ Email phải có @gmail.com!", "error");
+  }
 
-      // Kiểm tra trùng MSSV trong cùng sự kiện
-      if (participants.some(p => p.mssv === mssv && p.event === peventSelect.value)) {
-        return showToast("❌ MSSV này đã đăng ký sự kiện này rồi!", "error");
-      }
-      
-      // Kiểm tra trùng Email
-      if (participants.some(p => p.email === email)) {
-        return showToast("❌ Email đã tồn tại!", "error");
-      }
+  if (participants.some(p => p.mssv === mssv && p.event === eventName)) {
+    return showToast("❌ MSSV đã đăng ký!", "error");
+  }
 
-      // Kiểm tra sự kiện còn chỗ không
-      let selectedEvent = events.find(e => e.t === peventSelect.value);
-      let count = participants.filter(p => p.event === selectedEvent.t).length;
-      if (count >= selectedEvent.max) {
-        return showToast("❌ Sự kiện đã đủ người!", "error");
-      }
+  if (participants.some(p => p.email === email && p.event === eventName)) {
+    return showToast("❌ Email đã đăng ký!", "error");
+  }
 
-      // Lưu đăng ký
-      participants.push({ name: hoten, mssv, email, khoa, event: peventSelect.value });
-      localStorage.setItem("participants", JSON.stringify(participants));
+  let selectedEvent = events.find(e => e.t === eventName);
+  let count = participants.filter(p => p.event === eventName).length;
 
-      showToast("🎉 Đăng ký thành công!");
+  if (selectedEvent && count >= selectedEvent.max) {
+    return showToast("❌ Sự kiện đã đủ người!", "error");
+  }
 
-      // Xóa form
-      pname.value = "";
-      document.getElementById("pmssv").value = "";
-      document.getElementById("pemail").value = "";
-      document.getElementById("pkhoa").value = "";
+  // LƯU
+  let qrData = mssv + "|" + eventName;
 
-      go('home');
-    }
+  participants.push({
+    name: hoten,
+    mssv,
+    email,
+    khoa,
+    event: eventName,
+    checkedIn: false,
+    qr: qrData
+  });
 
+  localStorage.setItem("participants", JSON.stringify(participants));
+
+  showToast("🎉 Đăng ký thành công!");
+
+  // HIỂN QR
+  let qrBox = document.getElementById("myQR");
+
+  if (qrBox) {
+    qrBox.innerHTML = "";
+
+    let title = document.createElement("p");
+    title.innerText = "🪪 Mã QR của bạn";
+    title.style.textAlign = "center";
+    title.style.fontWeight = "bold";
+    qrBox.appendChild(title);
+
+    let imgQR = document.createElement("img");
+    imgQR.src = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" + encodeURIComponent(qrData);
+    imgQR.style.display = "block";
+    imgQR.style.margin = "10px auto";
+
+    qrBox.appendChild(imgQR);
+
+    let info = document.createElement("div");
+    info.style.textAlign = "center";
+    info.innerHTML = `<b>${hoten}</b><br>MSSV: ${mssv}`;
+    qrBox.appendChild(info);
+  }
+
+  // RESET
+  document.getElementById("pname").value = "";
+  document.getElementById("pmssv").value = "";
+  document.getElementById("pemail").value = "";
+  document.getElementById("pkhoa").value = "";
+}
     function renderParticipants() {
       pTable.innerHTML = participants.map((p, i) => `
     <tr><td>${p.name}</td><td>${p.event}</td>
@@ -837,9 +895,85 @@ function globalSearchFunction() {
   }, 100);
 }
 
+// ===== CHECK-IN =====
+function handleCheckin(code) {
+  let [mssv, event] = code.split("|");
+
+  if (!mssv || !event) {
+    return showToast("❌ Mã không hợp lệ!", "error");
+  }
+
+  let p = participants.find(x => x.mssv === mssv && x.event === event);
+
+  if (!p) {
+    return showToast("❌ Không tìm thấy người đăng ký!", "error");
+  }
+
+  if (p.checkedIn) {
+    return showToast("⚠️ QR đã được sử dụng!", "error");
+  }
+
+  p.checkedIn = true;
+  localStorage.setItem("participants", JSON.stringify(participants));
+
+  showToast("✅ Check-in thành công: " + p.name);
+}
+
+// nhập tay
+function manualCheckin() {
+  let code = document.getElementById("manualCode").value.trim();
+  handleCheckin(code);
+}
+
+let qrScanner;
+
+function startScan() {
+  qrScanner = new Html5Qrcode("qrVideo");
+
+  Html5Qrcode.getCameras().then(devices => {
+    if (devices.length) {
+      let cameraId = devices[0].id;
+
+      qrScanner.start(
+        cameraId,
+        { fps: 10, qrbox: 250 },
+        qrCodeMessage => {
+          handleCheckin(qrCodeMessage);
+          qrScanner.stop();
+        }
+      );
+    }
+  });
+}
+
+function renderDashboard() {
+  let total = participants.length;
+  let checked = participants.filter(p => p.checkedIn).length;
+  let notChecked = total - checked;
+
+  document.getElementById("totalP").innerText = total;
+  document.getElementById("checkedInP").innerText = checked;
+  document.getElementById("notCheckedP").innerText = notChecked;
+
+  // Thống kê theo từng sự kiện
+  let html = "";
+
+  events.forEach(e => {
+    let totalE = participants.filter(p => p.event === e.t).length;
+    let checkedE = participants.filter(p => p.event === e.t && p.checkedIn).length;
+
+    html += `
+      <p>📌 ${e.t}: ${checkedE}/${totalE} đã check-in</p>
+    `;
+  });
+
+  document.getElementById("eventStats").innerHTML = html;
+}
   </script>
   <script src="xemVaChinhSuaThongTinSuKien.js"></script>
   <script src="quanLyChiTieu.js"></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </body>
 
 </html>
