@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Tìm kiếm sự kiện</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #ff9a9e, #fecfef);
+}
+
+/* 🌸 hoa rơi */
+.flower {
+    position: fixed;
+    top: -50px;
+    font-size: 20px;
+    animation: fall linear infinite;
+}
+@keyframes fall {
+    to { transform: translateY(110vh); }
+}
+
+/* container */
+.container {
+    display: flex;
+    justify-content: center;
+    padding: 40px;
+}
+
+.form-box {
+    width: 500px;
+    background: rgba(255,255,255,0.9);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(255,105,180,0.4);
+}
+
+h2 {
+    text-align: center;
+    color: #ff4d88;
+}
+
+input, select, button {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border: 1px solid #ffb6c1;
+}
+
+button {
+    background: #ff4d88;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #e6005c;
+}
+
+/* kết quả */
+.event {
+    background: #fff0f5;
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<script>
+for (let i = 0; i < 30; i++) {
+    let f = document.createElement("div");
+    f.className = "flower";
+    f.innerHTML = "🌸";
+    f.style.left = Math.random()*100 + "vw";
+    f.style.animationDuration = (5 + Math.random()*5) + "s";
+    document.body.appendChild(f);
+}
+</script>
+
+<div class="container">
+<div class="form-box">
+
+<h2>🔍 Tìm kiếm sự kiện</h2>
+
+<input type="text" id="search" placeholder="Nhập tên hoặc từ khóa">
+
+<select id="category">
+    <option value="">-- Chọn danh mục --</option>
+    <option value="hoc thuat">Học thuật</option>
+    <option value="van nghe">Văn nghệ</option>
+    <option value="the thao">Thể thao</option>
+</select>
+
+<button onclick="timKiem()">Tìm kiếm</button>
+
+<div id="ketqua"></div>
+
+</div>
+</div>
+
+<script>
+// dữ liệu mẫu
+let suKien = [
+    {ten: "Workshop AI", loai: "hoc thuat"},
+    {ten: "Hội diễn văn nghệ", loai: "van nghe"},
+    {ten: "Giải bóng đá", loai: "the thao"},
+    {ten: "Seminar lập trình", loai: "hoc thuat"},
+    {ten: "Cuộc thi hát", loai: "van nghe"}
+];
+
+function timKiem() {
+    let keyword = document.getElementById("search").value.toLowerCase();
+    let category = document.getElementById("category").value;
+    let ketqua = document.getElementById("ketqua");
+
+    let start = performance.now(); // đo thời gian
+
+    let result = suKien.filter(sk => {
+        let matchName = sk.ten.toLowerCase().includes(keyword);
+        let matchCate = category === "" || sk.loai === category;
+        return matchName && matchCate;
+    });
+
+    ketqua.innerHTML = "";
+
+    if (result.length === 0) {
+        ketqua.innerHTML = "<p>❌ Không tìm thấy sự kiện</p>";
+    } else {
+        result.forEach(sk => {
+            ketqua.innerHTML += `
+                <div class="event">
+                    <b>${sk.ten}</b><br>
+                    Danh mục: ${sk.loai}
+                </div>
+            `;
+        });
+    }
+
+    let end = performance.now();
+    console.log("Thời gian tìm:", (end - start) + " ms");
+}
+</script>
+
+</body>
+</html>
