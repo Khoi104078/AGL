@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Nhắc hẹn sự kiện</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  padding: 20px;
+}
+
+.card {
+  max-width: 700px;
+  margin: auto;
+  background: white;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+h2 {
+  text-align: center;
+  color: #e84393;
+}
+
+.event {
+  background: #fff0f6;
+  padding: 15px;
+  border-radius: 12px;
+  margin-top: 10px;
+}
+
+button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #ff6a88;
+  color: white;
+  margin-bottom: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>🔔 Nhắc hẹn sự kiện</h2>
+
+  <button onclick="toggleNotify()">Bật/Tắt nhắc lịch: <span id="status"></span></button>
+
+  <div id="list"></div>
+</div>
+
+<script>
+
+// ===== LẤY DỮ LIỆU =====
+let events = JSON.parse(localStorage.getItem("events")) || [];
+let participants = JSON.parse(localStorage.getItem("participants")) || [];
+
+// ===== BẬT/TẮT =====
+let notifyEnabled = JSON.parse(localStorage.getItem("notifyEnabled"));
+if (notifyEnabled === null) notifyEnabled = true;
+
+function toggleNotify() {
+  notifyEnabled = !notifyEnabled;
+  localStorage.setItem("notifyEnabled", notifyEnabled);
+  updateUI();
+}
+
+function updateUI() {
+  document.getElementById("status").innerText = notifyEnabled ? "ON" : "OFF";
+}
+updateUI();
+
+// ===== HIỂN THỊ DANH SÁCH =====
+function render() {
+  let now = new Date();
+  let html = "";
+
+  participants.forEach(p => {
+    let event = events.find(e => e.t === p.event);
+    if (!event) return;
+
+    let eventTime = new Date(event.d + "T" + (event.time || "00:00"));
+    let diff = eventTime - now;
+    let hours = diff / 3600000;
+
+    // sự kiện sắp diễn ra trong 24h
+    if (hours > 0 && hours <= 24) {
+      html += `
+        <div class="event">
+          <b>📢 ${event.t}</b><br>
+          ⏰ ${event.d} ${event.time}<br>
+          📍 ${event.location}<br>
+          🎟 <a href="${p.qrLink}" target="_blank">Xem vé QR</a>
+        </div>
+      `;
+    }
+  });
+
+  if (!html) {
+    html = "<p style='text-align:center'>❌ Không có sự kiện sắp diễn ra</p>";
+  }
+
+  document.getElementById("list").innerHTML = html;
+}
+
+// ===== NHẮC TỰ ĐỘNG =====
+let notified = JSON.parse(localStorage.getItem("notified")) || {};
+
+setInterval(() => {
+  if (!notifyEnabled) return;
+
+  let now = new Date();
+
+  participants.forEach(p => {
+    let event = events.find(e => e.t === p.event);
+    if (!event) return;
+
+    let eventTime = new Date(event.d + "T" + (event.time || "00:00"));
+    let diff = eventTime - now;
+    let hours = diff / 3600000;
+
+    let key24 = p.mssv + event.t + "24";
+    let key1 = p.mssv + event.t + "1";
+
+    let msg = `📢 ${event.t}
+⏰ ${event.d} ${event.time}
+📍 ${event.location}
+🎟 ${p.qrLink}`;
+
+    // TEST NHANH
+    if (hours <= 0.05 && !notified[key24]) {
+      alert("⏳ Sắp diễn ra:\n" + msg);
+      notified[key24] = true;
+    }
+
+    if (hours <= 0.02 && !notified[key1]) {
+      alert("⚠️ Còn 1 phút:\n" + msg);
+      notified[key1] = true;
+    }
+  });
+
+  localStorage.setItem("notified", JSON.stringify(notified));
+
+}, 30000);
+
+// load
+render();
+
+</script>
+
+</body>
+</html>
