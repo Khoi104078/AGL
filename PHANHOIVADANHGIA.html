@@ -2,195 +2,128 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Đánh giá sự kiện</title>
-
+<title>Phản hồi & Đánh giá</title>
 <style>
-body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #ff9a9e, #fecfef);
-}
-
-/* hoa rơi */
-.flower {
-    position: fixed;
-    top: -50px;
-    font-size: 20px;
-    animation: fall linear infinite;
-}
-@keyframes fall {
-    to { transform: translateY(110vh); }
-}
-
-.container {
-    padding: 40px;
-    text-align: center;
-}
-
-.box {
-    background: rgba(255,255,255,0.9);
-    padding: 20px;
-    border-radius: 15px;
-    width: 500px;
-    margin: auto;
-    box-shadow: 0 10px 25px rgba(255,105,180,0.4);
-}
-
-input, textarea, button {
-    width: 100%;
-    padding: 10px;
-    margin: 8px 0;
-    border-radius: 8px;
-    border: 1px solid #ffb6c1;
-}
-
-button {
-    background: #ff4d88;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #e6005c;
-}
-
-.review {
-    background: #fff0f5;
-    padding: 10px;
-    margin-top: 10px;
-    border-radius: 10px;
-    text-align: left;
-}
-
-h2 {
-    color: #ff4d88;
-}
+  @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Nunito',sans-serif; }
+  body { background:linear-gradient(135deg,#ff9a9e,#fad0c4); min-height:100vh; padding:40px 20px; }
+  h2,h3 { text-align:center; color:#e84393; margin-bottom:20px; font-family:'Quicksand'; }
+  .card { background:rgba(255,255,255,.97); padding:30px; border-radius:24px; max-width:520px; margin:0 auto 30px; box-shadow:0 16px 48px rgba(255,105,180,.2); }
+  input,textarea,select { width:100%; padding:12px; border:2px solid #ffe0ea; border-radius:12px; background:#fff9fb; outline:none; margin-bottom:12px; }
+  input:focus,textarea:focus { border-color:#ff6a88; }
+  button.main { width:100%; padding:13px; background:linear-gradient(135deg,#ff6a88,#e84393); color:#fff; border:none; border-radius:14px; font-weight:700; cursor:pointer; margin-top:5px; }
+  button.main:hover { transform:translateY(-2px); box-shadow:0 5px 15px rgba(255,106,136,.4); }
+  .review { background:#fff0f5; padding:12px; margin-top:10px; border-radius:12px; text-align:left; border-left:4px solid #ff6a88; }
+  .back { display:inline-block; margin-bottom:20px; color:#e84393; cursor:pointer; font-weight:700; }
+  .stars { font-size:20px; color:#f39c12; }
+  .toast { position:fixed; bottom:25px; left:50%; transform:translateX(-50%) translateY(100px); padding:12px 25px; border-radius:12px; color:#fff; font-weight:700; transition:0.4s; z-index:9999; opacity:0; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  .toast.success { background:#2ecc71; }
+  .toast.error { background:#e74c3c; }
 </style>
 </head>
-
 <body>
 
-<script>
-for (let i = 0; i < 30; i++) {
-    let f = document.createElement("div");
-    f.className = "flower";
-    f.innerHTML = "🌸";
-    f.style.left = Math.random()*100 + "vw";
-    f.style.animationDuration = (5 + Math.random()*5) + "s";
-    document.body.appendChild(f);
-}
-</script>
+<div style="max-width:520px; margin:0 auto;">
+  <p class="back" onclick="window.location.href='Giaodienquanlysukienclb.html'">← Quay về trang chủ</p>
 
-<div class="container">
-<div class="box">
+  <div class="card">
+    <h2>📝 Đánh giá sự kiện</h2>
+    <input type="email" id="email" placeholder="Nhập email của bạn">
+    <select id="sukien"><option value="">-- Chọn sự kiện --</option></select>
+    <input type="number" id="rating" placeholder="Điểm đánh giá (1-5)" min="1" max="5">
+    <textarea id="comment" placeholder="Nhận xét của bạn..." rows="4"></textarea>
+    <button class="main" onclick="guiDanhGia()">Gửi đánh giá</button>
+  </div>
 
-<h2>📝 Đánh giá sự kiện</h2>
-
-<input type="text" id="email" placeholder="Nhập email của bạn">
-<input type="number" id="rating" placeholder="Điểm (1-5)">
-<textarea id="comment" placeholder="Nhận xét..."></textarea>
-
-<button onclick="guiDanhGia()">Gửi đánh giá</button>
-
-<p id="thongbao"></p>
-
-<hr>
-
-<h3>📊 Phản hồi từ người tham gia</h3>
-<div id="danhsach"></div>
-
-</div>
+  <div class="card">
+    <h3>📊 Phản hồi từ người tham gia</h3>
+    <div id="danhsach"></div>
+  </div>
 </div>
 
-<script>
-// =======================
-// DỮ LIỆU GIẢ LẬP
-// =======================
+<div class="toast" id="toast"></div>
 
-// thời gian kết thúc sự kiện (có thể đổi)
-let eventEndTime = new Date("2026-04-05T20:00:00");
+<script type="module">
+import { db, ref, push, onValue } from "./firebase.js";
 
-// danh sách check-in (giả lập)
-let checkInList = JSON.parse(localStorage.getItem("checkin")) || [
-    "a@gmail.com",
-    "b@gmail.com"
-];
+let participants = [];
+let reviews = [];
+let events = [];
 
-// danh sách đánh giá
-let reviews = JSON.parse(localStorage.getItem("reviews")) || [];
+// Load events vào dropdown
+onValue(ref(db, "events"), snapshot => {
+  events = [];
+  let sel = document.getElementById("sukien");
+  sel.innerHTML = '<option value="">-- Chọn sự kiện --</option>';
+  snapshot.forEach(child => {
+    let e = child.val();
+    events.push(e);
+    sel.innerHTML += `<option value="${e.t}">${e.t}</option>`;
+  });
+});
 
-// =======================
-// HÀM GỬI ĐÁNH GIÁ
-// =======================
-function guiDanhGia() {
-    let email = document.getElementById("email").value.trim();
-    let rating = document.getElementById("rating").value;
-    let comment = document.getElementById("comment").value.trim();
-    let thongbao = document.getElementById("thongbao");
+// Load participants để kiểm tra check-in
+onValue(ref(db, "participants"), snapshot => {
+  participants = [];
+  snapshot.forEach(child => participants.push({ id: child.key, ...child.val() }));
+});
 
-    thongbao.innerText = "";
+// Load reviews
+onValue(ref(db, "reviews"), snapshot => {
+  reviews = [];
+  snapshot.forEach(child => reviews.push({ id: child.key, ...child.val() }));
+  hienThiDanhGia();
+});
 
-    // 1. kiểm tra thời gian
-    let now = new Date();
-    if (now < eventEndTime) {
-        thongbao.style.color = "red";
-        thongbao.innerText = "❌ Chưa thể đánh giá khi sự kiện chưa kết thúc!";
-        return;
-    }
+window.guiDanhGia = function() {
+  let email = document.getElementById("email").value.trim();
+  let sukien = document.getElementById("sukien").value;
+  let rating = parseInt(document.getElementById("rating").value);
+  let comment = document.getElementById("comment").value.trim();
 
-    // 2. kiểm tra check-in
-    if (!checkInList.includes(email)) {
-        thongbao.style.color = "red";
-        thongbao.innerText = "❌ Bạn chưa check-in nên không thể đánh giá!";
-        return;
-    }
+  if (!email || !sukien || !rating || !comment)
+    return showToast("❌ Vui lòng nhập đầy đủ!", "error");
 
-    // 3. validate
-    if (!email || !rating || !comment) {
-        thongbao.style.color = "red";
-        thongbao.innerText = "❌ Vui lòng nhập đầy đủ thông tin!";
-        return;
-    }
+  if (rating < 1 || rating > 5)
+    return showToast("❌ Điểm phải từ 1 đến 5!", "error");
 
-    if (rating < 1 || rating > 5) {
-        thongbao.style.color = "red";
-        thongbao.innerText = "❌ Điểm phải từ 1 đến 5!";
-        return;
-    }
+  // Kiểm tra đã đăng ký sự kiện chưa
+  let daThamGia = participants.some(p => p.email === email && p.event === sukien);
+  if (!daThamGia)
+    return showToast("❌ Bạn chưa đăng ký sự kiện này!", "error");
 
-    // 4. lưu đánh giá
-    let review = { email, rating, comment };
-    reviews.push(review);
-    localStorage.setItem("reviews", JSON.stringify(reviews));
+  // Kiểm tra đã đánh giá chưa
+  let daDanhGia = reviews.some(r => r.email === email && r.sukien === sukien);
+  if (daDanhGia)
+    return showToast("❌ Bạn đã đánh giá sự kiện này rồi!", "error");
 
-    thongbao.style.color = "green";
-    thongbao.innerText = "🎉 Gửi đánh giá thành công!";
+  push(ref(db, "reviews"), { email, sukien, rating, comment });
+  showToast("🎉 Gửi đánh giá thành công!");
 
-    hienThiDanhGia();
+  document.getElementById("email").value = "";
+  document.getElementById("rating").value = "";
+  document.getElementById("comment").value = "";
 }
 
-// =======================
-// HIỂN THỊ ĐÁNH GIÁ
-// =======================
 function hienThiDanhGia() {
-    let box = document.getElementById("danhsach");
-    box.innerHTML = "";
-
-    reviews.forEach(r => {
-        box.innerHTML += `
-            <div class="review">
-                📧 ${r.email}<br>
-                ⭐ ${r.rating}/5<br>
-                💬 ${r.comment}
-            </div>
-        `;
-    });
+  let stars = r => "⭐".repeat(r);
+  document.getElementById("danhsach").innerHTML = reviews.length === 0
+    ? "<p style='text-align:center;color:#aaa'>Chưa có đánh giá nào</p>"
+    : reviews.map(r => `
+        <div class="review">
+          📧 ${r.email}<br>
+          📌 ${r.sukien}<br>
+          <span class="stars">${stars(r.rating)}</span> ${r.rating}/5<br>
+          💬 ${r.comment}
+        </div>`).join("");
 }
 
-// load khi mở trang
-hienThiDanhGia();
+function showToast(msg, type="success") {
+  const t = document.getElementById("toast");
+  t.innerText = msg; t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove("show"), 3000);
+}
 </script>
-
 </body>
 </html>
