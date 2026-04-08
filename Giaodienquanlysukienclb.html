@@ -326,14 +326,15 @@
 <!-- ===== ADMIN ===== -->
 <button onclick="go('home')">🏠 Trang chủ</button>
 <button onclick="go('create')" class="adminOnly">➕ Tạo sự kiện</button>
+<button onclick="window.location.href='quanLyChiTieu.html'" class="adminOnly">💰 Quản lý ngân sách</button>
 <button onclick="go('manage')" class="adminOnly">📋 Quản lý sự kiện</button>
-<button onclick="go('budget')" class="adminOnly">💰 Quản lý ngân sách</button>
 <button onclick="window.location.href='PhanVaiTroPhuTrachSuKien.html'" class="adminOnly">👥 Phân chia vai trò</button>
 <button onclick="window.location.href='thongKeSoLuongNguoiThamGia.html'" class="adminOnly">📊 Thống kê số lượng người tham gia</button>
 <button onclick="window.location.href='XemSuaXuatDanhSach.html'" class="adminOnly">🔍 Quản lý chi tiết</button>
 <button onclick="window.location.href='thongBaoSuKien.html'" class="adminOnly">🔔 Thông báo sự kiện</button>
 
 <!-- ===== USER ===== -->
+
 <button onclick="go('manage')" class="userOnly">📋 Danh sách sự kiện</button>
 <button onclick="cancelRegister()" class="userOnly">❌ Hủy đăng ký</button>
 <button onclick="go('join')" class="userOnly">🙋 Tham gia</button>
@@ -561,30 +562,12 @@
 
   <div class="toast" id="toast"></div>
 
-  <script type="module">
+  <script>
     /* DỮ LIỆU GỐC */
-    import { db, ref, push, onValue, remove, update } from "./firebase.js";
-
-    let users = [];
-    let events = [];
-    let participants = [];
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+    let events = JSON.parse(localStorage.getItem("events")) || [];
+    let participants = JSON.parse(localStorage.getItem("participants")) || [];
     let currentUser = JSON.parse(localStorage.getItem("currentUser"));
-
-    onValue(ref(db, "users"), snapshot => {
-      users = [];
-      snapshot.forEach(child => users.push({ id: child.key, ...child.val() }));
-    });
-
-    onValue(ref(db, "events"), snapshot => {
-      events = [];
-      snapshot.forEach(child => events.push({ id: child.key, ...child.val() }));
-      renderEvents();
-    });
-
-    onValue(ref(db, "participants"), snapshot => {
-      participants = [];
-      snapshot.forEach(child => participants.push({ id: child.key, ...child.val() }));
-    });
     let notifyEnabled = JSON.parse(localStorage.getItem("notifyEnabled"));
     if (notifyEnabled === null) notifyEnabled = true;
     let isLoginMode = true;
@@ -666,18 +649,15 @@
     }
 
     // Lưu tài khoản
-    push(ref(db, "users"), { name, email, pass, role, chucvu });
+    users.push({ name, email, pass, role, chucvu });
+    localStorage.setItem("users", JSON.stringify(users));
+
     showToast("🎉 Đăng ký thành công! Hãy đăng nhập.");
     toggleAuthMode();
   }
 }
 
-    function logout() {
-      localStorage.removeItem("currentUser");
-      currentUser = null;
-      updateUI();
-      go('home');
-    }
+    function logout() { localStorage.removeItem("currentUser"); location.reload(); }
 
     function updateUI() {
   if (!currentUser) {
@@ -730,8 +710,10 @@
         return;
       }
 
-      push(ref(db, "events"), {
-        t, l, d,
+      events.push({
+        t,
+        l,
+        d,
         time: time.value,
         status: selectedStatus,
         location: loc,
@@ -762,8 +744,8 @@
   `).join("");
 }
 
-    function delEvent(id) {
-      if (confirm("Xóa sự kiện này?")) { remove(ref(db, "events/" + id)); }
+    function delEvent(i) {
+      if (confirm("Xóa sự kiện này?")) { events.splice(i, 1); localStorage.setItem("events", JSON.stringify(events)); renderEvents(); }
     }
 
     /* PARTICIPANT LOGIC */
@@ -772,75 +754,81 @@
     }
 
    function addParticipant() {
-    let hoten = document.getElementById("pname").value.trim();
-    let mssv = document.getElementById("pmssv").value.trim();
-    let email = document.getElementById("pemail").value.trim();
-    let khoa = document.getElementById("pkhoa").value;
-    let eventName = peventSelect.value;
+  let hoten = document.getElementById("pname").value.trim();
+  let mssv = document.getElementById("pmssv").value.trim();
+  let email = document.getElementById("pemail").value.trim();
+  let khoa = document.getElementById("pkhoa").value;
+  let eventName = peventSelect.value;
 
-    // VALIDATION
-    if (!hoten || !mssv || !email || !khoa) {
-      return showToast("❌ Vui lòng nhập đầy đủ thông tin!", "error");
-    }
+  // VALIDATION
+  if (!hoten || !mssv || !email || !khoa) {
+    return showToast("❌ Vui lòng nhập đầy đủ thông tin!", "error");
+  }
 
-    if (!email.endsWith("@gmail.com")) {
-      return showToast("❌ Email phải có @gmail.com!", "error");
-    }
+  if (!email.endsWith("@gmail.com")) {
+    return showToast("❌ Email phải có @gmail.com!", "error");
+  }
 
-    if (participants.some(p => p.mssv === mssv && p.event === eventName)) {
-      return showToast("❌ MSSV đã đăng ký!", "error");
-    }
+  if (participants.some(p => p.mssv === mssv && p.event === eventName)) {
+    return showToast("❌ MSSV đã đăng ký!", "error");
+  }
 
-    if (participants.some(p => p.email === email && p.event === eventName)) {
-      return showToast("❌ Email đã đăng ký!", "error");
-    }
+  if (participants.some(p => p.email === email && p.event === eventName)) {
+    return showToast("❌ Email đã đăng ký!", "error");
+  }
 
-    let selectedEvent = events.find(e => e.t === eventName);
-    let count = participants.filter(p => p.event === eventName).length;
+  let selectedEvent = events.find(e => e.t === eventName);
+  let count = participants.filter(p => p.event === eventName).length;
 
-    if (selectedEvent && count >= selectedEvent.max) {
-      return showToast("❌ Sự kiện đã đủ người!", "error");
-    }
+  if (selectedEvent && count >= selectedEvent.max) {
+    return showToast("❌ Sự kiện đã đủ người!", "error");
+  }
 
-    // LƯU
-    let qrData = mssv + "|" + eventName;
+  // LƯU
+  let qrData = mssv + "|" + eventName;
 
-    let qrLink = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" 
+let qrLink = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" 
               + encodeURIComponent(qrData);
 
-    push(ref(db, "participants"), {
-      name: hoten, mssv, email, khoa,
-      event: eventName, checkedIn: false,
-      qr: qrData, qrLink: qrLink
-    });
+participants.push({
+  name: hoten,
+  mssv,
+  email,
+  khoa,
+  event: eventName,
+  checkedIn: false,
+  qr: qrData,
+  qrLink: qrLink // 
+});
 
+  localStorage.setItem("participants", JSON.stringify(participants));
 
-    showToast("🎉 Đăng ký thành công!");
+  showToast("🎉 Đăng ký thành công!");
 
-    // HIỂN QR
-    let qrBox = document.getElementById("myQR");
+  // HIỂN QR
+  let qrBox = document.getElementById("myQR");
 
-    if (qrBox) {
-      qrBox.innerHTML = "";
+  if (qrBox) {
+    qrBox.innerHTML = "";
 
-      let title = document.createElement("p");
-      title.innerText = "🪪 Mã QR của bạn";
-      title.style.textAlign = "center";
-      title.style.fontWeight = "bold";
-      qrBox.appendChild(title);
+    let title = document.createElement("p");
+    title.innerText = "🪪 Mã QR của bạn";
+    title.style.textAlign = "center";
+    title.style.fontWeight = "bold";
+    qrBox.appendChild(title);
 
-      let imgQR = document.createElement("img");
-      imgQR.src = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" + encodeURIComponent(qrData);
-      imgQR.style.display = "block";
-      imgQR.style.margin = "10px auto";
+    let imgQR = document.createElement("img");
+    imgQR.src = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" + encodeURIComponent(qrData);
+    imgQR.style.display = "block";
+    imgQR.style.margin = "10px auto";
 
-      qrBox.appendChild(imgQR);
+    qrBox.appendChild(imgQR);
 
-      let info = document.createElement("div");
-      info.style.textAlign = "center";
-      info.innerHTML = `<b>${hoten}</b><br>MSSV: ${mssv}`;
-      qrBox.appendChild(info);
-    }
+    let info = document.createElement("div");
+    info.style.textAlign = "center";
+    info.innerHTML = `<b>${hoten}</b><br>MSSV: ${mssv}`;
+    qrBox.appendChild(info);
+  }
 
   // RESET
   document.getElementById("pname").value = "";
@@ -861,8 +849,8 @@
   `).join("");
 }
 
-    function delP(id) { remove(ref(db, "participants/" + id)); }
-    
+    function delP(i) { participants.splice(i, 1); localStorage.setItem("participants", JSON.stringify(participants)); renderParticipants(); }
+
     /* UTILS */
     function showToast(msg, type = "success") {
       const t = document.getElementById("toast");
