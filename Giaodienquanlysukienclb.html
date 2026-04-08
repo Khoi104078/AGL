@@ -314,31 +314,39 @@
   <div class="menu-toggle" onclick="toggleMenu()">☰</div>
 
   <div class="menu" id="menu">
-    <!-- 🔍 THANH SEARCH  -->
+
+<!-- SEARCH -->
 <div style="position:fixed; top:15px; left:70px; right:15px; z-index:1000;">
-  <input 
-    type="text" 
-    id="globalSearch"
-    placeholder="🔍 Tìm kiếm: trang, sự kiện, người tham gia..." 
-    style="width:100%; padding:10px 15px; border-radius:20px; border:none; outline:none; box-shadow:0 4px 12px rgba(0,0,0,0.15);"
-    oninput="globalSearchFunction()"
-  >
+  <input type="text" id="globalSearch"
+    placeholder="🔍 Tìm kiếm..."
+    style="width:100%; padding:10px 15px; border-radius:20px; border:none;"
+    oninput="globalSearchFunction()">
 </div>
-    <button onclick="go('home')">🏠 Trang chủ</button>
-    <button onclick="go('create')" class="adminOnly">➕ Tạo sự kiện</button>
-    <button onclick="go('manage')" class="adminOnly">📋 Quản lý sự kiện</button>
-    <button onclick="window.location.href='PhanVaiTroPhuTrachSuKien.html'">📋 Phân chia vai trò</button>
-    <button onclick="go('participants')" class="adminOnly">📑 Người tham gia</button>
-    <button onclick="window.location.href='XemSuaXuatDanhSach.html'">🔍 Quản lý chi tiết</button>
-    <button onclick="go('join')">🙋 Tham gia</button>
-    <button onclick="go('login')">🔐 Đăng nhập / Đăng ký</button>
-    <button onclick="logout()">🚪 Đăng xuất</button>
-    <button onclick="go('reminder'); renderReminders()">🔔 Nhắc hẹn</button>
-    <button onclick="go('checkin')" class="adminOnly">📷 Check-in</button>
-    <button onclick="go('dashboard')" class="adminOnly">📊 Thống kê</button>
-    <button onclick="window.location.href='thongKeSoLuongNguoiThamGia.html'" class="adminOnly">📊 Thống kê người tham gia</button>
-    <button onclick="window.location.href='thongBaoSuKien.html'" class="adminOnly">🔔 Gửi thông báo</button>
-  </div>
+
+<!-- ===== ADMIN ===== -->
+<button onclick="go('home')">🏠 Trang chủ</button>
+<button onclick="go('create')" class="adminOnly">➕ Tạo sự kiện</button>
+<button onclick="window.location.href='quanLyChiTieu.html'" class="adminOnly">💰 Quản lý ngân sách</button>
+<button onclick="go('manage')" class="adminOnly">📋 Quản lý sự kiện</button>
+<button onclick="window.location.href='PhanVaiTroPhuTrachSuKien.html'" class="adminOnly">👥 Phân chia vai trò</button>
+<button onclick="window.location.href='thongKeSoLuongNguoiThamGia.html'" class="adminOnly">📊 Thống kê số lượng người tham gia</button>
+<button onclick="window.location.href='XemSuaXuatDanhSach.html'" class="adminOnly">🔍 Quản lý chi tiết</button>
+<button onclick="window.location.href='thongBaoSuKien.html'" class="adminOnly">🔔 Thông báo sự kiện</button>
+
+<!-- ===== USER ===== -->
+<button onclick="go('manage')" class="userOnly">📋 Danh sách sự kiện</button>
+<button onclick="cancelRegister()" class="userOnly">❌ Hủy đăng ký</button>
+<button onclick="go('join')" class="userOnly">🙋 Tham gia</button>
+<button onclick="go('reminder'); renderReminders()" class="userOnly">🔔 Nhắc hẹn</button>
+<button onclick="go('checkin')" class="userOnly">📷 Check-in</button>
+<button onclick="viewGallery()" class="userOnly">🖼 Xem tư liệu</button>
+<button onclick="window.location.href='thongBaoSuKien.html'" class="userOnly">🔔 Thông báo</button>
+
+<!-- ===== AUTH ===== -->
+<button onclick="go('login')">🔐 Đăng nhập / Đăng ký</button>
+<button onclick="logout()">🚪 Đăng xuất</button>
+
+</div>
 
   <div id="home" class="page" style="display: block;">
     <div class="card">
@@ -543,6 +551,7 @@
         </select>
       </div>
       <button class="main" id="btnAuth" onclick="handleAuth()">Đăng nhập</button>
+      <p style="text-align:center; margin-top:10px; font-size:13px; cursor:pointer; color:#3498db"onclick="forgotPassword()">❓ Quên mật khẩu?</p>
       <p style="text-align:center; margin-top:15px; font-size:13px; cursor:pointer; color:#e84393"
         onclick="toggleAuthMode()">
         Chưa có tài khoản? Đăng ký ngay
@@ -591,12 +600,13 @@
     }
 
     function handleAuth() {
-  let email = auth_email.value.trim();
+ let email = auth_email.value.trim().toLowerCase();
   let pass = auth_pass.value.trim();
 
   if (isLoginMode) {
     // ---- ĐĂNG NHẬP 
-    let u = users.find(x => x.email === email && x.pass === pass);
+    let u = users.find(x => x.email.toLowerCase() === email.toLowerCase() && x.pass === pass
+);
     if (!u) return showToast("❌ Sai tài khoản hoặc mật khẩu!", "error");
 
     currentUser = u;
@@ -649,17 +659,27 @@
     function logout() { localStorage.removeItem("currentUser"); location.reload(); }
 
     function updateUI() {
-      if (!currentUser) {
-        document.querySelectorAll(".adminOnly").forEach(b => b.style.display = "none");
-        welcome.innerText = "Khách hàng (Vui lòng đăng nhập)";
-      } else {
-        welcome.innerText = `Xin chào ${currentUser.name} (${currentUser.role})`;
-        document.querySelectorAll(".adminOnly").forEach(b => {
-          b.style.display = currentUser.role === "admin" ? "block" : "none";
-        });
-      }
-    }
+  if (!currentUser) {
+    // CHƯA LOGIN
+    document.querySelectorAll(".adminOnly").forEach(b => b.style.display = "none");
+    document.querySelectorAll(".userOnly").forEach(b => b.style.display = "none");
 
+    welcome.innerText = "Khách (Vui lòng đăng nhập)";
+    return;
+  }
+
+  welcome.innerText = `Xin chào ${currentUser.name} (${currentUser.role})`;
+
+  if (currentUser.role === "admin") {
+    // ADMIN
+    document.querySelectorAll(".adminOnly").forEach(b => b.style.display = "block");
+    document.querySelectorAll(".userOnly").forEach(b => b.style.display = "none");
+  } else {
+    // USER
+    document.querySelectorAll(".adminOnly").forEach(b => b.style.display = "none");
+    document.querySelectorAll(".userOnly").forEach(b => b.style.display = "block");
+  }
+}
     /* EVENT LOGIC (Tích hợp từ file taosukien.html) */
     function selectStatus(el) {
       document.querySelectorAll(".status-tag").forEach(t => t.classList.remove("active"));
@@ -816,11 +836,17 @@ participants.push({
   document.getElementById("pkhoa").value = "";
 }
     function renderParticipants() {
-      pTable.innerHTML = participants.map((p, i) => `
-    <tr><td>${p.name}</td><td>${p.event}</td>
-    <td><button class="btn-del" onclick="delP(${i})">🗑️</button></td></tr>
+  pTable.innerHTML = participants.map((p, i) => `
+    <tr>
+      <td>${p.name}</td>
+      <td>${p.event}</td>
+      <td>${p.checkedIn ? "✅ Đã tham gia" : "⏳ Chưa"}</td>
+      <td>
+        <button class="btn-del" onclick="delP(${i})">🗑️</button>
+      </td>
+    </tr>
   `).join("");
-    }
+}
 
     function delP(i) { participants.splice(i, 1); localStorage.setItem("participants", JSON.stringify(participants)); renderParticipants(); }
 
@@ -1073,6 +1099,49 @@ function renderReminders() {
   }
 
   document.getElementById("reminderList").innerHTML = html;
+}
+function forgotPassword() {
+  let email = prompt("📧 Nhập email đã đăng ký:");
+  if (!email) return;
+  email = email.trim().toLowerCase();
+  let usersData = JSON.parse(localStorage.getItem("users")) || [];
+  let userIndex = usersData.findIndex(u => 
+    u.email.toLowerCase() === email
+  );
+  if (userIndex === -1) {
+    showToast("❌ Email không tồn tại!", "error");
+    return;
+  }
+  let newPass = prompt("🔑 Nhập mật khẩu mới (≥6 ký tự):");
+  if (!newPass || newPass.length < 6) {
+    showToast("❌ Mật khẩu không hợp lệ!", "error");
+    return;
+  }
+
+  // CẬP NHẬT
+  usersData[userIndex].pass = newPass;
+  localStorage.setItem("users", JSON.stringify(usersData));
+  showToast("✅ Đổi mật khẩu thành công! Hãy đăng nhập lại.");
+
+  // reset input login 
+  document.getElementById("auth_pass").value = "";
+}
+function cancelRegister() {
+  let mssv = prompt("Nhập MSSV để hủy:");
+
+  let index = participants.findIndex(p => p.mssv === mssv);
+
+  if (index === -1) {
+    return showToast("❌ Không tìm thấy!", "error");
+  }
+
+  participants.splice(index, 1);
+  localStorage.setItem("participants", JSON.stringify(participants));
+
+  showToast("✅ Đã hủy đăng ký!");
+}
+function viewGallery() {
+  alert("📸 Chức năng xem hình ảnh/tư liệu (có thể nối Google Drive hoặc Firebase)");
 }
   </script>
   <script src="xemVaChinhSuaThongTinSuKien.js"></script>
