@@ -3,233 +3,319 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AGL System - Thư Viện Kỷ Niệm</title>
-    <link rel="stylesheet" href="giaodien.css">
+    <title>AGL – Thư Viện Kỷ Niệm</title>
     <style>
-        body { background:linear-gradient(135deg,#ff9a9e,#fad0c4) !important; margin:0; padding:0; min-height:100vh; }
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Nunito:wght@400;600;700&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Nunito',sans-serif;}
+        body{background:linear-gradient(135deg,#ff9a9e,#fad0c4);min-height:100vh;}
 
-        .menu-toggle { position:fixed;top:15px;left:15px;font-size:26px;background:#ff6a88;color:#fff;padding:8px 13px;border-radius:12px;cursor:pointer;z-index:1000;box-shadow:0 4px 12px rgba(255,106,136,.4); }
-        .menu { position:fixed;top:0;left:-270px;width:240px;height:100%;background:linear-gradient(180deg,#ff6a88,#ff8fab);padding-top:70px;display:flex;flex-direction:column;gap:8px;transition:.3s;z-index:999; }
-        .menu.show { left:0; }
-        .menu button { margin:0 12px;padding:11px 14px;border:none;border-radius:12px;background:rgba(255,255,255,.9);cursor:pointer;text-align:left;font-weight:600;color:#c0395e;transition:.2s; }
-        .menu button:hover { background:#fff;transform:translateX(4px); }
+        /* ── HEADER ── */
+        .header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;gap:12px;padding:12px 20px;background:rgba(255,106,136,.95);backdrop-filter:blur(8px);box-shadow:0 2px 12px rgba(255,106,136,.3);}
+        .back-btn{background:rgba(255,255,255,.25);border:none;color:#fff;font-size:20px;cursor:pointer;border-radius:10px;padding:6px 12px;}
+        .back-btn:hover{background:rgba(255,255,255,.4);}
+        .header-title{color:#fff;font-family:'Quicksand';font-weight:700;font-size:18px;}
+        .header-right{margin-left:auto;display:flex;gap:8px;align-items:center;}
+        .header-user{background:rgba(255,255,255,.2);color:#fff;font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;}
+        .logout-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;cursor:pointer;}
+        .logout-btn:hover{background:rgba(255,255,255,.3);}
 
-        #gallery-page { padding-top:80px; animation:fadeIn 0.5s; }
-        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+        /* ── CONTENT ── */
+        .content{padding:85px 20px 40px;max-width:1100px;margin:0 auto;}
+        .dashboard-wrapper{display:flex;gap:22px;align-items:flex-start;}
+        .side-info{width:260px;flex-shrink:0;}
+        .main-content{flex-grow:1;}
+        @media(max-width:800px){.dashboard-wrapper{flex-direction:column;}.side-info{width:100%;}}
 
-        .dashboard-wrapper { display:flex;gap:25px;max-width:1200px;margin:0 auto;padding:0 20px 40px;align-items:flex-start; }
-        .side-info { width:280px;flex-shrink:0; }
-        .main-content { flex-grow:1; }
-        .card { background:rgba(255,255,255,.97) !important;border-radius:24px !important;box-shadow:0 16px 48px rgba(255,105,180,.2) !important;padding:25px !important;margin-bottom:20px !important;border:none !important; }
-        .wide-card { max-width:100% !important; }
-        h2,h3 { color:#c0395e !important;font-family:'Quicksand',sans-serif !important;margin-top:0; }
+        /* ── CARDS ── */
+        .card{background:rgba(255,255,255,.97);border-radius:20px;padding:22px;margin-bottom:16px;box-shadow:0 8px 28px rgba(255,105,180,.15);}
+        h2,h3{color:#c0395e;font-family:'Quicksand';margin-top:0;}
+        h2{font-size:22px;margin-bottom:4px;}
+        .subtitle{color:#e84393;font-size:13px;opacity:.8;margin-bottom:16px;}
 
-        .stat-row { display:flex;justify-content:space-between;color:#c0395e;margin:12px 0;font-weight:700; }
-        .upload-btn-area { display:block;padding:20px;border:2px dashed #ffe0ea;border-radius:15px;text-align:center;cursor:pointer;background:#fff9fb;transition:.3s;color:#c0395e;font-weight:bold; }
-        .upload-btn-area:hover { background:#ffe0ea;border-color:#ff6a88; }
+        /* ── STATS ── */
+        .stat-row{display:flex;justify-content:space-between;align-items:center;color:#c0395e;margin:10px 0;font-weight:700;font-size:14px;}
+        .stat-num{background:#fff0f5;padding:4px 14px;border-radius:20px;font-size:16px;color:#e84393;}
 
-        .gallery-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;border-bottom:2px solid #fff0f3;padding-bottom:15px; }
-        .subtitle { color:#e84393;font-size:13px;opacity:.8;margin-top:5px; }
-        .filter-group { display:flex;gap:8px; }
-        .f-btn { padding:8px 16px;border-radius:20px;border:2px solid #ffe0ea;background:#fff;cursor:pointer;transition:.3s;color:#c0395e;font-weight:700; }
-        .f-btn.active { background:#ff6a88 !important;color:#fff !important;border-color:#ff6a88 !important; }
+        /* ── UPLOAD ── */
+        .upload-label{display:block;padding:18px;border:2px dashed #ffe0ea;border-radius:14px;text-align:center;cursor:pointer;background:#fff9fb;transition:.3s;color:#c0395e;font-weight:700;}
+        .upload-label:hover{background:#ffe0ea;border-color:#ff6a88;}
 
-        .media-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px; }
-        .media-item { border:2px solid #ffe0ea;border-radius:20px;overflow:hidden;background:#fff;transition:.3s; }
-        .media-item:hover { transform:translateY(-5px);border-color:#ff6a88;box-shadow:0 10px 25px rgba(255,106,136,.2); }
-        .img-box { height:140px;background:#eee;overflow:hidden; }
-        .img-box img { width:100%;height:100%;object-fit:cover; }
-        .file-box { height:140px;display:flex;align-items:center;justify-content:center;font-size:50px;background:#fff9fb; }
-        .item-name { padding:10px;text-align:center;font-size:13px;font-weight:700;color:#444;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+        /* ── FILTER BUTTONS ── */
+        .filter-group{display:flex;gap:8px;flex-wrap:wrap;}
+        .f-btn{padding:7px 16px;border-radius:20px;border:2px solid #ffe0ea;background:#fff;cursor:pointer;color:#c0395e;font-weight:700;font-size:13px;transition:.2s;}
+        .f-btn.active,.f-btn:hover{background:#ff6a88;color:#fff;border-color:#ff6a88;}
+        .gallery-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
 
-        /* Access denied */
-        .access-denied { grid-column:1/-1;text-align:center;padding:50px 20px;color:#c0395e; }
-        .access-denied .lock-icon { font-size:60px;margin-bottom:15px; }
-        .access-denied a { color:#ff6a88;font-weight:bold;text-decoration:none; }
+        /* ── GRID ── */
+        .media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:16px;}
+        .media-item{border:2px solid #ffe0ea;border-radius:18px;overflow:hidden;background:#fff;transition:.3s;cursor:pointer;}
+        .media-item:hover{transform:translateY(-4px);border-color:#ff6a88;box-shadow:0 10px 25px rgba(255,106,136,.2);}
+        .img-box{height:140px;background:#f5f5f5;overflow:hidden;position:relative;}
+        .img-box img{width:100%;height:100%;object-fit:cover;transition:.3s;}
+        .media-item:hover .img-box img{transform:scale(1.05);}
+        .file-box{height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff9fb;gap:6px;}
+        .file-box .file-icon{font-size:44px;}
+        .file-box .file-type{font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;}
+        .item-name{padding:10px 12px;font-size:12px;font-weight:700;color:#444;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-top:1px solid #fce8f0;}
+        .item-date{padding:0 12px 8px;font-size:11px;color:#bbb;}
 
-        @media(max-width:900px) { .dashboard-wrapper{flex-direction:column;} .side-info{width:100%;} }
+        /* ── LIGHTBOX ── */
+        .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;padding:20px;}
+        .lightbox.open{display:flex;}
+        .lightbox-inner{background:#fff;border-radius:20px;overflow:hidden;max-width:80vw;max-height:85vh;display:flex;flex-direction:column;}
+        .lightbox-img{max-width:100%;max-height:70vh;object-fit:contain;display:block;}
+        .lightbox-footer{padding:14px 18px;display:flex;justify-content:space-between;align-items:center;}
+        .lightbox-name{font-weight:700;color:#333;font-size:14px;}
+        .lightbox-close{background:#ff6a88;color:#fff;border:none;border-radius:10px;padding:7px 16px;cursor:pointer;font-weight:700;}
+
+        /* ── ACCESS DENIED ── */
+        .access-denied{text-align:center;padding:60px 20px;}
+        .access-denied .lock{font-size:56px;margin-bottom:14px;}
+        .access-denied h3{color:#e84393;font-family:'Quicksand';margin-bottom:8px;}
+        .access-denied p{color:#aaa;font-size:14px;}
+        .access-denied a{color:#ff6a88;font-weight:700;text-decoration:none;}
+
+        /* ── EMPTY ── */
+        .empty-grid{text-align:center;padding:50px 20px;color:#bbb;}
+        .empty-grid .icon{font-size:48px;margin-bottom:12px;}
+
+        /* ── FLOWER ── */
+        .flower{position:fixed;top:-50px;font-size:18px;animation:fall linear infinite;pointer-events:none;z-index:0;}
+        @keyframes fall{0%{transform:translateY(-50px) rotate(0)}100%{transform:translateY(110vh) rotate(360deg)}}
     </style>
 </head>
 <body>
 
-<div class="menu-toggle" onclick="toggleMenu()">☰</div>
+<!-- HEADER -->
+<div class="header">
+    <button class="back-btn" onclick="window.location.href='Giaodienquanlysukienclb.html'">←</button>
+    <div class="header-title">🖼 Thư Viện Kỷ Niệm</div>
+    <div class="header-right">
+        <div class="header-user" id="headerUser">Đang tải...</div>
+        <button class="logout-btn" id="logoutBtn" style="display:none;" onclick="doLogout()">Đăng xuất</button>
+    </div>
+</div>
 
-<nav class="menu" id="sideMenu">
-    <div style="text-align:center;color:white;font-weight:bold;margin-bottom:20px;font-family:'Quicksand'">AGL MANAGER</div>
-    <button onclick="window.location.href='Giaodienquanlysukienclb.html'">🏠 Trang chủ</button>
-    <button onclick="window.location.href='TimKiemVaLoc.html'">🔍 Tìm kiếm sự kiện</button>
-    <button onclick="window.location.href='Giaodienquanlysukienclb.html'" class="adminOnly" style="display:none;">➕ Tạo sự kiện</button>
-    <button onclick="window.location.href='PhanVaiTroPhuTrachSuKien.html'" class="adminOnly" style="display:none;">📋 Phân chia vai trò</button>
-    <button onclick="window.location.href='XemSuaXuatDanhSach.html'" class="adminOnly" style="display:none;">🔍 Quản lý chi tiết</button>
-    <button onclick="window.location.href='thongKeSoLuongNguoiThamGia.html'" class="adminOnly" style="display:none;">📊 Thống kê</button>
-    <button onclick="window.location.href='thongBaoSuKien.html'">🔔 Thông báo</button>
-    <button onclick="window.location.href='Giaodienquanlysukienclb.html'" class="guestOnly">🔐 Đăng nhập</button>
-    <button onclick="doLogout()" class="logoutOnly" style="display:none;">🚪 Đăng xuất</button>
-</nav>
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+    <div class="lightbox-inner">
+        <img class="lightbox-img" id="lightboxImg" src="" alt="">
+        <div class="lightbox-footer">
+            <span class="lightbox-name" id="lightboxName"></span>
+            <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.remove('open')">✕ Đóng</button>
+        </div>
+    </div>
+</div>
 
-<div id="gallery-page" style="display:block;padding:0;">
+<!-- CONTENT -->
+<div class="content">
     <div class="dashboard-wrapper">
+        <!-- SIDEBAR -->
         <aside class="side-info">
             <div class="card">
                 <h3>📊 Thống kê</h3>
-                <div class="stat-row"><span>Ảnh:</span> <strong id="img-count">0</strong></div>
-                <div class="stat-row"><span>File:</span> <strong id="file-count">0</strong></div>
+                <div class="stat-row"><span>🖼 Ảnh</span><span class="stat-num" id="imgCount">0</span></div>
+                <div class="stat-row"><span>📄 File</span><span class="stat-num" id="fileCount">0</span></div>
+                <div class="stat-row"><span>📁 Tổng</span><span class="stat-num" id="totalCount">0</span></div>
             </div>
-            <div class="card" id="uploadCard">
-                <h3>📤 Tải lên nhanh</h3>
-                <label class="upload-btn-area">
-                    <span>➕ Chọn ảnh/file</span>
-                    <input type="file" id="input-file" hidden onchange="handleUpload(this)">
+            <!-- Upload – chỉ admin -->
+            <div class="card" id="uploadCard" style="display:none;">
+                <h3>📤 Tải lên</h3>
+                <label class="upload-label">
+                    ➕ Chọn ảnh / file
+                    <input type="file" id="fileInput" hidden accept="image/*,.pdf,.doc,.docx,.pptx,.xlsx" onchange="handleUpload(this)" multiple>
                 </label>
+                <p style="font-size:11px;color:#aaa;margin-top:8px;text-align:center;">Hỗ trợ: ảnh, PDF, Office</p>
+            </div>
+            <!-- User hint -->
+            <div class="card" id="userHint" style="display:none;">
+                <h3>💡 Ghi chú</h3>
+                <p style="font-size:13px;color:#888;">Bạn đang xem tư liệu CLB ở chế độ <b>chỉ xem</b>.<br>Liên hệ Admin để thêm tư liệu mới.</p>
             </div>
         </aside>
 
+        <!-- MAIN -->
         <main class="main-content">
-            <div class="card wide-card">
+            <div class="card">
                 <div class="gallery-header">
                     <div>
-                        <h2 style="text-align:left;margin:0;">🌸 Thư Viện Kỷ Niệm</h2>
-                        <p class="subtitle">Lưu giữ những khoảnh khắc tuyệt vời của sự kiện</p>
+                        <h2>🌸 Thư Viện Kỷ Niệm</h2>
+                        <p class="subtitle">Lưu giữ những khoảnh khắc tuyệt vời của CLB</p>
                     </div>
                     <div class="filter-group">
-                        <button class="f-btn active" onclick="filter('all',this)">Tất cả</button>
-                        <button class="f-btn"        onclick="filter('image',this)">Ảnh</button>
-                        <button class="f-btn"        onclick="filter('file',this)">File</button>
+                        <button class="f-btn active" onclick="filterGallery('all',this)">Tất cả</button>
+                        <button class="f-btn" onclick="filterGallery('image',this)">🖼 Ảnh</button>
+                        <button class="f-btn" onclick="filterGallery('file',this)">📄 File</button>
                     </div>
                 </div>
-                <div id="media-grid" class="media-grid"></div>
+                <div id="mediaGrid" class="media-grid"></div>
             </div>
         </main>
     </div>
 </div>
 
-<script type="module" src="firebase-sync.js"></script>
-
 <script>
-// ── FIX: Đọc auth từ localStorage (đồng bộ với Giaodienquanlysukienclb.html) ──
+// ── Auth ──────────────────────────────────────────────
 function getCurrentUser() {
     try { return JSON.parse(localStorage.getItem("currentUser") || "null"); }
     catch { return null; }
 }
-
-function canAccessGallery() {
-    const u = getCurrentUser();
-    return !!u; // Bất kỳ user đã đăng nhập đều xem được
-}
-
-function isAdmin() {
-    const u = getCurrentUser();
-    return u?.role === "admin";
-}
-
-// ── Dữ liệu gallery (có thể mở rộng để lưu Firebase sau) ──
-let data = JSON.parse(localStorage.getItem("galleryData") || "null") || [
-    { type:'image', name:'Lễ khai mạc',            url:'https://picsum.photos/400/300?1' },
-    { type:'file',  name:'Kế hoạch sự kiện.pdf',   url:'#' },
-    { type:'image', name:'Team Building',           url:'https://picsum.photos/400/300?2' },
-    { type:'image', name:'Workshop 2025',           url:'https://picsum.photos/400/300?3' },
-];
-
-// ── Khởi tạo menu theo quyền ──────────────────────────────
-function initMenu() {
-    const u = getCurrentUser();
-    if (u?.role === "admin") {
-        document.querySelectorAll(".adminOnly").forEach(el => el.style.display = "block");
-    }
-    if (u) {
-        document.querySelectorAll(".logoutOnly").forEach(el => el.style.display = "block");
-        document.querySelectorAll(".guestOnly").forEach(el => el.style.display = "none");
-    }
-}
-
-function toggleMenu() {
-    document.getElementById("sideMenu").classList.toggle("show");
-}
-
-document.addEventListener("click", e => {
-    const menu   = document.getElementById("sideMenu");
-    const toggle = document.querySelector(".menu-toggle");
-    if (!menu.contains(e.target) && !toggle.contains(e.target) && menu.classList.contains("show"))
-        menu.classList.remove("show");
-});
+function isAdmin() { return getCurrentUser()?.role === "admin"; }
+function isLoggedIn() { return !!getCurrentUser(); }
 
 function doLogout() {
     localStorage.removeItem("currentUser");
     window.location.href = "Giaodienquanlysukienclb.html";
 }
 
-// ── Lọc ──────────────────────────────────────────────────
-function filter(type, btn) {
+// ── Init header ───────────────────────────────────────
+function initHeader() {
+    const u = getCurrentUser();
+    const headerUser = document.getElementById("headerUser");
+    const logoutBtn  = document.getElementById("logoutBtn");
+    if (u) {
+        const roleLabel = u.role === "admin" ? "👑 Admin" : "👤 Thành viên";
+        headerUser.textContent = `${roleLabel}: ${u.name || u.email}`;
+        logoutBtn.style.display = "block";
+        // Show upload only for admin
+        document.getElementById("uploadCard").style.display = isAdmin() ? "block" : "none";
+        document.getElementById("userHint").style.display  = !isAdmin() ? "block" : "none";
+    } else {
+        headerUser.textContent = "Khách";
+    }
+}
+
+// ── Demo data (có thể mở rộng lưu Firebase sau) ───────
+let galleryData = JSON.parse(localStorage.getItem("galleryData_v2") || "null") || [
+    { id:1, type:"image", name:"Lễ khai mạc CLB",    url:"https://picsum.photos/600/400?random=1",  date:"2025-01-10" },
+    { id:2, type:"image", name:"Team Building 2025",  url:"https://picsum.photos/600/400?random=2",  date:"2025-02-14" },
+    { id:3, type:"image", name:"Workshop Kỹ năng",    url:"https://picsum.photos/600/400?random=3",  date:"2025-03-05" },
+    { id:4, type:"file",  name:"Kế hoạch Q1 2025.pdf",url:"#",                                       date:"2025-01-01" },
+    { id:5, type:"image", name:"Gala Cuối Năm",       url:"https://picsum.photos/600/400?random=5",  date:"2024-12-31" },
+    { id:6, type:"image", name:"Tuyển thành viên",    url:"https://picsum.photos/600/400?random=6",  date:"2025-04-01" },
+    { id:7, type:"file",  name:"Báo cáo hoạt động.docx",url:"#",                                    date:"2025-03-31" },
+    { id:8, type:"image", name:"Sự kiện từ thiện",    url:"https://picsum.photos/600/400?random=8",  date:"2025-02-28" },
+];
+
+let currentFilter = "all";
+
+// ── Filter ────────────────────────────────────────────
+window.filterGallery = (type, btn) => {
     document.querySelectorAll(".f-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-    render(type === "all" ? data : data.filter(i => i.type === type));
-}
+    currentFilter = type;
+    renderGallery();
+};
 
-// ── Render ────────────────────────────────────────────────
-function render(list) {
-    const grid = document.getElementById("media-grid");
-    grid.innerHTML = "";
+// ── Render ────────────────────────────────────────────
+function renderGallery() {
+    const grid = document.getElementById("mediaGrid");
+    const u    = getCurrentUser();
 
-    if (!canAccessGallery()) {
+    if (!isLoggedIn()) {
         grid.innerHTML = `
-            <div class="access-denied">
-                <div class="lock-icon">🔒</div>
-                <h3 style="margin-bottom:10px;">Nội dung bị giới hạn</h3>
-                <p>Vui lòng <a href="Giaodienquanlysukienclb.html">đăng nhập</a> để truy cập thư viện.</p>
+            <div class="access-denied" style="grid-column:1/-1;">
+                <div class="lock">🔒</div>
+                <h3>Nội dung bị giới hạn</h3>
+                <p>Vui lòng <a href="Giaodienquanlysukienclb.html">đăng nhập</a> để xem thư viện CLB.</p>
             </div>`;
-        document.getElementById("img-count").innerText  = "—";
-        document.getElementById("file-count").innerText = "—";
-        // Ẩn nút upload
-        const uc = document.getElementById("uploadCard");
-        if (uc) uc.style.display = "none";
+        document.getElementById("uploadCard").style.display = "none";
+        document.getElementById("userHint").style.display   = "none";
+        updateStats(0, 0);
         return;
     }
 
-    // Hiện upload card nếu là admin
-    const uc = document.getElementById("uploadCard");
-    if (uc) uc.style.display = isAdmin() ? "block" : "none";
+    const list = currentFilter === "all"
+        ? galleryData
+        : galleryData.filter(i => i.type === currentFilter);
 
     if (!list.length) {
-        grid.innerHTML = `<div class="access-denied"><div class="lock-icon">📭</div><p>Chưa có tư liệu nào.</p></div>`;
+        grid.innerHTML = `<div class="empty-grid" style="grid-column:1/-1;">
+            <div class="icon">📭</div>
+            <p>Chưa có tư liệu nào trong danh mục này.</p>
+        </div>`;
         return;
     }
 
-    list.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "media-item";
+    grid.innerHTML = list.map(item => {
+        const formattedDate = item.date ? new Date(item.date + "T00:00:00").toLocaleDateString("vi-VN") : "";
         if (item.type === "image") {
-            div.innerHTML = `<div class="img-box"><img src="${item.url}" loading="lazy"></div><div class="item-name">${item.name}</div>`;
+            return `
+                <div class="media-item" onclick="openLightbox('${item.url}','${escHtml(item.name)}')">
+                    <div class="img-box"><img src="${item.url}" loading="lazy" alt="${escHtml(item.name)}"></div>
+                    <div class="item-name" title="${escHtml(item.name)}">${escHtml(item.name)}</div>
+                    <div class="item-date">${formattedDate}</div>
+                </div>`;
         } else {
-            div.innerHTML = `<div class="file-box">📄</div><div class="item-name">${item.name}</div>`;
-            if (item.url && item.url !== "#") {
-                div.style.cursor = "pointer";
-                div.onclick = () => window.open(item.url, "_blank");
-            }
+            const ext = item.name.split(".").pop().toLowerCase();
+            const icon = ext === "pdf" ? "📕" : ext === "pptx" ? "📊" : ext === "xlsx" ? "📗" : "📄";
+            const onclick = item.url !== "#" ? `onclick="window.open('${item.url}','_blank')"` : "";
+            return `
+                <div class="media-item" ${onclick} style="${item.url === '#' ? 'cursor:default;' : ''}">
+                    <div class="file-box"><div class="file-icon">${icon}</div><div class="file-type">${ext}</div></div>
+                    <div class="item-name" title="${escHtml(item.name)}">${escHtml(item.name)}</div>
+                    <div class="item-date">${formattedDate}</div>
+                </div>`;
         }
-        grid.appendChild(div);
+    }).join("");
+
+    updateStats(
+        galleryData.filter(i => i.type === "image").length,
+        galleryData.filter(i => i.type === "file").length
+    );
+}
+
+function updateStats(imgs, files) {
+    document.getElementById("imgCount").textContent   = imgs;
+    document.getElementById("fileCount").textContent  = files;
+    document.getElementById("totalCount").textContent = imgs + files;
+}
+
+function escHtml(s) {
+    return (s||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+// ── Upload (admin only) ───────────────────────────────
+window.handleUpload = (input) => {
+    if (!isAdmin()) { alert("Chỉ Admin mới được tải lên tư liệu!"); input.value = ""; return; }
+    const files = Array.from(input.files || []);
+    if (!files.length) return;
+
+    files.forEach(f => {
+        const isImg  = f.type.startsWith("image/");
+        const url    = isImg ? URL.createObjectURL(f) : "#";
+        const today  = new Date().toISOString().substring(0,10);
+        galleryData.unshift({ id: Date.now() + Math.random(), type: isImg ? "image" : "file", name: f.name, url, date: today });
     });
 
-    document.getElementById("img-count").innerText  = data.filter(i => i.type === "image").length;
-    document.getElementById("file-count").innerText = data.filter(i => i.type === "file").length;
-}
+    try { localStorage.setItem("galleryData_v2", JSON.stringify(galleryData)); } catch {}
+    renderGallery();
+};
 
-// ── Upload ────────────────────────────────────────────────
-function handleUpload(input) {
-    if (!isAdmin()) { alert("Chỉ Admin mới được tải lên tư liệu!"); input.value = ""; return; }
-    if (!input.files?.[0]) return;
+// ── Lightbox ──────────────────────────────────────────
+window.openLightbox = (url, name) => {
+    document.getElementById("lightboxImg").src  = url;
+    document.getElementById("lightboxName").textContent = name;
+    document.getElementById("lightbox").classList.add("open");
+};
+window.closeLightbox = (e) => {
+    if (e.target === document.getElementById("lightbox"))
+        document.getElementById("lightbox").classList.remove("open");
+};
 
-    const f    = input.files[0];
-    const isImg= f.type.startsWith("image/");
-    const url  = isImg ? URL.createObjectURL(f) : "#";
-    data.unshift({ type: isImg ? "image" : "file", name: f.name, url });
-    // Lưu localStorage (chỉ lưu được ảnh blob trong session hiện tại)
-    localStorage.setItem("galleryData", JSON.stringify(data));
-    render(data);
-}
+// ── Flower ────────────────────────────────────────────
+setInterval(() => {
+    const f = document.createElement("div");
+    f.className = "flower"; f.innerHTML = "🌸";
+    f.style.left = Math.random() * 100 + "vw";
+    f.style.animationDuration = (3 + Math.random() * 5) + "s";
+    document.body.appendChild(f);
+    setTimeout(() => f.remove(), 8000);
+}, 400);
 
-// ── Khởi chạy ────────────────────────────────────────────
-initMenu();
-render(data);
+// ── Init ──────────────────────────────────────────────
+initHeader();
+renderGallery();
 </script>
 </body>
 </html>

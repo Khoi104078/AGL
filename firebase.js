@@ -1,4 +1,5 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { initializeApp, getApps, getApp }
+  from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getDatabase, ref, set, push, onValue, remove, update }
   from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
@@ -12,7 +13,8 @@ const firebaseConfig = {
   appId: "1:141206426649:web:7fc9b098a48322b652c688"
 };
 
-const app = initializeApp(firebaseConfig);
+// Tránh lỗi duplicate-app khi nhiều file cùng import
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 export { db, ref, set, push, onValue, remove, update };

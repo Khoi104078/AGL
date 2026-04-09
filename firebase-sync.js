@@ -1,4 +1,5 @@
-import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { initializeApp, getApps, getApp }
+  from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getDatabase, ref, push, onValue, remove, update, set }
   from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
@@ -13,7 +14,8 @@ const firebaseConfig = {
   appId: "1:141206426649:web:7fc9b098a48322b652c688"
 };
 
-const app = initializeApp(firebaseConfig);
+// ── SAFE INIT: tránh duplicate app error ───────────────
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const db  = getDatabase(app);
 
 // ── LOCAL CACHE ────────────────────────────────────────
@@ -27,7 +29,6 @@ let _reviews       = [];
 let _budgets       = [];
 
 // ── READY PROMISE ──────────────────────────────────────
-// FIX: đếm đúng 5 node bắt buộc (events, participants, users, admins, assignments)
 let _resolveReady;
 const ready = new Promise(r => (_resolveReady = r));
 const _REQUIRED_NODES = new Set(["events","participants","users","admins","assignments"]);
@@ -35,7 +36,7 @@ const _loadedNodes    = new Set();
 
 function _checkReady(nodeName) {
   _loadedNodes.add(nodeName);
-  if (_REQUIRED_NODES.size === [..._REQUIRED_NODES].filter(n => _loadedNodes.has(n)).length) {
+  if ([..._REQUIRED_NODES].every(n => _loadedNodes.has(n))) {
     _resolveReady();
   }
 }
@@ -92,7 +93,6 @@ onValue(ref(db, "reviews"), snap => {
   window.dispatchEvent(new CustomEvent("fs:reviews", { detail: _reviews }));
 });
 
-// FIX: Đồng bộ budgets lên Firebase thay vì chỉ localStorage
 onValue(ref(db, "budgets"), snap => {
   _budgets = [];
   snap.forEach(c => _budgets.push({ id: c.key, ...c.val() }));
@@ -102,7 +102,6 @@ onValue(ref(db, "budgets"), snap => {
 
 // ── TOAST HELPER ──────────────────────────────────────
 function showToast(msg, type = "success") {
-  // Ưu tiên dùng phần tử #toast có sẵn trên trang (tương thích mọi trang)
   let t = document.getElementById("toast");
   if (!t) {
     t = document.createElement("div");
@@ -117,14 +116,7 @@ function showToast(msg, type = "success") {
     ].join(";");
     document.body.appendChild(t);
   }
-
-  const colors = {
-    success : "#2ecc71",
-    error   : "#e74c3c",
-    info    : "#3498db",
-    warning : "#f39c12"
-  };
-
+  const colors = { success:"#2ecc71", error:"#e74c3c", info:"#3498db", warning:"#f39c12" };
   t.style.background = colors[type] || colors.success;
   t.textContent = msg;
   t.style.opacity   = "1";
@@ -145,24 +137,27 @@ const FS = {
   ready,
   showToast,
 
-  // Getters (luôn trả về bản mới nhất)
+  // Getters – luôn trả về bản mới nhất từ cache
   getEvents:        () => _events,
   getParticipants:  () => _participants,
   getUsers:         () => _users,
   getAdmins:        () => _admins,
-  // FIX: getAllAccounts() gộp users + admins, loại trùng theo email
+
+  // Gộp users + admins, loại trùng theo email
   getAllAccounts: () => {
     const map = new Map();
     [..._users, ..._admins].forEach(u => {
       const key = (u.email || u.id || "").toLowerCase();
-      if (!map.has(key)) map.set(key, u);
-      else {
-        // Ưu tiên bản có passHash (đã hash)
+      if (!map.has(key)) {
+        map.set(key, u);
+      } else {
+        // Ưu tiên bản có passHash
         if (u.passHash && !map.get(key).passHash) map.set(key, u);
       }
     });
     return [...map.values()];
   },
+
   getAssignments:   () => _assignments,
   getNotifications: () => _notifications,
   getReviews:       () => _reviews,
@@ -180,9 +175,8 @@ const FS = {
     } catch { return false; }
   },
   isLoggedIn: () => {
-    try {
-      return !!JSON.parse(localStorage.getItem("currentUser") || "null");
-    } catch { return false; }
+    try { return !!JSON.parse(localStorage.getItem("currentUser") || "null"); }
+    catch { return false; }
   },
 
   // ── Shortcuts ghi dữ liệu ──
@@ -197,6 +191,7 @@ const FS = {
   updateParticipant : (id, d) => update(ref(db, `participants/${id}`), d),
   updateAssignment  : (id, d) => update(ref(db, `assignments/${id}`),  d),
   updateBudget      : (id, d) => update(ref(db, `budgets/${id}`),      d),
+  updateNotification: (id, d) => update(ref(db, `notifications/${id}`),d),
 
   deleteEvent       : (id) => remove(ref(db, `events/${id}`)),
   deleteParticipant : (id) => remove(ref(db, `participants/${id}`)),
