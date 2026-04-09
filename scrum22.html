@@ -6,267 +6,230 @@
     <title>AGL System - Thư Viện Kỷ Niệm</title>
     <link rel="stylesheet" href="giaodien.css">
     <style>
-        /* Tùy chỉnh CSS để sửa lỗi bố cục khi menu chuyển sang dọc */
-        body { 
-            background: linear-gradient(135deg, #ff9a9e, #fad0c4) !important; 
-            margin: 0; 
-            padding: 0; 
-            min-height: 100vh; 
-        }
+        body { background:linear-gradient(135deg,#ff9a9e,#fad0c4) !important; margin:0; padding:0; min-height:100vh; }
 
-        /* Nút toggle menu (Style đồng bộ giaodien.css) */
-        .menu-toggle {
-            position: fixed; 
-            top: 15px; 
-            left: 15px;
-            font-size: 26px; 
-            background: #ff6a88; 
-            color: #fff;
-            padding: 8px 13px; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(255,106,136,.4);
-        }
+        .menu-toggle { position:fixed;top:15px;left:15px;font-size:26px;background:#ff6a88;color:#fff;padding:8px 13px;border-radius:12px;cursor:pointer;z-index:1000;box-shadow:0 4px 12px rgba(255,106,136,.4); }
+        .menu { position:fixed;top:0;left:-270px;width:240px;height:100%;background:linear-gradient(180deg,#ff6a88,#ff8fab);padding-top:70px;display:flex;flex-direction:column;gap:8px;transition:.3s;z-index:999; }
+        .menu.show { left:0; }
+        .menu button { margin:0 12px;padding:11px 14px;border:none;border-radius:12px;background:rgba(255,255,255,.9);cursor:pointer;text-align:left;font-weight:600;color:#c0395e;transition:.2s; }
+        .menu button:hover { background:#fff;transform:translateX(4px); }
 
-        /* Thanh Menu Sidebar (Style đồng bộ giaodien.css) */
-        .menu {
-            position: fixed; 
-            top: 0; 
-            left: -270px; /* Ẩn mặc định */
-            width: 240px; 
-            height: 100%;
-            background: linear-gradient(180deg, #ff6a88, #ff8fab); 
-            padding-top: 70px;
-            display: flex; 
-            flex-direction: column; 
-            gap: 8px; 
-            transition: .3s; 
-            z-index: 999;
-        }
-        .menu.show { left: 0; } /* Hiện khi có class show */
-        
-        /* Các nút bên trong menu (Style đồng bộ giaodien.css) */
-        .menu button {
-            margin: 0 12px; 
-            padding: 11px 14px; 
-            border: none; 
-            border-radius: 12px;
-            background: rgba(255,255,255,.9); 
-            cursor: pointer; 
-            text-align: left;
-            font-weight: 600; 
-            color: #c0395e; 
-            transition: .2s;
-        }
-        .menu button:hover { background: #fff; transform: translateX(4px); }
+        #gallery-page { padding-top:80px; animation:fadeIn 0.5s; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
 
-        /* Vùng nội dung chính (Cân chỉnh để không bị che khuất bởi menu) */
-        #gallery-page {
-            padding-top: 80px; /* Chừa chỗ cho nút menu-toggle */
-            animation: fadeIn 0.5s;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .dashboard-wrapper { display:flex;gap:25px;max-width:1200px;margin:0 auto;padding:0 20px 40px;align-items:flex-start; }
+        .side-info { width:280px;flex-shrink:0; }
+        .main-content { flex-grow:1; }
+        .card { background:rgba(255,255,255,.97) !important;border-radius:24px !important;box-shadow:0 16px 48px rgba(255,105,180,.2) !important;padding:25px !important;margin-bottom:20px !important;border:none !important; }
+        .wide-card { max-width:100% !important; }
+        h2,h3 { color:#c0395e !important;font-family:'Quicksand',sans-serif !important;margin-top:0; }
 
-        /* Bố cục Dashboard 2 cột (Giữ nguyên logic của bạn) */
-        .dashboard-wrapper { display: flex; gap: 25px; max-width: 1200px; margin: 0 auto; padding: 0 20px 40px; align-items: flex-start; }
-        .side-info { width: 280px; flex-shrink: 0; }
-        .main-content { flex-grow: 1; }
-        .card { background: rgba(255, 255, 255, 0.97) !important; border-radius: 24px !important; box-shadow: 0 16px 48px rgba(255, 105, 180, 0.2) !important; padding: 25px !important; margin-bottom: 20px !important; border: none !important; }
-        .wide-card { max-width: 100% !important; }
-        h2, h3 { color: #c0395e !important; font-family: 'Quicksand', sans-serif !important; margin-top: 0; }
-        .stat-row { display: flex; justify-content: space-between; color: #c0395e; margin: 12px 0; font-weight: 700; }
-        .upload-btn-area { display: block; padding: 20px; border: 2px dashed #ffe0ea; border-radius: 15px; text-align: center; cursor: pointer; background: #fff9fb; transition: 0.3s; color: #c0395e; font-weight: bold; }
-        .upload-btn-area:hover { background: #ffe0ea; border-color: #ff6a88; }
-        .gallery-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #fff0f3; padding-bottom: 15px; }
-        .subtitle { color: #e84393; font-size: 13px; opacity: 0.8; margin-top: 5px; }
-        .filter-group { display: flex; gap: 8px; }
-        .f-btn { padding: 8px 16px; border-radius: 20px; border: 2px solid #ffe0ea; background: #fff; cursor: pointer; transition: 0.3s; color: #c0395e; font-weight: 700; }
-        .f-btn.active { background: #ff6a88 !important; color: #fff !important; border-color: #ff6a88 !important; }
-        .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
-        .media-item { border: 2px solid #ffe0ea; border-radius: 20px; overflow: hidden; background: #fff; transition: 0.3s; }
-        .media-item:hover { transform: translateY(-5px); border-color: #ff6a88; box-shadow: 0 10px 25px rgba(255,106,136,0.2); }
-        .img-box { height: 140px; background: #eee; overflow: hidden; }
-        .img-box img { width: 100%; height: 100%; object-fit: cover; }
-        .file-box { height: 140px; display: flex; align-items: center; justify-content: center; font-size: 50px; background: #fff9fb; }
-        .item-name { padding: 10px; text-align: center; font-size: 13px; font-weight: 700; color: #444; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .stat-row { display:flex;justify-content:space-between;color:#c0395e;margin:12px 0;font-weight:700; }
+        .upload-btn-area { display:block;padding:20px;border:2px dashed #ffe0ea;border-radius:15px;text-align:center;cursor:pointer;background:#fff9fb;transition:.3s;color:#c0395e;font-weight:bold; }
+        .upload-btn-area:hover { background:#ffe0ea;border-color:#ff6a88; }
 
-        @media (max-width: 900px) { .dashboard-wrapper { flex-direction: column; } .side-info { width: 100%; } }
+        .gallery-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;border-bottom:2px solid #fff0f3;padding-bottom:15px; }
+        .subtitle { color:#e84393;font-size:13px;opacity:.8;margin-top:5px; }
+        .filter-group { display:flex;gap:8px; }
+        .f-btn { padding:8px 16px;border-radius:20px;border:2px solid #ffe0ea;background:#fff;cursor:pointer;transition:.3s;color:#c0395e;font-weight:700; }
+        .f-btn.active { background:#ff6a88 !important;color:#fff !important;border-color:#ff6a88 !important; }
+
+        .media-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px; }
+        .media-item { border:2px solid #ffe0ea;border-radius:20px;overflow:hidden;background:#fff;transition:.3s; }
+        .media-item:hover { transform:translateY(-5px);border-color:#ff6a88;box-shadow:0 10px 25px rgba(255,106,136,.2); }
+        .img-box { height:140px;background:#eee;overflow:hidden; }
+        .img-box img { width:100%;height:100%;object-fit:cover; }
+        .file-box { height:140px;display:flex;align-items:center;justify-content:center;font-size:50px;background:#fff9fb; }
+        .item-name { padding:10px;text-align:center;font-size:13px;font-weight:700;color:#444;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+
+        /* Access denied */
+        .access-denied { grid-column:1/-1;text-align:center;padding:50px 20px;color:#c0395e; }
+        .access-denied .lock-icon { font-size:60px;margin-bottom:15px; }
+        .access-denied a { color:#ff6a88;font-weight:bold;text-decoration:none; }
+
+        @media(max-width:900px) { .dashboard-wrapper{flex-direction:column;} .side-info{width:100%;} }
     </style>
 </head>
 <body>
 
-    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+<div class="menu-toggle" onclick="toggleMenu()">☰</div>
 
-    <nav class="menu" id="sideMenu">
-        <div style="text-align:center; color:white; font-weight:bold; margin-bottom:20px; font-family:'Quicksand'">AGL MANAGER</div>
-        <button onclick="changePage('home')">🏠 Trang chủ</button>
-        <button onclick="changePage('create')" class="adminOnly">➕ Tạo sự kiện</button>
-        <button onclick="changePage('manage')" class="adminOnly">📋 Quản lý sự kiện</button>
-        <button onclick="window.location.href='PhanVaiTroPhuTrachSuKien.html'">📋 Phân chia vai trò</button>
-        <button onclick="changePage('participants')" class="adminOnly">📑 Người tham gia</button>
-        <button onclick="window.location.href='XemSuaXuatDanhSach.html'">🔍 Quản lý chi tiết</button>
-        <button onclick="changePage('join')">🙋 Tham gia</button>
-        <button onclick="changePage('login')">🔐 Đăng nhập / Đăng ký</button>
-        <button onclick="logout()">🚪 Đăng xuất</button>
-        <button onclick="changePage('checkin')" class="adminOnly">📷 Check-in</button>
-        <button onclick="changePage('dashboard')" class="adminOnly">📊 Thống kê</button>
-        <button onclick="window.location.href='thongKeSoLuongNguoiThamGia.html'" class="adminOnly">📊 Thống kê người tham gia</button>
-    </nav>
+<nav class="menu" id="sideMenu">
+    <div style="text-align:center;color:white;font-weight:bold;margin-bottom:20px;font-family:'Quicksand'">AGL MANAGER</div>
+    <button onclick="window.location.href='Giaodienquanlysukienclb.html'">🏠 Trang chủ</button>
+    <button onclick="window.location.href='TimKiemVaLoc.html'">🔍 Tìm kiếm sự kiện</button>
+    <button onclick="window.location.href='Giaodienquanlysukienclb.html'" class="adminOnly" style="display:none;">➕ Tạo sự kiện</button>
+    <button onclick="window.location.href='PhanVaiTroPhuTrachSuKien.html'" class="adminOnly" style="display:none;">📋 Phân chia vai trò</button>
+    <button onclick="window.location.href='XemSuaXuatDanhSach.html'" class="adminOnly" style="display:none;">🔍 Quản lý chi tiết</button>
+    <button onclick="window.location.href='thongKeSoLuongNguoiThamGia.html'" class="adminOnly" style="display:none;">📊 Thống kê</button>
+    <button onclick="window.location.href='thongBaoSuKien.html'">🔔 Thông báo</button>
+    <button onclick="window.location.href='Giaodienquanlysukienclb.html'" class="guestOnly">🔐 Đăng nhập</button>
+    <button onclick="doLogout()" class="logoutOnly" style="display:none;">🚪 Đăng xuất</button>
+</nav>
 
-    <div id="gallery-page" class="page" style="display: block; padding: 0;">
-        <div class="dashboard-wrapper">
-            
-            <aside class="side-info">
-                <div class="card mini-card">
-                    <h3>📊 Thống kê</h3>
-                    <div class="stat-row"><span>Ảnh:</span> <strong id="img-count">0</strong></div>
-                    <div class="stat-row"><span>File:</span> <strong id="file-count">0</strong></div>
-                </div>
+<div id="gallery-page" style="display:block;padding:0;">
+    <div class="dashboard-wrapper">
+        <aside class="side-info">
+            <div class="card">
+                <h3>📊 Thống kê</h3>
+                <div class="stat-row"><span>Ảnh:</span> <strong id="img-count">0</strong></div>
+                <div class="stat-row"><span>File:</span> <strong id="file-count">0</strong></div>
+            </div>
+            <div class="card" id="uploadCard">
+                <h3>📤 Tải lên nhanh</h3>
+                <label class="upload-btn-area">
+                    <span>➕ Chọn ảnh/file</span>
+                    <input type="file" id="input-file" hidden onchange="handleUpload(this)">
+                </label>
+            </div>
+        </aside>
 
-                <div class="card mini-card">
-                    <h3>📤 Tải lên nhanh</h3>
-                    <label class="upload-btn-area">
-                        <span>➕ Chọn ảnh/file</span>
-                        <input type="file" id="input-file" hidden onchange="handleUpload(this)">
-                    </label>
-                </div>
-            </aside>
-
-            <main class="main-content">
-                <div class="card wide-card">
-                    <div class="gallery-header">
-                        <div class="title-section">
-                            <h2 style="text-align: left; margin: 0;">🌸 Thư Viện Kỷ Niệm</h2>
-                            <p class="subtitle">Lưu giữ những khoảnh khắc tuyệt vời của sự kiện</p>
-                        </div>
-                        <div class="filter-group">
-                            <button class="f-btn active" onclick="filter('all', this)">Tất cả</button>
-                            <button class="f-btn" onclick="filter('image', this)">Ảnh</button>
-                            <button class="f-btn" onclick="filter('file', this)">File</button>
-                        </div>
+        <main class="main-content">
+            <div class="card wide-card">
+                <div class="gallery-header">
+                    <div>
+                        <h2 style="text-align:left;margin:0;">🌸 Thư Viện Kỷ Niệm</h2>
+                        <p class="subtitle">Lưu giữ những khoảnh khắc tuyệt vời của sự kiện</p>
                     </div>
-
-                    <div id="media-grid" class="media-grid">
+                    <div class="filter-group">
+                        <button class="f-btn active" onclick="filter('all',this)">Tất cả</button>
+                        <button class="f-btn"        onclick="filter('image',this)">Ảnh</button>
+                        <button class="f-btn"        onclick="filter('file',this)">File</button>
                     </div>
                 </div>
-            </main>
-        </div>
+                <div id="media-grid" class="media-grid"></div>
+            </div>
+        </main>
     </div>
+</div>
 
-    <script>
-        // 1. Hàm đóng/mở Menu
-        function toggleMenu() {
-            const menu = document.getElementById('sideMenu');
-            menu.classList.toggle('show');
-        }
+<script type="module" src="firebase-sync.js"></script>
 
-        document.addEventListener('click', function(e) {
-            const menu = document.getElementById('sideMenu');
-            const toggle = document.querySelector('.menu-toggle');
-            if (!menu.contains(e.target) && !toggle.contains(e.target) && menu.classList.contains('show')) {
-                menu.classList.remove('show');
-            }
-        });
+<script>
+// ── FIX: Đọc auth từ localStorage (đồng bộ với Giaodienquanlysukienclb.html) ──
+function getCurrentUser() {
+    try { return JSON.parse(localStorage.getItem("currentUser") || "null"); }
+    catch { return null; }
+}
 
-        // 2. Phân vai trò & Cấu hình - THÊM LOGIC PHÂN QUYỀN
-        const userAuth = {
-            isLoggedIn: false, // Giả lập trạng thái đăng nhập
-            role: 'guest'      // Quyền: 'admin', 'user', hoặc 'guest'
-        };
+function canAccessGallery() {
+    const u = getCurrentUser();
+    return !!u; // Bất kỳ user đã đăng nhập đều xem được
+}
 
-        const eventConfig = { 
-            isRestricted: true // TRUE: Chỉ người có quyền mới xem được, FALSE: Ai cũng xem được
-        };
+function isAdmin() {
+    const u = getCurrentUser();
+    return u?.role === "admin";
+}
 
-        // Hàm kiểm tra quyền xem tư liệu
-        function canAccessGallery() {
-            if (!eventConfig.isRestricted) return true;
-            return userAuth.isLoggedIn && (userAuth.role === 'admin' || userAuth.role === 'user');
-        }
+// ── Dữ liệu gallery (có thể mở rộng để lưu Firebase sau) ──
+let data = JSON.parse(localStorage.getItem("galleryData") || "null") || [
+    { type:'image', name:'Lễ khai mạc',            url:'https://picsum.photos/400/300?1' },
+    { type:'file',  name:'Kế hoạch sự kiện.pdf',   url:'#' },
+    { type:'image', name:'Team Building',           url:'https://picsum.photos/400/300?2' },
+    { type:'image', name:'Workshop 2025',           url:'https://picsum.photos/400/300?3' },
+];
 
-        let data = [
-            { type: 'image', name: 'Lễ khai mạc', url: 'https://picsum.photos/400/300?1' },
-            { type: 'file', name: 'Kế hoạch sự kiện.pdf', url: '#' },
-            { type: 'image', name: 'Team Building', url: 'https://picsum.photos/400/300?2' }
-        ];
+// ── Khởi tạo menu theo quyền ──────────────────────────────
+function initMenu() {
+    const u = getCurrentUser();
+    if (u?.role === "admin") {
+        document.querySelectorAll(".adminOnly").forEach(el => el.style.display = "block");
+    }
+    if (u) {
+        document.querySelectorAll(".logoutOnly").forEach(el => el.style.display = "block");
+        document.querySelectorAll(".guestOnly").forEach(el => el.style.display = "none");
+    }
+}
 
-        // 3. Xử lý phân quyền menu khi load trang
-        function initMenu() {
-            if (userAuth.role !== 'admin') {
-                document.querySelectorAll('.adminOnly').forEach(el => el.style.display = 'none');
-            }
-        }
+function toggleMenu() {
+    document.getElementById("sideMenu").classList.toggle("show");
+}
 
-        function filter(type, btn) {
-            document.querySelectorAll('.f-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const filtered = type === 'all' ? data : data.filter(i => i.type === type);
-            render(filtered);
-        }
+document.addEventListener("click", e => {
+    const menu   = document.getElementById("sideMenu");
+    const toggle = document.querySelector(".menu-toggle");
+    if (!menu.contains(e.target) && !toggle.contains(e.target) && menu.classList.contains("show"))
+        menu.classList.remove("show");
+});
 
-        function render(list) {
-            const grid = document.getElementById('media-grid');
-            grid.innerHTML = '';
+function doLogout() {
+    localStorage.removeItem("currentUser");
+    window.location.href = "Giaodienquanlysukienclb.html";
+}
 
-            // KIỂM TRA PHÂN QUYỀN TRƯỚC KHI HIỂN THỊ
-            if (!canAccessGallery()) {
-                grid.innerHTML = `
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px; color: #c0395e;">
-                        <div style="font-size: 60px; margin-bottom: 15px;">🔒</div>
-                        <h3 style="margin-bottom: 10px;">Nội dung bị giới hạn</h3>
-                        <p style="font-size: 14px; opacity: 0.8;">Vui lòng <a href="#" onclick="changePage('login')" style="color: #ff6a88; font-weight: bold; text-decoration: none;">đăng nhập</a> để truy cập thư viện này.</p>
-                    </div>
-                `;
-                document.getElementById('img-count').innerText = "0";
-                document.getElementById('file-count').innerText = "0";
-                return;
-            }
+// ── Lọc ──────────────────────────────────────────────────
+function filter(type, btn) {
+    document.querySelectorAll(".f-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    render(type === "all" ? data : data.filter(i => i.type === type));
+}
 
-            // Nếu đủ quyền, thực hiện render bình thường
-            list.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'media-item';
-                div.innerHTML = item.type === 'image' 
-                    ? `<div class="img-box"><img src="${item.url}"></div><div class="item-name">${item.name}</div>`
-                    : `<div class="file-box">📄</div><div class="item-name">${item.name}</div>`;
-                grid.appendChild(div);
-            });
-            
-            document.getElementById('img-count').innerText = data.filter(i => i.type === 'image').length;
-            document.getElementById('file-count').innerText = data.filter(i => i.type === 'file').length;
-        }
+// ── Render ────────────────────────────────────────────────
+function render(list) {
+    const grid = document.getElementById("media-grid");
+    grid.innerHTML = "";
 
-        function changePage(pageId) {
-            alert("Chuyển sang trang: " + pageId);
-            const menu = document.getElementById('sideMenu');
-            menu.classList.remove('show');
-        }
+    if (!canAccessGallery()) {
+        grid.innerHTML = `
+            <div class="access-denied">
+                <div class="lock-icon">🔒</div>
+                <h3 style="margin-bottom:10px;">Nội dung bị giới hạn</h3>
+                <p>Vui lòng <a href="Giaodienquanlysukienclb.html">đăng nhập</a> để truy cập thư viện.</p>
+            </div>`;
+        document.getElementById("img-count").innerText  = "—";
+        document.getElementById("file-count").innerText = "—";
+        // Ẩn nút upload
+        const uc = document.getElementById("uploadCard");
+        if (uc) uc.style.display = "none";
+        return;
+    }
 
-        function logout() {
-            alert("Đang đăng xuất...");
-            location.reload();
-        }
+    // Hiện upload card nếu là admin
+    const uc = document.getElementById("uploadCard");
+    if (uc) uc.style.display = isAdmin() ? "block" : "none";
 
-        function handleUpload(input) {
-            // Chặn upload nếu không có quyền xem (ngăn hack giao diện)
-            if (!canAccessGallery()) {
-                alert("Bạn không có quyền tải lên tư liệu cho sự kiện này!");
-                input.value = "";
-                return;
-            }
+    if (!list.length) {
+        grid.innerHTML = `<div class="access-denied"><div class="lock-icon">📭</div><p>Chưa có tư liệu nào.</p></div>`;
+        return;
+    }
 
-            if (input.files && input.files[0]) {
-                const f = input.files[0];
-                const isImg = f.type.startsWith('image/');
-                data.unshift({ type: isImg ? 'image' : 'file', name: f.name, url: isImg ? URL.createObjectURL(f) : '#' });
-                render(data);
+    list.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "media-item";
+        if (item.type === "image") {
+            div.innerHTML = `<div class="img-box"><img src="${item.url}" loading="lazy"></div><div class="item-name">${item.name}</div>`;
+        } else {
+            div.innerHTML = `<div class="file-box">📄</div><div class="item-name">${item.name}</div>`;
+            if (item.url && item.url !== "#") {
+                div.style.cursor = "pointer";
+                div.onclick = () => window.open(item.url, "_blank");
             }
         }
+        grid.appendChild(div);
+    });
 
-        // Chạy khởi tạo
-        initMenu();
-        render(data);
-    </script>
+    document.getElementById("img-count").innerText  = data.filter(i => i.type === "image").length;
+    document.getElementById("file-count").innerText = data.filter(i => i.type === "file").length;
+}
+
+// ── Upload ────────────────────────────────────────────────
+function handleUpload(input) {
+    if (!isAdmin()) { alert("Chỉ Admin mới được tải lên tư liệu!"); input.value = ""; return; }
+    if (!input.files?.[0]) return;
+
+    const f    = input.files[0];
+    const isImg= f.type.startsWith("image/");
+    const url  = isImg ? URL.createObjectURL(f) : "#";
+    data.unshift({ type: isImg ? "image" : "file", name: f.name, url });
+    // Lưu localStorage (chỉ lưu được ảnh blob trong session hiện tại)
+    localStorage.setItem("galleryData", JSON.stringify(data));
+    render(data);
+}
+
+// ── Khởi chạy ────────────────────────────────────────────
+initMenu();
+render(data);
+</script>
 </body>
 </html>

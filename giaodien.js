@@ -1,6 +1,3 @@
-let users = JSON.parse(localStorage.getItem("users")) || [];
-let events = JSON.parse(localStorage.getItem("events")) || [];
-let participants = JSON.parse(localStorage.getItem("participants")) || [];
 let currentUser = JSON.parse(localStorage.getItem("currentUser"));
 let isLoginMode = true;
 let selectedStatus = "Mở";
@@ -78,17 +75,7 @@ function addParticipant(){
   showToast("OK!");
 }
 
-/* AUTH */
-function handleAuth(){
-  let email = auth_email.value;
-  let pass = auth_pass.value;
 
-  let u = users.find(x=>x.email===email && x.pass===pass);
-  if(!u) return showToast("Sai!");
-
-  currentUser = u;
-  localStorage.setItem("currentUser", JSON.stringify(u));
-}
 
 /* TOAST */
 function showToast(msg){

@@ -9,30 +9,11 @@ async function sha256(text) {
 }
 
 // ── Lấy dữ liệu ──────────────────────────────────────────
-function getUsers() {
-  return JSON.parse(localStorage.getItem("users")) || [];
-}
-function saveUsers(users) {
-  localStorage.setItem("users", JSON.stringify(users));
-}
 function getCurrentUser() {
   return JSON.parse(localStorage.getItem("currentUser")) || null;
 }
 
-// ── Hiển thị thông báo inline ─────────────────────────────
-function setMsg(elId, msg, isError = true) {
-  const el = document.getElementById(elId);
-  if (!el) return;
-  el.textContent = msg;
-  el.style.color = isError ? "#e74c3c" : "#27ae60";
-  el.style.display = "block";
-}
-function clearMsg(elId) {
-  const el = document.getElementById(elId);
-  if (el) { el.textContent = ""; el.style.display = "none"; }
-}
-
-// ── ĐĂNG KÝ ──────────────────────────────────────────────
+// ── ĐĂNG KÝ (Lưu chia 2 nhánh) ──────────────────────────────────────────
 async function register(role) {
   let name, email, pass, msgId;
 
@@ -64,35 +45,45 @@ async function register(role) {
     return;
   }
 
-  const users = getUsers();
+  await window.FS.ready;
 
-  // Kiểm tra email đã tồn tại
-  if (users.some(u => u.email === email)) {
-    setMsg(msgId, "❌ Email này đã được đăng ký!");
+  // Lấy TOÀN BỘ tài khoản (gồm cả admin và user) để check trùng Email
+  const allAccounts = window.FS.getAllAccounts();
+
+  if (allAccounts.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+    setMsg(msgId, "❌ Email này đã được đăng ký trên hệ thống!");
     return;
   }
 
-  // Mã hóa mật khẩu SHA-256
   const passHash = await sha256(pass);
+  const newUser = { name, email, passHash, role };
 
-  users.push({ name, email, passHash, role });
-  saveUsers(users);
+  try {
+    // 🔥 QUYẾT ĐỊNH NHÁNH LƯU DỰA VÀO ROLE
+    const nodeName = (role === "admin") ? "admins" : "users";
+    
+    // Đẩy lên Firebase theo đúng node
+    await window.FS.push(window.FS.ref(window.FS.db, nodeName), newUser);
+    
+    setMsg(msgId, "✅ Đăng ký thành công! Bạn có thể đăng nhập.", false);
 
-  setMsg(msgId, "✅ Đăng ký thành công! Bạn có thể đăng nhập.", false);
-
-  // Reset form
-  if (role === "user") {
-    document.getElementById("ru_name").value  = "";
-    document.getElementById("ru_email").value = "";
-    document.getElementById("ru_pass").value  = "";
-  } else {
-    document.getElementById("ra_name").value  = "";
-    document.getElementById("ra_email").value = "";
-    document.getElementById("ra_pass").value  = "";
+    // Reset form
+    if (role === "user") {
+      document.getElementById("ru_name").value  = "";
+      document.getElementById("ru_email").value = "";
+      document.getElementById("ru_pass").value  = "";
+    } else {
+      document.getElementById("ra_name").value  = "";
+      document.getElementById("ra_email").value = "";
+      document.getElementById("ra_pass").value  = "";
+    }
+  } catch (error) {
+    console.error("Lỗi khi đăng ký:", error);
+    setMsg(msgId, "❌ Có lỗi xảy ra khi lưu vào hệ thống!");
   }
 }
 
-// ── ĐĂNG NHẬP ────────────────────────────────────────────
+// ── ĐĂNG NHẬP (Tìm trên cả 2 nhánh) ────────────────────────────────────────
 async function login() {
   const email = document.getElementById("login_email")?.value.trim();
   const pass  = document.getElementById("login_pass")?.value;
@@ -100,40 +91,35 @@ async function login() {
 
   clearMsg(msgId);
 
-  // Validate bỏ trống
   if (!email || !pass) {
     setMsg(msgId, "❌ Vui lòng nhập email và mật khẩu!");
     return;
   }
-  if (!email.includes("@")) {
-    setMsg(msgId, "❌ Email không hợp lệ!");
-    return;
-  }
 
-  const users    = getUsers();
+  await window.FS.ready;
+
+  // Lấy cả 2 danh sách ghép lại để tìm kiếm
+  const allAccounts = window.FS.getAllAccounts();
   const passHash = await sha256(pass);
 
-  // Tìm user khớp email + passHash
-  const found = users.find(u => u.email === email && u.passHash === passHash);
+  // Tìm tài khoản khớp email + passHash
+  const found = allAccounts.find(u => u.email.toLowerCase() === email.toLowerCase() && u.passHash === passHash);
 
   if (!found) {
     setMsg(msgId, "❌ Email hoặc mật khẩu không đúng!");
     return;
   }
 
-  // Lưu currentUser (không lưu passHash ra ngoài)
-  const currentUser = { name: found.name, email: found.email, role: found.role };
+  // Lưu currentUser vào localStorage để duy trì đăng nhập trên trình duyệt
+  const currentUser = { id: found.id, name: found.name, email: found.email, role: found.role };
   localStorage.setItem("currentUser", JSON.stringify(currentUser));
 
-  // Cập nhật UI ngay
   updateUI();
   clearMsg(msgId);
 
-  // Reset form
   document.getElementById("login_email").value = "";
   document.getElementById("login_pass").value  = "";
 
-  // Về trang chủ
   if (typeof showPage === "function") showPage("home");
   if (typeof go      === "function") go("home");
 }

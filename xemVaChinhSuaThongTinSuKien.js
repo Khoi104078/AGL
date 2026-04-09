@@ -1,99 +1,76 @@
-// SCRUM-10: Xem / Chỉnh sửa thông tin sự kiện
-// FIX: dùng window.showToast / window.renderEvents, hỗ trợ Firebase ID
-
-// -------------------------------------------------------
-// 1. LẤY DỮ LIỆU (từ localStorage — được sync từ Firebase)
-// -------------------------------------------------------
-function getEvents() {
+// ── Helpers ───────────────────────────────────────────────
+function getEvents_S10() {
+  // Ưu tiên lấy từ window._events (Firebase realtime)
+  if (window._events && Array.isArray(window._events)) return window._events;
   return JSON.parse(localStorage.getItem("events") || "[]");
 }
-function saveEvents(events) {
-  localStorage.setItem("events", JSON.stringify(events));
-}
+
 function getCurrentUser_S10() {
-  return JSON.parse(localStorage.getItem("currentUser") || "null");
-}
-function isAdmin_S10() {
-  const user = getCurrentUser_S10();
-  return user && user.role === "admin";
+  try { return JSON.parse(localStorage.getItem("currentUser") || "null"); } catch { return null; }
 }
 
-// Helper toast (dùng window.showToast nếu có, fallback alert)
+function isAdmin_S10() {
+  const u = getCurrentUser_S10();
+  return u?.role === "admin";
+}
+
 function _toast(msg, type) {
   if (typeof window.showToast === "function") window.showToast(msg, type || "success");
   else console.log(msg);
 }
 
-// -------------------------------------------------------
-// 2. RENDER DANH SÁCH SỰ KIỆN
-// -------------------------------------------------------
+// ── RENDER DANH SÁCH ─────────────────────────────────────
 function renderEventsScrum10() {
-  const events = getEvents();
+  const events = getEvents_S10();
   const tbody  = document.getElementById("eventTable");
   if (!tbody) return;
 
   tbody.innerHTML = "";
 
-  if (events.length === 0) {
+  if (!events.length) {
     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#aaa;padding:20px;">Chưa có sự kiện nào.</td></tr>`;
     return;
   }
 
   events.forEach((e, i) => {
-    // Ưu tiên dùng Firebase ID nếu có, fallback về index
     const firebaseId = e.id || null;
 
     const editBtn = isAdmin_S10()
       ? `<button class="btn-edit" onclick="openEditModal(${i})">✏️ Sửa</button>`
       : `<span style="color:#aaa;font-size:12px;">Chỉ xem</span>`;
 
-    const delBtn = isAdmin_S10()
-      ? `<button class="btn-del" onclick="${firebaseId ? `window.delEvent('${firebaseId}')` : `delEvent_local(${i})`}" style="margin-left:5px;">🗑️</button>`
+    const delBtn = isAdmin_S10() && firebaseId
+      ? `<button class="btn-del" onclick="window.delEvent('${firebaseId}')" style="margin-left:5px;">🗑️</button>`
       : "";
 
     tbody.innerHTML += `
       <tr>
-        <td>${e.t || ""}</td>
-        <td>${e.l || ""}</td>
-        <td>${e.d || ""}</td>
-        <td>${e.location || ""}</td>
-        <td>${e.max || ""}</td>
+        <td>${e.t||""}</td>
+        <td>${e.l||""}</td>
+        <td>${e.d||""}</td>
+        <td>${e.location||""}</td>
+        <td>${e.max||""}</td>
         <td>${editBtn}${delBtn}</td>
       </tr>`;
   });
 }
 
-// Fallback delete nếu không có Firebase
-function delEvent_local(index) {
-  if (confirm("Xóa sự kiện này?")) {
-    const events = getEvents();
-    events.splice(index, 1);
-    saveEvents(events);
-    renderEventsScrum10();
-  }
-}
-
-// -------------------------------------------------------
-// 3. MỞ MODAL CHỈNH SỬA
-// -------------------------------------------------------
+// ── MỞ MODAL CHỈNH SỬA ───────────────────────────────────
 function openEditModal(index) {
-  if (!isAdmin_S10()) {
-    _toast("Bạn không có quyền chỉnh sửa sự kiện!", "error"); return;
-  }
-  const events = getEvents();
+  if (!isAdmin_S10()) { _toast("Bạn không có quyền chỉnh sửa sự kiện!", "error"); return; }
+  const events = getEvents_S10();
   const e = events[index];
   if (!e) return;
 
   document.getElementById("edit_index").value    = index;
-  document.getElementById("edit_title").value    = e.t || "";
-  document.getElementById("edit_leader").value   = e.l || "";
-  document.getElementById("edit_date").value     = e.d || "";
-  document.getElementById("edit_time").value     = e.time || "08:00";
+  document.getElementById("edit_title").value    = e.t        || "";
+  document.getElementById("edit_leader").value   = e.l        || "";
+  document.getElementById("edit_date").value     = e.d        || "";
+  document.getElementById("edit_time").value     = e.time     || "08:00";
   document.getElementById("edit_location").value = e.location || "";
-  document.getElementById("edit_max").value      = e.max || "";
-  document.getElementById("edit_desc").value     = e.desc || "";
+  document.getElementById("edit_max").value      = e.max      || "";
+  document.getElementById("edit_desc").value     = e.desc     || "";
 
-  // Chọn trạng thái
   document.querySelectorAll(".edit-status-tag").forEach(tag => {
     tag.classList.toggle("active", tag.dataset.val === (e.status || "Mở"));
   });
@@ -101,39 +78,36 @@ function openEditModal(index) {
   document.getElementById("editModal").style.display = "flex";
 }
 
-// -------------------------------------------------------
-// 4. ĐÓNG MODAL
-// -------------------------------------------------------
+// ── ĐÓNG MODAL ────────────────────────────────────────────
 function closeEditModal() {
   document.getElementById("editModal").style.display = "none";
+  
   clearEditErrors();
 }
 
-// -------------------------------------------------------
-// 5. CHỌN TRẠNG THÁI
-// -------------------------------------------------------
+// ── CHỌN TRẠNG THÁI ──────────────────────────────────────
 function selectEditStatus(el) {
   document.querySelectorAll(".edit-status-tag").forEach(t => t.classList.remove("active"));
   el.classList.add("active");
 }
 
-// -------------------------------------------------------
-// 6. VALIDATE
-// -------------------------------------------------------
+// ── VALIDATE ─────────────────────────────────────────────
 function validateEditForm() {
   let valid = true;
   clearEditErrors();
-  const title    = document.getElementById("edit_title").value.trim();
-  const leader   = document.getElementById("edit_leader").value.trim();
-  const date     = document.getElementById("edit_date").value;
-  const location = document.getElementById("edit_location").value.trim();
-  const max      = document.getElementById("edit_max").value;
-
-  if (!title)    { showEditError("edit_title",   "edit_titleErr",    "Vui lòng nhập tên sự kiện!"); valid=false; }
-  if (!leader)   { showEditError("edit_leader",  "edit_leaderErr",   "Vui lòng nhập người phụ trách!"); valid=false; }
-  if (!date)     { showEditError("edit_date",    "edit_dateErr",     "Vui lòng chọn ngày diễn ra!"); valid=false; }
-  if (!location) { showEditError("edit_location","edit_locationErr", "Vui lòng nhập địa điểm!"); valid=false; }
-  if (!max || parseInt(max) < 1) { showEditError("edit_max","edit_maxErr","Số lượng phải lớn hơn 0!"); valid=false; }
+  const checks = [
+    ["edit_title",    "edit_titleErr",    "Vui lòng nhập tên sự kiện!"],
+    ["edit_leader",   "edit_leaderErr",   "Vui lòng nhập người phụ trách!"],
+    ["edit_date",     "edit_dateErr",     "Vui lòng chọn ngày diễn ra!"],
+    ["edit_location", "edit_locationErr", "Vui lòng nhập địa điểm!"],
+  ];
+  checks.forEach(([inp, err, msg]) => {
+    if (!document.getElementById(inp)?.value?.trim()) {
+      showEditError(inp, err, msg); valid = false;
+    }
+  });
+  const max = document.getElementById("edit_max")?.value;
+  if (!max || parseInt(max) < 1) { showEditError("edit_max","edit_maxErr","Số lượng phải lớn hơn 0!"); valid = false; }
   return valid;
 }
 
@@ -153,71 +127,70 @@ function clearEditErrors() {
   });
 }
 
-// -------------------------------------------------------
-// 7. LƯU THAY ĐỔI
-// -------------------------------------------------------
+// ── LƯU THAY ĐỔI ─────────────────────────────────────────
 function saveEditEvent() {
   if (!isAdmin_S10()) { _toast("Bạn không có quyền chỉnh sửa!", "error"); return; }
   if (!validateEditForm()) return;
 
   const index  = parseInt(document.getElementById("edit_index").value);
-  const events = getEvents();
+  const events = getEvents_S10();
   const activeStatus = document.querySelector(".edit-status-tag.active");
 
-  const updatedEvent = {
-    t        : document.getElementById("edit_title").value.trim(),
-    l        : document.getElementById("edit_leader").value.trim(),
-    d        : document.getElementById("edit_date").value,
-    time     : document.getElementById("edit_time").value,
-    location : document.getElementById("edit_location").value.trim(),
-    max      : parseInt(document.getElementById("edit_max").value),
-    desc     : document.getElementById("edit_desc").value.trim(),
-    status   : activeStatus ? activeStatus.dataset.val : "Mở"
+  const updatedData = {
+    t       : document.getElementById("edit_title").value.trim(),
+    l       : document.getElementById("edit_leader").value.trim(),
+    d       : document.getElementById("edit_date").value,
+    time    : document.getElementById("edit_time").value,
+    location: document.getElementById("edit_location").value.trim(),
+    max     : parseInt(document.getElementById("edit_max").value),
+    desc    : document.getElementById("edit_desc").value.trim(),
+    status  : activeStatus ? activeStatus.dataset.val : "Mở"
   };
 
-  // Giữ lại Firebase ID nếu có
-  if (events[index]?.id) updatedEvent.id = events[index].id;
-
-  // Cập nhật localStorage
-  events[index] = { ...events[index], ...updatedEvent };
-  saveEvents(events);
-
-  // Nếu có Firebase, cập nhật luôn
   const firebaseId = events[index]?.id;
+
   if (firebaseId && window._db && window._ref && window._update) {
-    const { id, ...dataToSave } = updatedEvent; // remove id from data
-    window._update(window._ref(window._db, "events/" + firebaseId), dataToSave);
+    // FIX: Cập nhật Firebase trực tiếp
+    window._update(window._ref(window._db, "events/" + firebaseId), updatedData)
+      .then(() => {
+        _toast("✅ Cập nhật sự kiện thành công!");
+
+        closeEditModal();
+        // renderEvents() sẽ tự được gọi qua onValue listener
+        if (typeof window.renderEvents === "function") window.renderEvents();
+      })
+      .catch(err => _toast("❌ Lỗi: " + err.message, "error"));
+  } else {
+    // Fallback localStorage
+    const lsEvents = JSON.parse(localStorage.getItem("events") || "[]");
+    if (lsEvents[index]) {
+      lsEvents[index] = { ...lsEvents[index], ...updatedData };
+      localStorage.setItem("events", JSON.stringify(lsEvents));
+    }
+    closeEditModal();
+    renderEventsScrum10();
+    if (typeof window.renderEvents === "function") window.renderEvents();
+    _toast("✅ Cập nhật sự kiện thành công!");
   }
-
-  closeEditModal();
-
-  // Refresh event list
-  renderEventsScrum10();
-  if (typeof window.renderEvents === "function") window.renderEvents();
-
-  _toast("✅ Cập nhật sự kiện thành công!");
 }
 
-// -------------------------------------------------------
-// 8. INJECT MODAL VÀO DOM
-// -------------------------------------------------------
+// ── INJECT MODAL ──────────────────────────────────────────
 function injectEditModal() {
   if (document.getElementById("editModal")) return;
 
   document.body.insertAdjacentHTML("beforeend", `
   <div id="editModal" style="
-    display:none; position:fixed; top:0; left:0;
-    width:100%; height:100%; background:rgba(0,0,0,0.5);
-    z-index:9999; justify-content:center; align-items:center;">
+    display:none;position:fixed;top:0;left:0;
+    width:100%;height:100%;background:rgba(0,0,0,0.5);
+    z-index:9999;justify-content:center;align-items:center;">
     <div style="
-      background:#fff; border-radius:24px; padding:30px;
-      width:90%; max-width:520px; max-height:90vh;
-      overflow-y:auto; position:relative;
+      background:#fff;border-radius:24px;padding:30px;
+      width:90%;max-width:520px;max-height:90vh;
+      overflow-y:auto;position:relative;
       box-shadow:0 16px 48px rgba(255,105,180,.3);">
-      <h2 style="text-align:center;color:#e84393;font-family:'Quicksand';margin-bottom:20px;">
-        ✏️ Chỉnh sửa sự kiện
-      </h2>
+      <h2 style="text-align:center;color:#e84393;font-family:'Quicksand';margin-bottom:20px;">✏️ Chỉnh sửa sự kiện</h2>
       <input type="hidden" id="edit_index">
+
       <div class="form-group">
         <label>Tên sự kiện <span style="color:#ff4d88">*</span></label>
         <input id="edit_title" type="text" placeholder="Tên sự kiện..." maxlength="100">
@@ -254,9 +227,9 @@ function injectEditModal() {
       <div class="form-group">
         <label>Trạng thái</label>
         <div style="display:flex;gap:8px;">
-          <div class="status-tag edit-status-tag active" data-val="Mở"      onclick="selectEditStatus(this)" style="flex:1;padding:8px;border:2px solid #ffe0ea;border-radius:10px;text-align:center;font-size:12px;font-weight:600;cursor:pointer;background:#fff;">🟢 Mở</div>
-          <div class="status-tag edit-status-tag"        data-val="Sắp mở"  onclick="selectEditStatus(this)" style="flex:1;padding:8px;border:2px solid #ffe0ea;border-radius:10px;text-align:center;font-size:12px;font-weight:600;cursor:pointer;background:#fff;">🟡 Sắp mở</div>
-          <div class="status-tag edit-status-tag"        data-val="Đóng"    onclick="selectEditStatus(this)" style="flex:1;padding:8px;border:2px solid #ffe0ea;border-radius:10px;text-align:center;font-size:12px;font-weight:600;cursor:pointer;background:#fff;">🔴 Đóng</div>
+          <div class="status-tag edit-status-tag active" data-val="Mở"     onclick="selectEditStatus(this)" style="flex:1;padding:8px;border:2px solid #ffe0ea;border-radius:10px;text-align:center;font-size:12px;font-weight:600;cursor:pointer;background:#fff;">🟢 Mở</div>
+          <div class="status-tag edit-status-tag"        data-val="Sắp mở" onclick="selectEditStatus(this)" style="flex:1;padding:8px;border:2px solid #ffe0ea;border-radius:10px;text-align:center;font-size:12px;font-weight:600;cursor:pointer;background:#fff;">🟡 Sắp mở</div>
+          <div class="status-tag edit-status-tag"        data-val="Đóng"   onclick="selectEditStatus(this)" style="flex:1;padding:8px;border:2px solid #ffe0ea;border-radius:10px;text-align:center;font-size:12px;font-weight:600;cursor:pointer;background:#fff;">🔴 Đóng</div>
         </div>
       </div>
       <div class="form-group">
@@ -264,20 +237,14 @@ function injectEditModal() {
         <textarea id="edit_desc" placeholder="Mô tả ngắn..." maxlength="300" style="min-height:80px;"></textarea>
       </div>
       <div style="display:flex;gap:10px;margin-top:10px;">
-        <button onclick="saveEditEvent()" style="flex:1;padding:13px;background:linear-gradient(135deg,#ff6a88,#e84393);color:#fff;border:none;border-radius:14px;font-weight:700;cursor:pointer;">
-          💾 Lưu thay đổi
-        </button>
-        <button onclick="closeEditModal()" style="flex:1;padding:13px;border:2px solid #ff6a88;background:#fff;color:#ff6a88;border-radius:14px;font-weight:700;cursor:pointer;">
-          ❌ Hủy
-        </button>
+        <button onclick="saveEditEvent()" style="flex:1;padding:13px;background:linear-gradient(135deg,#ff6a88,#e84393);color:#fff;border:none;border-radius:14px;font-weight:700;cursor:pointer;">💾 Lưu thay đổi</button>
+        <button onclick="closeEditModal()" style="flex:1;padding:13px;border:2px solid #ff6a88;background:#fff;color:#ff6a88;border-radius:14px;font-weight:700;cursor:pointer;">❌ Hủy</button>
       </div>
     </div>
   </div>`);
 }
 
-// -------------------------------------------------------
-// 9. KHỞI CHẠY
-// -------------------------------------------------------
-document.addEventListener("DOMContentLoaded", function () {
+// ── KHỞI CHẠY ─────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", function() {
   injectEditModal();
 });

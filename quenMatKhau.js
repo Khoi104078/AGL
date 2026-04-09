@@ -110,10 +110,10 @@ async function resetPassword() {
   // Ưu tiên cập nhật Firebase
   const firebaseUsers = (typeof window._users !== "undefined") ? window._users : [];
   const fbUser = firebaseUsers.find(u => (u.email || "").toLowerCase() === email);
-
+  const rolePath = fbUser && fbUser.role === "admin" ? "admins/" : "users/";
   if (fbUser && window._db && window._ref && window._update) {
     try {
-      await window._update(window._ref(window._db, "users/" + fbUser.id), {
+      await window._update(window._ref(window._db, rolePath + fbUser.id), {
         pass    : newPass,
         passHash: passHash
       });

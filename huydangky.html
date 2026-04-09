@@ -6,352 +6,100 @@
 <title>Hủy đăng ký sự kiện - CLB</title>
 <link rel="stylesheet" href="giaodien.css">
 <style>
-  /*SCRUM-18: HỦY ĐĂNG KÝ*/
+  .cancel-wrapper { max-width:580px; margin:0 auto; padding:80px 20px 40px; }
 
-  .cancel-wrapper {
-    max-width: 580px;
-    margin: 0 auto;
-    padding: 80px 20px 40px;
-  }
+  /* Stepper */
+  .stepper { display:flex; justify-content:center; align-items:center; gap:0; margin-bottom:28px; }
+  .step { display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .step-circle { width:34px;height:34px;border-radius:50%;background:#ffe0ea;color:#c0395e;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;transition:.3s; }
+  .step.active .step-circle { background:linear-gradient(135deg,#ff6a88,#e84393);color:#fff;box-shadow:0 4px 12px rgba(232,67,147,.4); }
+  .step.done   .step-circle { background:#2ecc71;color:#fff; }
+  .step-label  { font-size:11px;color:#c0395e;font-weight:600;white-space:nowrap; }
+  .step-line   { width:60px;height:2px;background:#ffe0ea;margin-bottom:18px; }
+  .step-line.done { background:#2ecc71; }
 
-  /* --- Bước hiển thị (stepper) --- */
-  .stepper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0;
-    margin-bottom: 28px;
-  }
-  .step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-  }
-  .step-circle {
-    width: 34px; height: 34px;
-    border-radius: 50%;
-    background: #ffe0ea;
-    color: #c0395e;
-    font-weight: 700;
-    font-size: 14px;
-    display: flex; align-items: center; justify-content: center;
-    transition: .3s;
-  }
-  .step.active .step-circle {
-    background: linear-gradient(135deg, #ff6a88, #e84393);
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(232,67,147,.4);
-  }
-  .step.done .step-circle {
-    background: #2ecc71;
-    color: #fff;
-  }
-  .step-label {
-    font-size: 11px;
-    color: #c0395e;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-  .step-line {
-    width: 60px; height: 2px;
-    background: #ffe0ea;
-    margin-bottom: 18px;
-  }
-  .step-line.done { background: #2ecc71; }
+  .card { background:rgba(255,255,255,.97);padding:30px;border-radius:24px;box-shadow:0 16px 48px rgba(255,105,180,.2); }
+  .card h2 { text-align:center;color:#e84393;margin-bottom:20px;font-family:'Quicksand',sans-serif; }
 
-  /* --- Card chính --- */
-  .card {
-    background: rgba(255,255,255,.97);
-    padding: 30px;
-    border-radius: 24px;
-    box-shadow: 0 16px 48px rgba(255,105,180,.2);
-  }
-  .card h2 {
-    text-align: center;
-    color: #e84393;
-    margin-bottom: 20px;
-    font-family: 'Quicksand', sans-serif;
-  }
+  .form-group { margin-bottom:15px; }
+  .form-group label { font-size:13px;font-weight:700;color:#c0395e;display:block;margin-bottom:5px; }
+  .form-group input,.form-group select { width:100%;padding:12px;border:2px solid #ffe0ea;border-radius:12px;background:#fff9fb;font-size:14px;transition:border-color .2s;box-sizing:border-box; }
+  .form-group input:focus,.form-group select:focus { outline:none;border-color:#ff6a88; }
 
-  /* --- Bước 1: Tra cứu --- */
-  .form-group { margin-bottom: 15px; }
-  .form-group label {
-    font-size: 13px;
-    font-weight: 700;
-    color: #c0395e;
-    display: block;
-    margin-bottom: 5px;
-  }
-  .form-group input, .form-group select {
-    width: 100%;
-    padding: 12px;
-    border: 2px solid #ffe0ea;
-    border-radius: 12px;
-    background: #fff9fb;
-    font-size: 14px;
-    transition: border-color .2s;
-    box-sizing: border-box;
-  }
-  .form-group input:focus, .form-group select:focus {
-    outline: none;
-    border-color: #ff6a88;
-  }
+  .reg-info-box { background:#fff5f8;border:2px solid #ffe0ea;border-radius:16px;padding:20px;margin-bottom:18px; }
+  .reg-name { font-size:18px;font-weight:700;color:#e84393;margin-bottom:12px; }
+  .reg-row { display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #ffe0ea;font-size:13px; }
+  .reg-row:last-child { border-bottom:none; }
+  .reg-row .label { color:#888; }
+  .reg-row .value { font-weight:600;color:#333; }
 
-  /* --- Thông tin đăng ký (bước 2) --- */
-  .reg-info-box {
-    background: #fff5f8;
-    border: 2px solid #ffe0ea;
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 18px;
-  }
-  .reg-info-box .reg-name {
-    font-size: 18px;
-    font-weight: 700;
-    color: #e84393;
-    margin-bottom: 12px;
-  }
-  .reg-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 7px 0;
-    border-bottom: 1px solid #ffe0ea;
-    font-size: 13px;
-  }
-  .reg-row:last-child { border-bottom: none; }
-  .reg-row .label { color: #888; }
-  .reg-row .value { font-weight: 600; color: #333; }
+  .badge { display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700; }
+  .badge-active    { background:#d4f8e8;color:#27ae60; }
+  .badge-cancelled { background:#fde8e8;color:#e74c3c; }
+  .badge-invalid   { background:#f0f0f0;color:#888; }
 
-  /* Badge trạng thái */
-  .badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 700;
-  }
-  .badge-active { background: #d4f8e8; color: #27ae60; }
-  .badge-cancelled { background: #fde8e8; color: #e74c3c; }
-  .badge-invalid { background: #f0f0f0; color: #888; }
+  .deadline-warn { background:linear-gradient(135deg,#fff3cd,#ffe8a1);border:2px solid #ffc107;border-radius:14px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:flex-start;gap:10px; }
+  .deadline-warn .icon { font-size:20px;margin-top:1px; }
+  .deadline-warn .text { font-size:13px;color:#856404;font-weight:600; }
+  .deadline-warn .text span { font-weight:700; }
 
-  /* --- Cảnh báo deadline --- */
-  .deadline-warn {
-    background: linear-gradient(135deg, #fff3cd, #ffe8a1);
-    border: 2px solid #ffc107;
-    border-radius: 14px;
-    padding: 14px 18px;
-    margin-bottom: 18px;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  .deadline-warn .icon { font-size: 20px; margin-top: 1px; }
-  .deadline-warn .text { font-size: 13px; color: #856404; font-weight: 600; }
-  .deadline-warn .text span { font-weight: 700; }
+  button.main { width:100%;padding:13px;background:linear-gradient(135deg,#ff6a88,#e84393);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;transition:.2s; }
+  button.main:hover { opacity:.9;transform:translateY(-1px); }
+  button.main:disabled { background:#ddd;color:#999;cursor:not-allowed;transform:none; }
+  button.secondary { width:100%;padding:11px;background:#fff;color:#e84393;border:2px solid #ffe0ea;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;margin-top:10px;transition:.2s; }
+  button.secondary:hover { border-color:#ff6a88; }
 
-  /* --- QR Preview --- */
-  .qr-preview {
-    text-align: center;
-    margin: 16px 0;
-  }
-  .qr-box {
-    display: inline-block;
-    padding: 12px;
-    background: #fff;
-    border: 3px solid #ffe0ea;
-    border-radius: 14px;
-    position: relative;
-    transition: .4s;
-  }
-  .qr-box.revoked {
-    filter: grayscale(1) opacity(0.35);
-  }
-  .qr-box.revoked::after {
-    content: "❌ ĐÃ VÔ HIỆU HÓA";
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%) rotate(-15deg);
-    background: rgba(231,76,60,.9);
-    color: #fff;
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-size: 11px;
-    font-weight: 700;
-    white-space: nowrap;
-  }
-  .qr-label {
-    font-size: 11px;
-    color: #aaa;
-    margin-top: 6px;
-  }
+  .success-screen { text-align:center;padding:20px 10px; }
+  .success-icon { font-size:60px;animation:popIn .5s cubic-bezier(.175,.885,.32,1.275); }
+  @keyframes popIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+  .success-screen h3 { color:#2ecc71;font-size:22px;margin:12px 0 8px;font-family:'Quicksand',sans-serif; }
+  .success-screen p { color:#666;font-size:14px;margin-bottom:6px; }
+  .notif-sent { background:#d4f8e8;border-radius:12px;padding:12px 16px;margin:16px 0;font-size:13px;color:#27ae60;font-weight:600; }
+  .cancel-summary { background:#f8f9fa;border-radius:14px;padding:16px;margin:14px 0;text-align:left;font-size:13px; }
+  .cancel-summary .row { display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #eee; }
+  .cancel-summary .row:last-child { border:none; }
+  .cancel-summary .row .key { color:#888; }
+  .cancel-summary .row .val { font-weight:600;color:#333; }
 
-  /* --- Nút hành động --- */
-  button.main {
-    width: 100%;
-    padding: 13px;
-    background: linear-gradient(135deg, #ff6a88, #e84393);
-    color: #fff;
-    border: none;
-    border-radius: 14px;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: .2s;
-  }
-  button.main:hover { opacity: .9; transform: translateY(-1px); }
-  button.main:disabled {
-    background: #ddd;
-    color: #999;
-    cursor: not-allowed;
-    transform: none;
-  }
-  button.secondary {
-    width: 100%;
-    padding: 11px;
-    background: #fff;
-    color: #e84393;
-    border: 2px solid #ffe0ea;
-    border-radius: 14px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: .2s;
-  }
-  button.secondary:hover { border-color: #ff6a88; }
+  .modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;align-items:center;justify-content:center; }
+  .modal-overlay.show { display:flex; }
+  .modal-box { background:#fff;border-radius:20px;padding:30px 24px;max-width:360px;width:90%;text-align:center;animation:slideUp .3s ease; }
+  @keyframes slideUp { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
+  .modal-box .emoji { font-size:44px; }
+  .modal-box h3 { color:#e84393;margin:10px 0 8px;font-family:'Quicksand'; }
+  .modal-box p { font-size:13px;color:#666;margin-bottom:20px; }
+  .modal-btns { display:flex;gap:10px; }
+  .modal-btns button { flex:1;padding:12px;border-radius:12px;font-weight:700;cursor:pointer;border:none; }
+  .btn-confirm { background:linear-gradient(135deg,#ff6a88,#e84393);color:#fff; }
+  .btn-cancel-modal { background:#f0f0f0;color:#666; }
 
-  /* --- Bước 3: Xác nhận thành công --- */
-  .success-screen {
-    text-align: center;
-    padding: 20px 10px;
-  }
-  .success-icon {
-    font-size: 60px;
-    animation: popIn .5s cubic-bezier(.175,.885,.32,1.275);
-  }
-  @keyframes popIn {
-    from { transform: scale(0); opacity: 0; }
-    to   { transform: scale(1); opacity: 1; }
-  }
-  .success-screen h3 {
-    color: #2ecc71;
-    font-size: 22px;
-    margin: 12px 0 8px;
-    font-family: 'Quicksand', sans-serif;
-  }
-  .success-screen p {
-    color: #666;
-    font-size: 14px;
-    margin-bottom: 6px;
-  }
-  .notif-sent {
-    background: #d4f8e8;
-    border-radius: 12px;
-    padding: 12px 16px;
-    margin: 16px 0;
-    font-size: 13px;
-    color: #27ae60;
-    font-weight: 600;
-  }
-  .cancel-summary {
-    background: #f8f9fa;
-    border-radius: 14px;
-    padding: 16px;
-    margin: 14px 0;
-    text-align: left;
-    font-size: 13px;
-  }
-  .cancel-summary .row {
-    display: flex;
-    justify-content: space-between;
-    padding: 5px 0;
-    border-bottom: 1px solid #eee;
-  }
-  .cancel-summary .row:last-child { border: none; }
-  .cancel-summary .row .key { color: #888; }
-  .cancel-summary .row .val { font-weight: 600; color: #333; }
+  .toast { position:fixed;bottom:25px;left:50%;transform:translateX(-50%);padding:12px 25px;border-radius:12px;color:#fff;opacity:0;transition:.3s;z-index:9999;font-weight:600;font-size:14px; }
+  .toast.show { opacity:1; }
+  .toast.success { background:#2ecc71; }
+  .toast.error   { background:#e74c3c; }
+  .toast.info    { background:#3498db; }
 
-  /* --- Modal xác nhận --- */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.45);
-    z-index: 2000;
-    align-items: center;
-    justify-content: center;
-  }
-  .modal-overlay.show { display: flex; }
-  .modal-box {
-    background: #fff;
-    border-radius: 20px;
-    padding: 30px 24px;
-    max-width: 360px;
-    width: 90%;
-    text-align: center;
-    animation: slideUp .3s ease;
-  }
-  @keyframes slideUp {
-    from { transform: translateY(30px); opacity: 0; }
-    to   { transform: translateY(0);    opacity: 1; }
-  }
-  .modal-box .emoji { font-size: 44px; }
-  .modal-box h3 { color: #e84393; margin: 10px 0 8px; font-family: 'Quicksand'; }
-  .modal-box p { font-size: 13px; color: #666; margin-bottom: 20px; }
-  .modal-btns { display: flex; gap: 10px; }
-  .modal-btns button { flex: 1; padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; }
-  .btn-confirm { background: linear-gradient(135deg,#ff6a88,#e84393); color: #fff; }
-  .btn-cancel-modal { background: #f0f0f0; color: #666; }
+  .history-box { margin-top:24px; }
+  .history-item { background:#fff5f8;border:1.5px solid #ffe0ea;border-radius:12px;padding:12px 16px;margin-bottom:8px;font-size:12px; }
+  .history-item .hi-event { font-weight:700;color:#c0395e;margin-bottom:3px; }
+  .history-item .hi-meta  { color:#999; }
 
-  /* --- Toast --- */
-  .toast {
-    position: fixed; bottom: 25px; left: 50%;
-    transform: translateX(-50%);
-    padding: 12px 25px; border-radius: 12px;
-    color: #fff; opacity: 0; transition: .3s;
-    z-index: 9999; font-weight: 600; font-size: 14px;
-  }
-  .toast.show { opacity: 1; }
-  .toast.success { background: #2ecc71; }
-  .toast.error   { background: #e74c3c; }
-  .toast.info    { background: #3498db; }
+  .hidden { display:none !important; }
 
-  /* --- Lịch sử hủy --- */
-  .history-box {
-    margin-top: 24px;
-  }
-  .history-box h3 {
-    color: #e84393;
-    font-size: 14px;
-    font-weight: 700;
-    margin-bottom: 12px;
-    font-family: 'Quicksand';
-  }
-  .history-item {
-    background: #fff5f8;
-    border: 1.5px solid #ffe0ea;
-    border-radius: 12px;
-    padding: 12px 16px;
-    margin-bottom: 8px;
-    font-size: 12px;
-  }
-  .history-item .hi-event { font-weight: 700; color: #c0395e; margin-bottom: 3px; }
-  .history-item .hi-meta { color: #999; }
-
-  /* hidden helper */
-  .hidden { display: none !important; }
+  /* Loading overlay */
+  #loadingOverlay { position:fixed;inset:0;background:rgba(255,154,158,.85);display:flex;align-items:center;justify-content:center;z-index:9999;font-size:18px;font-weight:700;color:#fff;font-family:'Quicksand'; }
+  #loadingOverlay.hidden { display:none; }
 </style>
 </head>
 <body>
 
+<div id="loadingOverlay">⏳ Đang kết nối Firebase...</div>
+
 <!-- HOA RƠI -->
 <script>
 setInterval(() => {
-  let f = document.createElement("div");
-  f.className = "flower";
-  f.innerHTML = "🌸";
+  const f = document.createElement("div");
+  f.className = "flower"; f.innerHTML = "🌸";
   f.style.left = Math.random()*100 + "vw";
   f.style.animationDuration = (3 + Math.random()*5) + "s";
   document.body.appendChild(f);
@@ -359,17 +107,16 @@ setInterval(() => {
 }, 300);
 </script>
 
-<!-- MENU (đồng bộ với giaodien.html) -->
+<!-- MENU -->
 <div class="menu-toggle" onclick="toggleMenu()">☰</div>
 <div class="menu" id="menu">
-  <button onclick="goPage('home')">🏠 Trang chủ</button>
-  <button onclick="goPage('create')" class="adminOnly">➕ Tạo sự kiện</button>
-  <button onclick="goPage('manage')" class="adminOnly">📋 Quản lý sự kiện</button>
-  <button onclick="goPage('participants')" class="adminOnly">📑 Người tham gia</button>
-  <button onclick="goPage('join')">🙋 Tham gia</button>
-  <button onclick="location.href='huydangky.html'" style="background:rgba(255,100,100,.9); color:#c0395e;">❌ Hủy đăng ký</button>
-  <button onclick="goPage('login')">🔐 Đăng nhập / Đăng ký</button>
-  <button onclick="logout()">🚪 Đăng xuất</button>
+  <button onclick="window.location.href='Giaodienquanlysukienclb.html'">🏠 Trang chủ</button>
+  <button onclick="window.location.href='TimKiemVaLoc.html'">🔍 Tìm kiếm sự kiện</button>
+  <button onclick="window.location.href='Giaodienquanlysukienclb.html#join'">🙋 Đăng ký tham gia</button>
+  <button style="background:rgba(255,100,100,.9);color:#c0395e;">❌ Hủy đăng ký</button>
+  <button onclick="window.location.href='LICHSUTHAMGIASUKIEN.html'">📜 Lịch sử tham gia</button>
+  <button onclick="window.location.href='PHANHOIVADANHGIA.html'">⭐ Đánh giá sự kiện</button>
+  <button onclick="window.location.href='thongBaoSuKien.html'">🔔 Thông báo</button>
 </div>
 
 <!-- NỘI DUNG CHÍNH -->
@@ -377,110 +124,51 @@ setInterval(() => {
 
   <!-- STEPPER -->
   <div class="stepper" id="stepper">
-    <div class="step active" id="step1">
-      <div class="step-circle">1</div>
-      <div class="step-label">Tra cứu</div>
-    </div>
+    <div class="step active" id="step1"><div class="step-circle">1</div><div class="step-label">Tra cứu</div></div>
     <div class="step-line" id="line1"></div>
-    <div class="step" id="step2">
-      <div class="step-circle">2</div>
-      <div class="step-label">Xác nhận</div>
-    </div>
+    <div class="step" id="step2"><div class="step-circle">2</div><div class="step-label">Xác nhận</div></div>
     <div class="step-line" id="line2"></div>
-    <div class="step" id="step3">
-      <div class="step-circle">3</div>
-      <div class="step-label">Hoàn tất</div>
-    </div>
+    <div class="step" id="step3"><div class="step-circle">3</div><div class="step-label">Hoàn tất</div></div>
   </div>
 
   <!-- BƯỚC 1: TRA CỨU -->
   <div class="card" id="cardStep1">
     <h2>❌ Hủy đăng ký sự kiện</h2>
-
     <div class="form-group">
       <label>MSSV của bạn *</label>
       <input type="text" id="inp_mssv" placeholder="Ví dụ: 2151012345" maxlength="20">
     </div>
-
     <div class="form-group">
       <label>Chọn sự kiện muốn hủy *</label>
-      <select id="inp_event">
-        <option value="">-- Chọn sự kiện --</option>
-      </select>
+      <select id="inp_event"><option value="">-- Chọn sự kiện --</option></select>
     </div>
-
     <button class="main" onclick="traCuu()">🔍 Tra cứu đăng ký</button>
   </div>
 
-  <!-- BƯỚC 2: XEM THÔNG TIN & XÁC NHẬN HỦY -->
+  <!-- BƯỚC 2 -->
   <div class="card hidden" id="cardStep2">
     <h2>📋 Thông tin đăng ký</h2>
-
     <div class="reg-info-box" id="regInfoBox"></div>
-
-    <!-- Cảnh báo deadline -->
     <div class="deadline-warn" id="deadlineWarn"></div>
-
-    <!-- QR preview -->
-    <div class="qr-preview">
-      <div class="qr-box" id="qrBox">
-        <svg width="90" height="90" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- QR placeholder pattern -->
-          <rect width="90" height="90" fill="white"/>
-          <rect x="5" y="5" width="30" height="30" rx="3" fill="#333"/>
-          <rect x="9" y="9" width="22" height="22" rx="2" fill="white"/>
-          <rect x="13" y="13" width="14" height="14" rx="1" fill="#333"/>
-          <rect x="55" y="5" width="30" height="30" rx="3" fill="#333"/>
-          <rect x="59" y="9" width="22" height="22" rx="2" fill="white"/>
-          <rect x="63" y="13" width="14" height="14" rx="1" fill="#333"/>
-          <rect x="5" y="55" width="30" height="30" rx="3" fill="#333"/>
-          <rect x="9" y="59" width="22" height="22" rx="2" fill="white"/>
-          <rect x="13" y="63" width="14" height="14" rx="1" fill="#333"/>
-          <rect x="40" y="5" width="8" height="8" fill="#333"/>
-          <rect x="40" y="17" width="8" height="8" fill="#333"/>
-          <rect x="5" y="40" width="8" height="8" fill="#333"/>
-          <rect x="17" y="40" width="8" height="8" fill="#333"/>
-          <rect x="40" y="40" width="8" height="8" fill="#333"/>
-          <rect x="52" y="40" width="8" height="8" fill="#333"/>
-          <rect x="64" y="40" width="8" height="8" fill="#333"/>
-          <rect x="76" y="40" width="8" height="8" fill="#333"/>
-          <rect x="40" y="52" width="8" height="8" fill="#333"/>
-          <rect x="52" y="52" width="8" height="8" fill="#333"/>
-          <rect x="64" y="64" width="8" height="8" fill="#333"/>
-          <rect x="76" y="52" width="8" height="8" fill="#333"/>
-          <rect x="52" y="64" width="8" height="8" fill="#333"/>
-          <rect x="76" y="76" width="8" height="8" fill="#333"/>
-          <rect x="40" y="76" width="8" height="8" fill="#333"/>
-        </svg>
-      </div>
-      <div class="qr-label" id="qrLabel">QR Code đăng ký của bạn</div>
-    </div>
-
     <button class="main" id="btnConfirmCancel" onclick="moModalXacNhan()">❌ Hủy đăng ký ngay</button>
     <button class="secondary" onclick="quayLai()">← Quay lại</button>
   </div>
 
-  <!-- BƯỚC 3: THÀNH CÔNG -->
+  <!-- BƯỚC 3 -->
   <div class="card hidden" id="cardStep3">
     <div class="success-screen">
       <div class="success-icon">✅</div>
       <h3>Hủy đăng ký thành công!</h3>
-      <p>Đăng ký của bạn đã được hủy và QR code đã bị vô hiệu hóa.</p>
-
-      <div class="notif-sent" id="notifSent">
-        📧 Thông báo xác nhận đã được gửi đến email của bạn
-      </div>
-
+      <p>Đăng ký của bạn đã được hủy trên hệ thống.</p>
+      <div class="notif-sent" id="notifSent">✅ Trạng thái đã được cập nhật.</div>
       <div class="cancel-summary" id="cancelSummary"></div>
-
       <button class="main" onclick="resetForm()">🔄 Hủy đăng ký khác</button>
-      <button class="secondary" onclick="window.location.href='giaodien.html'">🏠 Về trang chủ</button>
+      <button class="secondary" onclick="window.location.href='Giaodienquanlysukienclb.html'">🏠 Về trang chủ</button>
     </div>
   </div>
 
   <!-- LỊCH SỬ HỦY -->
   <div class="history-box" id="historyBox"></div>
-
 </div>
 
 <!-- MODAL XÁC NHẬN -->
@@ -488,317 +176,207 @@ setInterval(() => {
   <div class="modal-box">
     <div class="emoji">⚠️</div>
     <h3>Xác nhận hủy đăng ký?</h3>
-    <p id="modalMsg">Bạn có chắc muốn hủy đăng ký sự kiện này không? Hành động này không thể hoàn tác.</p>
+    <p id="modalMsg">Bạn có chắc muốn hủy đăng ký sự kiện này không?</p>
     <div class="modal-btns">
       <button class="btn-cancel-modal" onclick="dongModal()">Không, giữ lại</button>
-      <button class="btn-confirm" onclick="thucHienHuy()">Có, hủy ngay!</button>
+      <button class="btn-confirm"      onclick="thucHienHuy()">Có, hủy ngay!</button>
     </div>
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<script>
-// =====================================================
-// DATA (localStorage — đồng bộ với giaodien.js)
-// =====================================================
-let events       = JSON.parse(localStorage.getItem("events"))       || [];
-let participants = JSON.parse(localStorage.getItem("participants"))  || [];
-let cancelLog    = JSON.parse(localStorage.getItem("cancelLog"))     || [];
-let currentUser  = JSON.parse(localStorage.getItem("currentUser"));
+<!-- Firebase Sync -->
+<script type="module" src="firebase-sync.js"></script>
 
-// --- Dữ liệu demo nếu chưa có ---
-if (events.length === 0) {
-  events = [
-    { t: "Workshop AI & ChatGPT",        d: "2025-07-20", time: "08:00", status: "Mở",    maxSlots: 50, deadline: 24 },
-    { t: "Đêm hội thể thao CLB",          d: "2025-07-25", time: "18:00", status: "Mở",    maxSlots: 100, deadline: 24 },
-    { t: "Hội thảo kỹ năng mềm",         d: "2025-07-10", time: "14:00", status: "Đóng",  maxSlots: 30, deadline: 24 },
-    { t: "Talkshow Khởi nghiệp trẻ",     d: "2025-08-05", time: "09:00", status: "Sắp mở", maxSlots: 80, deadline: 48 },
-  ];
-  localStorage.setItem("events", JSON.stringify(events));
-}
+<script type="module">
+import { FS } from "./firebase-sync.js";
 
-if (participants.length === 0) {
-  participants = [
-    { name: "Nguyễn Văn A", mssv: "2151012345", email: "nva@gmail.com", event: "Workshop AI & ChatGPT",    qrCode: "QR-12345-WS",  status: "active",    registeredAt: "2025-06-15T10:30:00" },
-    { name: "Trần Thị B",   mssv: "2151054321", email: "ttb@gmail.com", event: "Đêm hội thể thao CLB",     qrCode: "QR-54321-DH",  status: "active",    registeredAt: "2025-06-16T14:00:00" },
-    { name: "Lê Văn C",     mssv: "2151099999", email: "lvc@gmail.com", event: "Workshop AI & ChatGPT",    qrCode: "QR-99999-WS",  status: "cancelled", registeredAt: "2025-06-14T09:00:00" },
-  ];
-  localStorage.setItem("participants", JSON.stringify(participants));
-}
+let currentReg  = null;
+let currentEvObj= null;
+let cancelLog   = JSON.parse(localStorage.getItem("cancelLog") || "[]");
 
-// =====================================================
-// KHỞI TẠO
-// =====================================================
-window.onload = () => {
-  renderEventDropdown();
-  renderCancelHistory();
+// Chờ Firebase
+await FS.ready;
+document.getElementById("loadingOverlay").classList.add("hidden");
 
-  // Nếu đã đăng nhập thì prefill MSSV
-  if (currentUser && currentUser.mssv) {
-    document.getElementById("inp_mssv").value = currentUser.mssv;
-  }
-};
-
+// Đổ danh sách sự kiện vào dropdown
 function renderEventDropdown() {
   const sel = document.getElementById("inp_event");
   sel.innerHTML = '<option value="">-- Chọn sự kiện --</option>';
-  events.forEach(e => {
+  FS.getEvents().forEach(e => {
     const opt = document.createElement("option");
-    opt.value = e.t;
-    opt.textContent = `${e.t} (${formatDate(e.d)})`;
+    opt.value = e.t; opt.textContent = `${e.t} (${e.d||""})`;
     sel.appendChild(opt);
   });
 }
 
-// =====================================================
-// BƯỚC 1 → 2: TRA CỨU
-// =====================================================
-let currentReg = null;
-let currentEventObj = null;
+window.addEventListener("fs:events", renderEventDropdown);
+renderEventDropdown();
 
-function traCuu() {
+// Prefill MSSV nếu đã đăng nhập
+const cu = FS.getCurrentUser();
+if (cu?.mssv) document.getElementById("inp_mssv").value = cu.mssv;
+
+renderCancelHistory();
+
+// ── TRA CỨU ───────────────────────────────────────────────
+window.traCuu = function() {
   const mssv      = document.getElementById("inp_mssv").value.trim();
   const eventName = document.getElementById("inp_event").value;
-
-  if (!mssv) { showToast("❗ Vui lòng nhập MSSV!", "error"); return; }
+  if (!mssv)      { showToast("❗ Vui lòng nhập MSSV!", "error"); return; }
   if (!eventName) { showToast("❗ Vui lòng chọn sự kiện!", "error"); return; }
 
-  // Tìm đăng ký
+  const participants = FS.getParticipants();
   const reg = participants.find(p => p.mssv === mssv && p.event === eventName);
 
-  if (!reg) {
-    showToast("❌ Không tìm thấy đăng ký! Kiểm tra lại MSSV.", "error");
-    return;
+  if (!reg) { showToast("❌ Không tìm thấy đăng ký! Kiểm tra lại MSSV.", "error"); return; }
+  if (reg.status === "cancelled" || reg.trangthai === "Đã hủy") {
+    showToast("⚠️ Đăng ký này đã bị hủy trước đó!", "info"); return;
   }
 
-  if (reg.status === "cancelled") {
-    showToast("⚠️ Đăng ký này đã bị hủy trước đó!", "info");
-    return;
-  }
-
-  // Tìm sự kiện
-  const ev = events.find(e => e.t === eventName);
-  currentReg = reg;
-  currentEventObj = ev;
+  const ev = FS.getEvents().find(e => e.t === eventName);
+  currentReg   = reg;
+  currentEvObj = ev;
 
   hienThiThongTin(reg, ev);
   goStep(2);
-}
+};
 
 function hienThiThongTin(reg, ev) {
-  // ---- Thông tin đăng ký ----
   document.getElementById("regInfoBox").innerHTML = `
     <div class="reg-name">👤 ${reg.name}</div>
-    <div class="reg-row"><span class="label">MSSV</span><span class="value">${reg.mssv}</span></div>
-    <div class="reg-row"><span class="label">Email</span><span class="value">${reg.email}</span></div>
+    <div class="reg-row"><span class="label">MSSV</span><span class="value">${reg.mssv||""}</span></div>
+    <div class="reg-row"><span class="label">Email</span><span class="value">${reg.email||""}</span></div>
     <div class="reg-row"><span class="label">Sự kiện</span><span class="value">${reg.event}</span></div>
-    <div class="reg-row"><span class="label">Ngày tổ chức</span><span class="value">${ev ? formatDate(ev.d) + " " + (ev.time||"") : "N/A"}</span></div>
+    <div class="reg-row"><span class="label">Ngày tổ chức</span><span class="value">${ev ? formatDate(ev.d)+" "+(ev.time||"") : "N/A"}</span></div>
     <div class="reg-row"><span class="label">Đăng ký lúc</span><span class="value">${formatDateTime(reg.registeredAt)}</span></div>
-    <div class="reg-row"><span class="label">Trạng thái QR</span><span class="value"><span class="badge badge-active">✅ Đang hoạt động</span></span></div>
-  `;
+    <div class="reg-row"><span class="label">Trạng thái</span><span class="value"><span class="badge badge-active">✅ Đang hoạt động</span></span></div>`;
 
-  // ---- Kiểm tra deadline ----
   const canCancel = checkDeadline(ev);
-  const deadlineHours = ev && ev.deadline ? ev.deadline : 24;
-  const warn = document.getElementById("deadlineWarn");
-  const btn  = document.getElementById("btnConfirmCancel");
+  const deadlineH = ev?.deadline || 24;
+  const warn      = document.getElementById("deadlineWarn");
+  const btn       = document.getElementById("btnConfirmCancel");
 
   if (!canCancel) {
-    warn.innerHTML = `
-      <div class="icon">🚫</div>
-      <div class="text">
-        Đã quá thời hạn hủy đăng ký! Sự kiện này yêu cầu hủy trước 
-        <span>${deadlineHours} tiếng</span> so với giờ tổ chức.
-      </div>
-    `;
+    warn.innerHTML = `<div class="icon">🚫</div><div class="text">Đã quá thời hạn hủy! Yêu cầu hủy trước <span>${deadlineH} tiếng</span> so với giờ tổ chức.</div>`;
     warn.style.background = "linear-gradient(135deg,#fde8e8,#f9c0c0)";
     warn.style.borderColor = "#e74c3c";
-    warn.querySelector(".text").style.color = "#c0392b";
-    btn.disabled = true;
-    btn.textContent = "❌ Đã quá hạn hủy";
+    btn.disabled = true; btn.textContent = "❌ Đã quá hạn hủy";
   } else {
-    const eventDT = ev ? new Date(ev.d + "T" + (ev.time||"00:00")) : null;
+    const eventDT   = ev ? new Date(ev.d + "T" + (ev.time||"00:00")) : null;
     const hoursLeft = eventDT ? Math.round((eventDT - new Date()) / 3600000) : null;
-    warn.innerHTML = `
-      <div class="icon">⏰</div>
-      <div class="text">
-        Bạn có thể hủy đăng ký trước <span>${deadlineHours} tiếng</span> so với giờ tổ chức.
-        ${hoursLeft ? `Còn <span>${hoursLeft} tiếng</span> để hủy.` : ""}
-      </div>
-    `;
-    btn.disabled = false;
-    btn.textContent = "❌ Hủy đăng ký ngay";
+    warn.innerHTML = `<div class="icon">⏰</div><div class="text">Bạn có thể hủy trước <span>${deadlineH} tiếng</span>.${hoursLeft ? ` Còn <span>${hoursLeft} tiếng</span>.` : ""}</div>`;
+    warn.style.background = ""; warn.style.borderColor = "";
+    btn.disabled = false; btn.textContent = "❌ Hủy đăng ký ngay";
   }
 }
 
 function checkDeadline(ev) {
-  if (!ev || !ev.d) return true; // nếu không có ngày thì cho hủy
-  const deadlineHours = ev.deadline || 24;
-  const eventDT = new Date(ev.d + "T" + (ev.time || "00:00"));
-  const now = new Date();
-  const diffHours = (eventDT - now) / 3600000;
-  return diffHours >= deadlineHours;
+  if (!ev?.d) return true;
+  const deadlineH = ev.deadline || 24;
+  const eventDT   = new Date(ev.d + "T" + (ev.time||"00:00"));
+  return (eventDT - new Date()) / 3600000 >= deadlineH;
 }
 
-// =====================================================
-// BƯỚC 2 → 3: THỰC HIỆN HỦY
-// =====================================================
-function moModalXacNhan() {
+// ── MODAL XÁC NHẬN ────────────────────────────────────────
+window.moModalXacNhan = function() {
   document.getElementById("modalMsg").textContent =
-    `Bạn sắp hủy đăng ký sự kiện "${currentReg.event}". QR code sẽ bị vô hiệu hóa ngay lập tức và không thể check-in được nữa.`;
+    `Bạn sắp hủy đăng ký sự kiện "${currentReg.event}". Hành động này sẽ cập nhật lên hệ thống và không thể hoàn tác.`;
   document.getElementById("modalOverlay").classList.add("show");
-}
+};
+window.dongModal = function() { document.getElementById("modalOverlay").classList.remove("show"); };
 
-function dongModal() {
-  document.getElementById("modalOverlay").classList.remove("show");
-}
-
-function thucHienHuy() {
+// ── THỰC HIỆN HỦY (Firebase) ─────────────────────────────
+window.thucHienHuy = async function() {
   dongModal();
+  if (!currentReg?.id) { showToast("❌ Không tìm thấy ID người đăng ký!", "error"); return; }
 
-  // 1. Cập nhật trạng thái participant
-  const idx = participants.findIndex(p => p.mssv === currentReg.mssv && p.event === currentReg.event);
-  if (idx !== -1) {
-    participants[idx].status     = "cancelled";
-    participants[idx].cancelledAt = new Date().toISOString();
-    participants[idx].qrStatus   = "revoked";
-  }
-  localStorage.setItem("participants", JSON.stringify(participants));
+  try {
+    // Cập nhật Firebase
+    await FS.updateParticipant(currentReg.id, {
+      status    : "cancelled",
+      trangthai : "Đã hủy",
+      cancelledAt: new Date().toISOString()
+    });
 
-  // 2. Vô hiệu hóa QR (hiệu ứng)
-  document.getElementById("qrBox").classList.add("revoked");
+    // Ghi log hủy
+    const log = {
+      mssv       : currentReg.mssv,
+      name       : currentReg.name,
+      email      : currentReg.email,
+      event      : currentReg.event,
+      cancelledAt: new Date().toISOString()
+    };
+    cancelLog.unshift(log);
+    localStorage.setItem("cancelLog", JSON.stringify(cancelLog));
 
-  // 3. Ghi log hủy
-  const log = {
-    mssv:       currentReg.mssv,
-    name:       currentReg.name,
-    email:      currentReg.email,
-    event:      currentReg.event,
-    cancelledAt: new Date().toISOString(),
-    qrCode:     currentReg.qrCode
-  };
-  cancelLog.unshift(log);
-  localStorage.setItem("cancelLog", JSON.stringify(cancelLog));
-
-  // 4. Giả lập gửi thông báo email (log ra console)
-  console.log(`[THÔNG BÁO] Gửi email xác nhận hủy đến: ${currentReg.email}`);
-  console.log(`Nội dung: Đăng ký sự kiện "${currentReg.event}" đã được hủy thành công. QR code ${currentReg.qrCode} đã bị vô hiệu hóa.`);
-
-  // 5. Hiển thị màn hình thành công sau 600ms (đủ thấy QR bị revoke)
-  setTimeout(() => {
     hienThiThanhCong(log);
     goStep(3);
     renderCancelHistory();
-  }, 600);
-}
+    showToast("✅ Hủy đăng ký thành công!");
+  } catch(e) {
+    showToast("❌ Lỗi: " + e.message, "error");
+  }
+};
 
 function hienThiThanhCong(log) {
   document.getElementById("notifSent").innerHTML =
-    `📧 Thông báo xác nhận đã được gửi đến <strong>${log.email}</strong>`;
-
+    `✅ Đã hủy đăng ký cho <strong>${log.name}</strong> — ${log.email}`;
   document.getElementById("cancelSummary").innerHTML = `
     <div class="row"><span class="key">Người hủy</span><span class="val">${log.name} (${log.mssv})</span></div>
     <div class="row"><span class="key">Sự kiện</span><span class="val">${log.event}</span></div>
-    <div class="row"><span class="key">QR bị hủy</span><span class="val"><span class="badge badge-invalid">❌ Vô hiệu hóa</span></span></div>
-    <div class="row"><span class="key">Thời gian</span><span class="val">${formatDateTime(log.cancelledAt)}</span></div>
-  `;
+    <div class="row"><span class="key">Trạng thái</span><span class="val"><span class="badge badge-cancelled">❌ Đã hủy</span></span></div>
+    <div class="row"><span class="key">Thời gian</span><span class="val">${formatDateTime(log.cancelledAt)}</span></div>`;
 }
 
-// =====================================================
-// LỊCH SỬ HỦY
-// =====================================================
+// ── LỊCH SỬ HỦY ──────────────────────────────────────────
 function renderCancelHistory() {
   const box = document.getElementById("historyBox");
-  if (cancelLog.length === 0) { box.innerHTML = ""; return; }
-
-  // Lọc theo MSSV nếu đã đăng nhập
-  const filtered = currentUser && currentUser.mssv
-    ? cancelLog.filter(l => l.mssv === currentUser.mssv)
-    : cancelLog.slice(0, 5);
-
-  if (filtered.length === 0) { box.innerHTML = ""; return; }
-
-  box.innerHTML = `<h3 class="history-box" style="color:#e84393;font-family:Quicksand;font-size:14px;font-weight:700;margin-bottom:12px;">📜 Lịch sử hủy đăng ký</h3>` +
+  const filtered = cancelLog.slice(0, 5);
+  if (!filtered.length) { box.innerHTML = ""; return; }
+  box.innerHTML = `<h3 style="color:#e84393;font-family:Quicksand;font-size:14px;font-weight:700;margin-bottom:12px;">📜 Lịch sử hủy đăng ký</h3>` +
     filtered.map(l => `
       <div class="history-item">
         <div class="hi-event">❌ ${l.event}</div>
         <div class="hi-meta">${l.name} · ${l.mssv} · Hủy lúc ${formatDateTime(l.cancelledAt)}</div>
-      </div>
-    `).join("");
+      </div>`).join("");
 }
 
-// =====================================================
-// ĐIỀU HƯỚNG STEPPER
-// =====================================================
+// ── NAVIGATION ────────────────────────────────────────────
 function goStep(n) {
-  document.getElementById("cardStep1").classList.add("hidden");
-  document.getElementById("cardStep2").classList.add("hidden");
-  document.getElementById("cardStep3").classList.add("hidden");
-
-  document.getElementById("cardStep" + n).classList.remove("hidden");
-
-  // Cập nhật stepper visuals
-  for (let i = 1; i <= 3; i++) {
+  [1,2,3].forEach(i => {
+    document.getElementById("cardStep" + i).classList.toggle("hidden", i !== n);
     const s = document.getElementById("step" + i);
-    s.classList.remove("active", "done");
+    s.classList.remove("active","done");
     if (i < n) s.classList.add("done");
     else if (i === n) s.classList.add("active");
-  }
-  if (document.getElementById("line1"))
-    document.getElementById("line1").classList.toggle("done", n > 1);
-  if (document.getElementById("line2"))
-    document.getElementById("line2").classList.toggle("done", n > 2);
+  });
+  document.getElementById("line1")?.classList.toggle("done", n > 1);
+  document.getElementById("line2")?.classList.toggle("done", n > 2);
 }
 
-function quayLai() { goStep(1); }
-
-function resetForm() {
-  currentReg = null;
-  currentEventObj = null;
-  document.getElementById("inp_mssv").value = currentUser?.mssv || "";
+window.quayLai = function() { goStep(1); };
+window.resetForm = function() {
+  currentReg = null; currentEvObj = null;
+  document.getElementById("inp_mssv").value  = FS.getCurrentUser()?.mssv || "";
   document.getElementById("inp_event").value = "";
-  document.getElementById("qrBox").classList.remove("revoked");
   goStep(1);
-}
+};
 
-// =====================================================
-// MENU (từ giaodien.js)
-// =====================================================
-function toggleMenu() {
-  document.getElementById("menu").classList.toggle("show");
-}
-function goPage(id) {
-  window.location.href = "Giaodienquanlysukienclb.html#" + id;
-}
-function logout() {
-  localStorage.removeItem("currentUser");
-  window.location.href = "giaodien.html";
-}
+window.toggleMenu = function() { document.getElementById("menu").classList.toggle("show"); };
 
-// =====================================================
-// TOAST
-// =====================================================
-function showToast(msg, type = "success") {
+// ── HELPERS ───────────────────────────────────────────────
+function formatDate(s) {
+  if (!s) return ""; const [y,m,d] = s.split("-"); return `${d}/${m}/${y}`;
+}
+function formatDateTime(iso) {
+  if (!iso) return ""; return new Date(iso).toLocaleString("vi-VN");
+}
+function showToast(msg, type="success") {
   const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.className = `toast ${type} show`;
+  t.textContent = msg; t.className = `toast ${type} show`;
   setTimeout(() => t.classList.remove("show"), 2500);
-}
-
-// =====================================================
-// HELPER: FORMAT DATE
-// =====================================================
-function formatDate(dateStr) {
-  if (!dateStr) return "";
-  const [y, m, d] = dateStr.split("-");
-  return `${d}/${m}/${y}`;
-}
-function formatDateTime(isoStr) {
-  if (!isoStr) return "";
-  const dt = new Date(isoStr);
-  return dt.toLocaleString("vi-VN");
 }
 </script>
 

@@ -18,12 +18,11 @@
 
     /* SEARCH BAR */
     .search-bar { position:fixed; top:15px; left:70px; right:15px; z-index:1000; }
-    .search-bar input { width:100%; padding:10px 15px; border-radius:20px; border:none; box-shadow:0 4px 12px rgba(0,0,0,0.15); outline:none; }
+    .search-bar input { width:100%; padding:10px 15px; border-radius:20px; border:none; box-shadow:0 4px 12px rgba(0,0,0,0.15); outline:none; font-family:'Nunito',sans-serif; }
 
     /* LAYOUT */
     .page { display:none; padding:80px 20px 40px; animation:fadeIn 0.5s; }
     @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-
     .card { background:rgba(255,255,255,.97); padding:30px; border-radius:24px; max-width:520px; margin:0 auto; box-shadow:0 16px 48px rgba(255,105,180,.2); }
     h2 { text-align:center; color:#e84393; margin-bottom:20px; font-family:'Quicksand'; }
 
@@ -42,10 +41,10 @@
     .status-tag.active { background:#ff6a88; color:#fff; border-color:#ff6a88; }
 
     /* BUTTONS */
-    button.main { width:100%; padding:13px; background:linear-gradient(135deg,#ff6a88,#e84393); color:#fff; border:none; border-radius:14px; font-weight:700; cursor:pointer; margin-top:10px; transition:0.3s; }
+    button.main { width:100%; padding:13px; background:linear-gradient(135deg,#ff6a88,#e84393); color:#fff; border:none; border-radius:14px; font-weight:700; cursor:pointer; margin-top:10px; transition:0.3s; font-family:'Nunito',sans-serif; }
     button.main:hover { transform:translateY(-2px); box-shadow:0 5px 15px rgba(255,106,136,.4); }
     .btn-row { display:flex; gap:10px; margin-top:10px; }
-    .btn-reset { padding:13px 20px; background:#fff0f5; color:#e84393; border:2px solid #ffccd9; border-radius:14px; font-weight:700; cursor:pointer; }
+    .btn-reset { padding:13px 20px; background:#fff0f5; color:#e84393; border:2px solid #ffccd9; border-radius:14px; font-weight:700; cursor:pointer; font-family:'Nunito',sans-serif; }
 
     /* TABLE */
     .table-container { overflow-x:auto; margin-top:15px; border-radius:12px; }
@@ -66,25 +65,29 @@
     @keyframes fall { 0%{transform:translateY(-50px) rotate(0deg)} 100%{transform:translateY(110vh) rotate(360deg)} }
 
     /* TOAST */
-    .toast { position:fixed; bottom:25px; left:50%; transform:translateX(-50%) translateY(100px); padding:12px 25px; border-radius:12px; color:#fff; font-weight:700; transition:0.4s; z-index:10001; opacity:0; }
+    .toast { position:fixed; bottom:25px; left:50%; transform:translateX(-50%) translateY(100px); padding:12px 25px; border-radius:12px; color:#fff; font-weight:700; transition:0.4s; z-index:10001; opacity:0; text-align:center; max-width:90vw; pointer-events:none; }
     .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
     .toast.success { background:#2ecc71; }
-    .toast.error { background:#e74c3c; }
-    .toast.info { background:#3498db; }
+    .toast.error   { background:#e74c3c; }
+    .toast.info    { background:#3498db; }
+
+    /* LOADING */
+    #fbLoadingOverlay {
+      position:fixed; inset:0; background:rgba(255,154,158,.95);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      z-index:99999; font-family:'Quicksand',sans-serif; gap:14px;
+    }
+    @keyframes fbSpin{to{transform:rotate(360deg)}}
+    .fb-spinner { width:44px;height:44px;border:5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:fbSpin .8s linear infinite; }
   </style>
 </head>
 <body>
 
-  <!-- LOADING OVERLAY — chờ Firebase load xong -->
-  <div id="fbLoadingOverlay" style="
-    position:fixed; inset:0; background:rgba(255,154,158,.92);
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    z-index:99999; font-family:'Quicksand',sans-serif; gap:14px;">
-    <div style="width:44px;height:44px;border:5px solid rgba(255,255,255,.35);
-      border-top-color:#fff;border-radius:50%;animation:fbSpin .8s linear infinite;"></div>
+  <!-- LOADING OVERLAY -->
+  <div id="fbLoadingOverlay">
+    <div class="fb-spinner"></div>
     <p style="color:#fff;font-size:16px;font-weight:700;">⏳ Đang kết nối dữ liệu...</p>
   </div>
-  <style>@keyframes fbSpin{to{transform:rotate(360deg)}}</style>
 
   <div class="menu-toggle" onclick="toggleMenu()">☰</div>
 
@@ -93,34 +96,34 @@
     <input type="text" id="globalSearch" placeholder="🔍 Tìm kiếm sự kiện, người tham gia..." oninput="globalSearchFunction()">
   </div>
 
-  <!-- MENU -->
+  <!-- MENU — hiển thị theo role, ẩn mặc định -->
   <div class="menu" id="menu">
-    <!-- CHUNG (ai cũng thấy) -->
     <button onclick="go('home')">🏠 Trang chủ</button>
     <button onclick="window.location.href='TimKiemVaLoc.html'">🔍 Tìm kiếm sự kiện</button>
-    <!-- ADMIN -->
-    <button onclick="go('create')" class="adminOnly">➕ Tạo sự kiện</button>
-    <button onclick="go('manage')" class="adminOnly">📋 Quản lý sự kiện</button>
-    <button onclick="go('budget')" class="adminOnly">💰 Quản lý ngân sách</button>
-    <button onclick="window.location.href='PhanVaiTroPhuTrachSuKien.html'" class="adminOnly">👥 Phân chia vai trò</button>
-    <button onclick="window.location.href='thongKeSoLuongNguoiThamGia.html'" class="adminOnly">📊 Thống kê người tham gia</button>
-    <button onclick="window.location.href='XemSuaXuatDanhSach.html'" class="adminOnly">🗂 Quản lý chi tiết</button>
-    <button onclick="window.location.href='thongBaoSuKien.html'" class="adminOnly">🔔 Thông báo sự kiện</button>
-    <button onclick="go('checkin')" class="adminOnly">📷 Check-in QR</button>
-    <button onclick="go('dashboard')" class="adminOnly">📊 Dashboard Check-in</button>
-    <button onclick="window.location.href='LICHSUTHAMGIASUKIEN.html'" class="adminOnly">📜 Lịch sử tham gia</button>
-    <button onclick="window.location.href='PHANHOIVADANHGIA.html'" class="adminOnly">⭐ Đánh giá sự kiện</button>
-    <!-- USER -->
-    <button onclick="go('manage')" class="userOnly">📋 Danh sách sự kiện</button>
-    <button onclick="go('join')" class="userOnly">🙋 Đăng ký tham gia</button>
-    <button onclick="go('reminder'); renderReminders()" class="userOnly">⏰ Nhắc hẹn</button>
-    <button onclick="window.location.href='huydangky.html'" class="userOnly">❌ Hủy đăng ký</button>
-    <button onclick="window.location.href='LICHSUTHAMGIASUKIEN.html'" class="userOnly">📜 Lịch sử tham gia</button>
-    <button onclick="window.location.href='PHANHOIVADANHGIA.html'" class="userOnly">⭐ Đánh giá sự kiện</button>
-    <button onclick="viewGallery()" class="userOnly">🖼 Xem tư liệu</button>
-    <button onclick="window.location.href='thongBaoSuKien.html'" class="userOnly">🔔 Thông báo</button>
+    <!-- ADMIN ONLY -->
+    <button onclick="go('create')"  class="adminOnly" style="display:none;">➕ Tạo sự kiện</button>
+    <button onclick="go('manage')"  class="adminOnly" style="display:none;">📋 Quản lý sự kiện</button>
+    <button onclick="go('budget')"  class="adminOnly" style="display:none;">💰 Quản lý ngân sách</button>
+    <button onclick="window.location.href='PhanVaiTroPhuTrachSuKien.html'" class="adminOnly" style="display:none;">👥 Phân chia vai trò</button>
+    <button onclick="window.location.href='thongKeSoLuongNguoiThamGia.html'" class="adminOnly" style="display:none;">📊 Thống kê người tham gia</button>
+    <button onclick="window.location.href='XemSuaXuatDanhSach.html'" class="adminOnly" style="display:none;">🗂 Quản lý chi tiết</button>
+    <button onclick="window.location.href='thongBaoSuKien.html'" class="adminOnly" style="display:none;">🔔 Thông báo sự kiện</button>
+    <button onclick="go('checkin')" class="adminOnly" style="display:none;">📷 Check-in QR</button>
+    <button onclick="go('dashboard')" class="adminOnly" style="display:none;">📊 Dashboard Check-in</button>
+    <button onclick="window.location.href='LICHSUTHAMGIASUKIEN.html'" class="adminOnly" style="display:none;">📜 Lịch sử tham gia</button>
+    <button onclick="window.location.href='PHANHOIVADANHGIA.html'" class="adminOnly" style="display:none;">⭐ Đánh giá sự kiện</button>
+    <button onclick="viewGallery()" class="adminOnly" style="display:none;">🖼 Xem tư liệu</button>
+    <!-- USER ONLY -->
+    <button onclick="go('manage')"  class="userOnly" style="display:none;">📋 Danh sách sự kiện</button>
+    <button onclick="go('join')"    class="userOnly" style="display:none;">🙋 Đăng ký tham gia</button>
+    <button onclick="go('reminder');renderReminders()" class="userOnly" style="display:none;">⏰ Nhắc hẹn</button>
+    <button onclick="window.location.href='huydangky.html'" class="userOnly" style="display:none;">❌ Hủy đăng ký</button>
+    <button onclick="window.location.href='LICHSUTHAMGIASUKIEN.html'" class="userOnly" style="display:none;">📜 Lịch sử tham gia</button>
+    <button onclick="window.location.href='PHANHOIVADANHGIA.html'" class="userOnly" style="display:none;">⭐ Đánh giá sự kiện</button>
+    <button onclick="viewGallery()" class="userOnly" style="display:none;">🖼 Xem tư liệu</button>
+    <button onclick="window.location.href='thongBaoSuKien.html'" class="userOnly" style="display:none;">🔔 Thông báo</button>
     <!-- AUTH -->
-    <button onclick="go('login')">🔐 Đăng nhập / Đăng ký</button>
+    <button onclick="go('login')" class="guestOnly">🔐 Đăng nhập / Đăng ký</button>
     <button onclick="logout()" class="logoutBtn" style="display:none;">🚪 Đăng xuất</button>
   </div>
 
@@ -128,7 +131,7 @@
   <div id="home" class="page" style="display:block;">
     <div class="card">
       <h2>🌸 Quản lý sự kiện CLB 🌸</h2>
-      <p style="text-align:center; color:#ff6a88; font-weight:bold;" id="welcome">Chào mừng bạn!</p>
+      <p style="text-align:center; color:#ff6a88; font-weight:bold;" id="welcome">Đang tải...</p>
       <div style="margin-top:20px; text-align:center; font-size:14px; color:#666;">
         Hệ thống quản lý sự kiện dành cho thành viên CLB.
       </div>
@@ -198,9 +201,7 @@
       <div class="table-container">
         <table>
           <thead>
-            <tr>
-              <th>Sự kiện</th><th>Người trực</th><th>Ngày</th><th>Địa điểm</th><th>Số lượng</th><th>Hành động</th>
-            </tr>
+            <tr><th>Sự kiện</th><th>Người trực</th><th>Ngày</th><th>Địa điểm</th><th>Số lượng</th><th>Hành động</th></tr>
           </thead>
           <tbody id="eventTable"></tbody>
         </table>
@@ -233,9 +234,7 @@
       <button onclick="exportCSV()" style="padding:8px 15px; margin-bottom:10px; cursor:pointer; background:#8e44ad; color:#fff; border:none; border-radius:8px; font-weight:700;">📥 Xuất CSV</button>
       <div class="table-container">
         <table>
-          <thead>
-            <tr><th>Họ tên</th><th>MSSV</th><th>Email</th><th>Sự kiện</th><th>Trạng thái</th><th>Hành động</th></tr>
-          </thead>
+          <thead><tr><th>Họ tên</th><th>MSSV</th><th>Email</th><th>Sự kiện</th><th>Trạng thái</th><th>Hành động</th></tr></thead>
           <tbody id="pTable"></tbody>
         </table>
       </div>
@@ -256,18 +255,18 @@
   <div id="dashboard" class="page">
     <div class="card" style="max-width:700px;">
       <h2>📊 Thống kê Check-in</h2>
-      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:15px; margin-bottom:20px;">
-        <div style="background:#fff0f5; padding:20px; border-radius:16px; text-align:center;">
-          <div style="font-size:28px; font-weight:700; color:#e84393;" id="totalP">0</div>
-          <div style="font-size:12px; color:#aaa;">Tổng đăng ký</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:20px;">
+        <div style="background:#fff0f5;padding:20px;border-radius:16px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#e84393;" id="totalP">0</div>
+          <div style="font-size:12px;color:#aaa;">Tổng đăng ký</div>
         </div>
-        <div style="background:#e8f8f0; padding:20px; border-radius:16px; text-align:center;">
-          <div style="font-size:28px; font-weight:700; color:#27ae60;" id="checkedInP">0</div>
-          <div style="font-size:12px; color:#aaa;">Đã tham gia</div>
+        <div style="background:#e8f8f0;padding:20px;border-radius:16px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#27ae60;" id="checkedInP">0</div>
+          <div style="font-size:12px;color:#aaa;">Đã tham gia</div>
         </div>
-        <div style="background:#fff9e8; padding:20px; border-radius:16px; text-align:center;">
-          <div style="font-size:28px; font-weight:700; color:#e67e22;" id="notCheckedP">0</div>
-          <div style="font-size:12px; color:#aaa;">Chưa tham gia</div>
+        <div style="background:#fff9e8;padding:20px;border-radius:16px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#e67e22;" id="notCheckedP">0</div>
+          <div style="font-size:12px;color:#aaa;">Chưa tham gia</div>
         </div>
       </div>
       <div id="eventStats"></div>
@@ -279,6 +278,11 @@
       <h2>🔔 Sự kiện sắp diễn ra</h2>
       <div id="reminderList"></div>
     </div>
+  </div>
+
+  <!-- BUDGET PAGE — inject bởi quanLyChiTieu.js nhưng cũng cần trang này trong DOM -->
+  <div id="budget" class="page">
+    <div id="budgetPage"></div>
   </div>
 
   <div id="login" class="page">
@@ -296,70 +300,85 @@
           </select>
         </div>
       </div>
-      <div id="login_msg" style="font-size:13px; margin-bottom:8px; display:none;"></div>
+      <div id="login_msg" style="font-size:13px;margin-bottom:8px;display:none;"></div>
       <button class="main" id="btnAuth" onclick="handleAuth()">Đăng nhập</button>
-      <p style="text-align:center; margin-top:8px; font-size:13px; cursor:pointer; color:#e84393;" onclick="toggleAuthMode()">
+      <p style="text-align:center;margin-top:8px;font-size:13px;cursor:pointer;color:#e84393;" onclick="toggleAuthMode()">
         Chưa có tài khoản? Đăng ký ngay
       </p>
     </div>
   </div>
 
-  <!-- Toast (only one) -->
   <div class="toast" id="toast"></div>
 
-  <!-- External scripts (load before module so DOMContentLoaded fires after module) -->
+  <!-- External QR libs -->
   <script src="https://unpkg.com/html5-qrcode"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script type="module" src="firebase-sync.js"></script>
 
   <!-- MAIN MODULE -->
   <script type="module">
     import { db, ref, push, onValue, remove, update } from "./firebase.js";
 
     // ── State ──────────────────────────────────────────────
-    let users        = [];
     let events       = [];
     let participants = [];
-    let currentUser  = JSON.parse(localStorage.getItem("currentUser"));
-    let notifyEnabled= JSON.parse(localStorage.getItem("notifyEnabled"));
-    if (notifyEnabled === null) notifyEnabled = true;
+    let users        = [];   // users + admins gộp lại để tìm kiếm
+    let currentUser  = null;
     let isLoginMode  = true;
     let selectedStatus = "Mở";
+    let notifyEnabled= JSON.parse(localStorage.getItem("notifyEnabled")) ?? true;
     let notified     = JSON.parse(localStorage.getItem("notified")) || {};
 
-    // ── fbReady — đảm bảo Firebase load xong trước khi login ──
-    // Dùng Set để mỗi node chỉ được đếm 1 lần (tránh onValue bắn nhiều lần)
-    const _fbLoadedNodes = new Set();
-    const _FB_NODES = ["users", "events", "participants"];
-    function _fbNodeLoaded(nodeName) {
-      _fbLoadedNodes.add(nodeName);
-      if (_fbLoadedNodes.size >= _FB_NODES.length) {
+    // ── FIX: ready flag ────────────────────────────────────
+    // Theo dõi từng node riêng để ẩn overlay đúng lúc
+    const _loadedNodes = new Set();
+    const _REQUIRED    = ["events","participants","users"]; // admins optional
+
+    function _onNodeLoaded(name) {
+      _loadedNodes.add(name);
+      const allReady = _REQUIRED.every(n => _loadedNodes.has(n));
+      if (allReady) {
         const ov = document.getElementById("fbLoadingOverlay");
         if (ov) ov.style.display = "none";
+        // Load currentUser sau khi Firebase sẵn sàng
+        try { currentUser = JSON.parse(localStorage.getItem("currentUser")); } catch{}
+        updateUI();
       }
     }
 
     // ── Firebase Listeners ─────────────────────────────────
-    onValue(ref(db, "users"), snapshot => {
-      users = [];
-      snapshot.forEach(child => users.push({ id: child.key, ...child.val() }));
-      _fbNodeLoaded("users");
+    onValue(ref(db, "users"), snap => {
+      const fresh = [];
+      snap.forEach(c => fresh.push({ id: c.key, ...c.val() }));
+      // Gộp users vào mảng chung, tránh trùng với admins
+      users = users.filter(u => u.role === "admin"); // giữ admins
+      users.push(...fresh);
+      _onNodeLoaded("users");
     });
 
-    onValue(ref(db, "events"), snapshot => {
+    onValue(ref(db, "admins"), snap => {
+      const fresh = [];
+      snap.forEach(c => fresh.push({ id: c.key, role: "admin", ...c.val() }));
+      users = users.filter(u => u.role !== "admin"); // xoá admins cũ
+      users.push(...fresh);
+      _onNodeLoaded("admins"); // admins cũng đánh dấu loaded (không block overlay)
+    });
+
+    onValue(ref(db, "events"), snap => {
       events = [];
-      snapshot.forEach(child => events.push({ id: child.key, ...child.val() }));
+      snap.forEach(c => events.push({ id: c.key, ...c.val() }));
       localStorage.setItem("events", JSON.stringify(events));
       if (document.getElementById("eventTable")?.offsetParent !== null) renderEvents();
       updateEventDropdown();
-      _fbNodeLoaded("events");
+      _onNodeLoaded("events");
     });
 
-    onValue(ref(db, "participants"), snapshot => {
+    onValue(ref(db, "participants"), snap => {
       participants = [];
-      snapshot.forEach(child => participants.push({ id: child.key, ...child.val() }));
+      snap.forEach(c => participants.push({ id: c.key, ...c.val() }));
       localStorage.setItem("participants", JSON.stringify(participants));
       if (document.getElementById("pTable")?.offsetParent !== null) renderParticipants();
-      _fbNodeLoaded("participants");
+      _onNodeLoaded("participants");
     });
 
     // ── Flower Effect ──────────────────────────────────────
@@ -383,31 +402,29 @@
       if (!page) { console.warn("Page not found:", id); return; }
       page.style.display = "block";
       document.getElementById("menu").classList.remove("show");
-      if (id === "manage")     setTimeout(renderEvents, 50);
+      if (id === "manage")      setTimeout(renderEvents, 50);
       if (id === "participants") setTimeout(renderParticipants, 50);
-      if (id === "join")       updateEventDropdown();
-      if (id === "dashboard")  renderDashboard();
+      if (id === "join")        updateEventDropdown();
+      if (id === "dashboard")   renderDashboard();
+      if (id === "budget")      { if (typeof renderBudgetPage === "function") renderBudgetPage(); }
     }
 
-    // ── FIX 2: handleAuth đã sửa ─────────────────────────
-    // - Kiểm tra Firebase đã load chưa (tránh race condition)
-    // - Hỗ trợ cả pass (plain text) lẫn passHash (SHA-256)
-    // - Yêu cầu mật khẩu hợp lý: ≥6 ký tự + có chữ + có số
-    // ──────────────────────────────────────────────────────
+    // ── SHA-256 ────────────────────────────────────────────
     async function sha256(text) {
       const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
       return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
     }
 
-    function handleAuth() {
+    // ── AUTH ───────────────────────────────────────────────
+    async function handleAuth() {
       const email = document.getElementById("auth_email").value.trim().toLowerCase();
       const pass  = document.getElementById("auth_pass").value;
       const msgEl = document.getElementById("login_msg");
       msgEl.style.display = "none";
 
       // Kiểm tra Firebase đã load chưa
-      if (_fbLoadedNodes.size < _FB_NODES.length) {
-        showMsg(msgEl, "⏳ Đang kết nối dữ liệu, vui lòng thử lại sau vài giây!", false);
+      if (!_REQUIRED.every(n => _loadedNodes.has(n))) {
+        showMsg(msgEl, "⏳ Đang kết nối, vui lòng thử lại sau vài giây!", false);
         return;
       }
 
@@ -415,58 +432,21 @@
         if (!email || !pass) { showMsg(msgEl, "❌ Vui lòng nhập email và mật khẩu!", true); return; }
         if (!email.includes("@")) { showMsg(msgEl, "❌ Email không hợp lệ!", true); return; }
 
-        // Tìm trong Firebase (mảng users được sync từ onValue)
-        // Nếu không thấy trong Firebase, thử fallback localStorage (tương thích trang cũ)
-        let u = users.find(x => x.email?.toLowerCase() === email);
+        // Tìm trong cả users và admins
+        let u = users.find(x => (x.email || "").toLowerCase() === email);
 
-        if (!u) {
-          // Fallback: tìm trong localStorage (tương thích với dangkitaikhoan.html, dangnhap-dangxuat-phanquyen.js)
-          const lsUsers = JSON.parse(localStorage.getItem("users") || "[]");
-          const lsUser  = lsUsers.find(x => (x.email || x.Email || "").toLowerCase() === email);
-          if (lsUser) {
-            // Migrate tài khoản localStorage lên Firebase
-            sha256(lsUser.pass || lsUser.password || "").then(hash => {
-              const migratedUser = {
-                name    : lsUser.name || lsUser.hoten || lsUser.fullname || "Người dùng",
-                email   : email,
-                pass    : lsUser.pass || lsUser.password || "",
-                passHash: hash,
-                role    : lsUser.role || "user",
-                chucvu  : lsUser.chucvu || ""
-              };
-              push(ref(db, "users"), migratedUser).then(ref => {
-                const newUser = { id: ref.key, ...migratedUser };
-                // Xóa khỏi localStorage để tránh lần sau lại migrate
-                const updated = lsUsers.filter(x => (x.email || "").toLowerCase() !== email);
-                localStorage.setItem("users", JSON.stringify(updated));
-                // Kiểm tra mật khẩu sau khi migrate
-                const inputPass = lsUser.pass || lsUser.password || "";
-                if (inputPass === pass || hash === hash) {
-                  _doLogin(newUser);
-                } else {
-                  showMsg(msgEl, "❌ Mật khẩu không đúng!", true);
-                }
-              });
-            });
-            return;
-          }
-          showMsg(msgEl, "❌ Email này chưa được đăng ký!", true);
-          return;
-        }
+        if (!u) { showMsg(msgEl, "❌ Email này chưa được đăng ký!", true); return; }
 
-        // Hỗ trợ cả plain text (pass) lẫn SHA-256 hash (passHash)
+        // Kiểm tra mật khẩu (hỗ trợ cả passHash và pass thuần)
         if (u.passHash) {
-          sha256(pass).then(hash => {
-            if (hash === u.passHash || u.pass === pass) {
-              _doLogin(u);
-            } else {
-              showMsg(msgEl, "❌ Mật khẩu không đúng!", true);
-            }
-          });
-          return;
+          const hash = await sha256(pass);
+          if (hash !== u.passHash && u.pass !== pass) {
+            showMsg(msgEl, "❌ Mật khẩu không đúng!", true); return;
+          }
+        } else if (u.pass !== pass) {
+          showMsg(msgEl, "❌ Mật khẩu không đúng!", true); return;
         }
-        // Tài khoản dùng plain text
-        if (u.pass !== pass) { showMsg(msgEl, "❌ Mật khẩu không đúng!", true); return; }
+
         _doLogin(u);
 
       } else {
@@ -481,53 +461,39 @@
 
         if (!(email.endsWith("@gmail.com") || email.endsWith("@student.hcmue.edu.vn")))
           { showMsg(msgEl, "❌ Email phải là @gmail.com hoặc @student.hcmue.edu.vn!", true); return; }
+        if (pass.length < 6)          { showMsg(msgEl, "❌ Mật khẩu phải có ít nhất 6 ký tự!", true); return; }
+        if (!/[a-zA-Z]/.test(pass))   { showMsg(msgEl, "❌ Mật khẩu phải có ít nhất 1 chữ cái!", true); return; }
+        if (!/[0-9]/.test(pass))      { showMsg(msgEl, "❌ Mật khẩu phải có ít nhất 1 chữ số!", true); return; }
 
-        if (pass.length < 6)
-          { showMsg(msgEl, "❌ Mật khẩu phải có ít nhất 6 ký tự!", true); return; }
-        if (!/[a-zA-Z]/.test(pass))
-          { showMsg(msgEl, "❌ Mật khẩu phải có ít nhất 1 chữ cái!", true); return; }
-        if (!/[0-9]/.test(pass))
-          { showMsg(msgEl, "❌ Mật khẩu phải có ít nhất 1 chữ số!", true); return; }
-
-        // Kiểm tra email trùng — tìm cả Firebase lẫn localStorage
-        const emailExistsFirebase = users.find(u => u.email?.toLowerCase() === email);
-        const lsUsers2 = JSON.parse(localStorage.getItem("users") || "[]");
-        const emailExistsLS = lsUsers2.find(u => (u.email || "").toLowerCase() === email);
-        if (emailExistsFirebase || emailExistsLS)
+        if (users.find(u => (u.email || "").toLowerCase() === email))
           { showMsg(msgEl, "❌ Email này đã được đăng ký!", true); return; }
 
-        // Lưu email đã normalize (lowercase) vào Firebase
-        sha256(pass).then(hash => {
-          push(ref(db, "users"), {
-            name,
-            email,   // đã lowercase từ đầu hàm
-            pass,
-            passHash: hash,
-            role,
-            chucvu,
-            createdAt: new Date().toISOString()
-          });
-          showToast("🎉 Đăng ký thành công! Hãy đăng nhập.");
-          document.getElementById("auth_email").value = email;
-          document.getElementById("auth_pass").value  = "";
-          toggleAuthMode();
+        const hash = await sha256(pass);
+        const nodeName = role === "admin" ? "admins" : "users";
+        await push(ref(db, nodeName), {
+          name, email, pass, passHash: hash, role, chucvu,
+          createdAt: new Date().toISOString()
         });
+        showToast("🎉 Đăng ký thành công! Hãy đăng nhập.");
+        document.getElementById("auth_email").value = email;
+        document.getElementById("auth_pass").value  = "";
+        toggleAuthMode();
       }
     }
 
     function _doLogin(u) {
       currentUser = u;
       localStorage.setItem("currentUser", JSON.stringify(u));
-      showToast("🎉 Chào mừng " + u.name + "!");
+      showToast("🎉 Chào mừng " + (u.name || u.email) + "!");
       updateUI();
       go("home");
     }
 
     function toggleAuthMode() {
       isLoginMode = !isLoginMode;
-      document.getElementById("authTitle").innerText = isLoginMode ? "🔐 Đăng nhập" : "👤 Đăng ký";
+      document.getElementById("authTitle").innerText   = isLoginMode ? "🔐 Đăng nhập" : "👤 Đăng ký";
       document.getElementById("regFields").style.display = isLoginMode ? "none" : "block";
-      document.getElementById("btnAuth").innerText = isLoginMode ? "Đăng nhập" : "Tạo tài khoản";
+      document.getElementById("btnAuth").innerText    = isLoginMode ? "Đăng nhập" : "Tạo tài khoản";
     }
 
     function showMsg(el, msg, isError) {
@@ -543,23 +509,34 @@
       go("home");
     }
 
+    // ── FIX: updateUI — hiển thị/ẩn đúng nhóm nút ────────
     function updateUI() {
       const welcome = document.getElementById("welcome");
+
+      const show = (sel) => document.querySelectorAll(sel).forEach(b => b.style.display = "block");
+      const hide = (sel) => document.querySelectorAll(sel).forEach(b => b.style.display = "none");
+
       if (!currentUser) {
-        document.querySelectorAll(".adminOnly").forEach(b => b.style.display = "none");
-        document.querySelectorAll(".userOnly").forEach(b => b.style.display = "none");
-        document.querySelectorAll(".logoutBtn").forEach(b => b.style.display = "none");
+        hide(".adminOnly");
+        hide(".userOnly");
+        hide(".logoutBtn");
+        show(".guestOnly");
         if (welcome) welcome.innerText = "Khách (Vui lòng đăng nhập)";
         return;
       }
-      if (welcome) welcome.innerText = `Xin chào ${currentUser.name} (${currentUser.role === "admin" ? "Quản trị viên" : "Thành viên"}) 👋`;
-      document.querySelectorAll(".logoutBtn").forEach(b => b.style.display = "block");
+
+      hide(".guestOnly");
+      show(".logoutBtn");
+
+      const roleLabel = currentUser.role === "admin" ? "Quản trị viên" : "Thành viên";
+      if (welcome) welcome.innerText = `Xin chào ${currentUser.name || currentUser.email} (${roleLabel}) 👋`;
+
       if (currentUser.role === "admin") {
-        document.querySelectorAll(".adminOnly").forEach(b => b.style.display = "block");
-        document.querySelectorAll(".userOnly").forEach(b => b.style.display = "none");
+        show(".adminOnly");
+        hide(".userOnly");
       } else {
-        document.querySelectorAll(".adminOnly").forEach(b => b.style.display = "none");
-        document.querySelectorAll(".userOnly").forEach(b => b.style.display = "block");
+        hide(".adminOnly");
+        show(".userOnly");
       }
     }
 
@@ -572,7 +549,7 @@
 
     function submitEvent() {
       document.querySelectorAll(".err-msg").forEach(e => e.classList.remove("show"));
-      document.querySelectorAll("input.error, select.error").forEach(i => i.classList.remove("error"));
+      document.querySelectorAll("input.error,select.error").forEach(i => i.classList.remove("error"));
 
       const t   = document.getElementById("title").value.trim();
       const l   = document.getElementById("leader").value.trim();
@@ -588,18 +565,16 @@
       if (!maxVal) { setErr("max","maxErr"); valid=false; }
       if (!valid) return;
 
-      // Check duplicate
-      if (events.some(e => e.t?.toLowerCase() === t.toLowerCase() && e.d === d)) {
-        setErr("title","titleErr","Sự kiện này đã tồn tại trong ngày đó!"); return;
-      }
+      if (events.some(e => e.t?.toLowerCase() === t.toLowerCase() && e.d === d))
+        { setErr("title","titleErr","Sự kiện này đã tồn tại trong ngày đó!"); return; }
 
       push(ref(db, "events"), {
         t, l, d,
-        time: document.getElementById("time").value,
-        status: selectedStatus,
+        time    : document.getElementById("time").value,
+        status  : selectedStatus,
         location: loc,
-        max: parseInt(maxVal),
-        desc: document.getElementById("desc")?.value.trim() || "",
+        max     : parseInt(maxVal),
+        desc    : document.getElementById("desc")?.value.trim() || "",
         createdAt: new Date().toISOString()
       });
       showToast("🎉 Tạo sự kiện thành công!");
@@ -616,24 +591,24 @@
     function renderEvents() {
       const tbody = document.getElementById("eventTable");
       if (!tbody) return;
+      const isAdmin = currentUser?.role === "admin";
       if (events.length === 0) {
         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#aaa;padding:20px;">Chưa có sự kiện nào.</td></tr>`;
         return;
       }
       tbody.innerHTML = events.map(e => `
         <tr>
-          <td style="font-weight:600;">${e.t || ""}</td>
-          <td>${e.l || ""}</td>
-          <td>${e.d || ""}</td>
-          <td>${e.location || ""}</td>
-          <td>${e.max || ""}</td>
+          <td style="font-weight:600;">${e.t||""}</td>
+          <td>${e.l||""}</td>
+          <td>${e.d||""}</td>
+          <td>${e.location||""}</td>
+          <td>${e.max||""}</td>
           <td>
-            <button class="btn-edit" onclick="window._openEditModal('${e.id}')">✏️ Sửa</button>
-            <button class="btn-del"  onclick="window.delEvent('${e.id}')">🗑️</button>
+            ${isAdmin ? `<button class="btn-edit" onclick="window._openEditModal('${e.id}')">✏️ Sửa</button>
+                         <button class="btn-del"  onclick="window.delEvent('${e.id}')">🗑️</button>`
+                      : `<span style="color:#aaa;font-size:12px;">Chỉ xem</span>`}
           </td>
         </tr>`).join("");
-      // Notify external edit script if available
-      if (typeof renderEventsScrum10 === "function") renderEventsScrum10();
     }
 
     function delEvent(firebaseId) {
@@ -643,11 +618,9 @@
       }
     }
 
-    // Hook for external edit modal (xemVaChinhSuaThongTinSuKien.js)
     window._openEditModal = function(firebaseId) {
-      const ev = events.find(e => e.id === firebaseId);
+      const ev  = events.find(e => e.id === firebaseId);
       if (!ev) return;
-      // Find index in current events array for external script compatibility
       const idx = events.indexOf(ev);
       if (typeof openEditModal === "function") openEditModal(idx);
     };
@@ -662,11 +635,11 @@
     }
 
     function addParticipant() {
-      const hoten    = document.getElementById("pname").value.trim();
-      const mssv     = document.getElementById("pmssv").value.trim();
-      const email    = document.getElementById("pemail").value.trim();
-      const khoa     = document.getElementById("pkhoa").value;
-      const eventName= document.getElementById("peventSelect").value;
+      const hoten     = document.getElementById("pname").value.trim();
+      const mssv      = document.getElementById("pmssv").value.trim();
+      const email     = document.getElementById("pemail").value.trim();
+      const khoa      = document.getElementById("pkhoa").value;
+      const eventName = document.getElementById("peventSelect").value;
 
       if (!hoten || !mssv || !email || !khoa || !eventName)
         return showToast("❌ Vui lòng nhập đầy đủ thông tin!", "error");
@@ -688,11 +661,11 @@
       push(ref(db, "participants"), {
         name: hoten, mssv, email, khoa, event: eventName,
         checkedIn: false, qr: qrData, qrLink,
+        status: "active",
         registeredAt: new Date().toISOString()
       });
       showToast("🎉 Đăng ký thành công!");
 
-      // Show QR
       const qrBox = document.getElementById("myQR");
       if (qrBox) {
         qrBox.innerHTML = `
@@ -701,7 +674,6 @@
                style="display:block;margin:10px auto;border-radius:12px;">
           <div><b>${hoten}</b> — MSSV: ${mssv}</div>`;
       }
-      // Reset
       ["pname","pmssv","pemail"].forEach(id => document.getElementById(id).value = "");
       document.getElementById("pkhoa").value = "";
     }
@@ -715,10 +687,10 @@
       }
       pTable.innerHTML = participants.map(p => `
         <tr>
-          <td style="font-weight:600;">${p.name || ""}</td>
-          <td>${p.mssv || ""}</td>
-          <td style="font-size:12px;">${p.email || ""}</td>
-          <td>${p.event || ""}</td>
+          <td style="font-weight:600;">${p.name||""}</td>
+          <td>${p.mssv||""}</td>
+          <td style="font-size:12px;">${p.email||""}</td>
+          <td>${p.event||""}</td>
           <td>${p.checkedIn ? "✅ Đã tham gia" : "⏳ Chưa"}</td>
           <td><button class="btn-del" onclick="window.delP('${p.id}')">🗑️</button></td>
         </tr>`).join("");
@@ -735,10 +707,10 @@
       if (!participants.length) return showToast("Không có dữ liệu!", "error");
       let csv = "\uFEFFHọ tên;MSSV;Email;Khóa;Sự kiện;Trạng thái\n";
       participants.forEach(p => {
-        csv += `"${p.name}";"${p.mssv}";"${p.email}";"${p.khoa}";"${p.event}";"${p.checkedIn ? "Đã tham gia" : "Chưa tham gia"}"\n`;
+        csv += `"${p.name}";"${p.mssv}";"${p.email}";"${p.khoa||""}";"${p.event}";"${p.checkedIn?"Đã tham gia":"Chưa tham gia"}"\n`;
       });
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+      a.href = URL.createObjectURL(new Blob([csv], { type:"text/csv" }));
       a.download = "danhsach_thamgia.csv"; a.click();
     }
 
@@ -749,7 +721,7 @@
       const dateEl = document.getElementById("date"); if (dateEl) dateEl.value = "";
       const timeEl = document.getElementById("time"); if (timeEl) timeEl.value = "08:00";
       document.querySelectorAll(".err-msg").forEach(e => { e.classList.remove("show"); e.textContent = ""; });
-      document.querySelectorAll("input.error, select.error").forEach(i => i.classList.remove("error"));
+      document.querySelectorAll("input.error,select.error").forEach(i => i.classList.remove("error"));
       document.querySelectorAll(".status-tag").forEach(t => t.classList.remove("active"));
       document.querySelector(".status-tag")?.classList.add("active");
       selectedStatus = "Mở";
@@ -759,17 +731,12 @@
 
     // ── Check-in ───────────────────────────────────────────
     function handleCheckin(code) {
-      // Support both "MSSV|Event" and JSON QR from NhanQRCode.js
       let mssv, eventName;
       try {
         const parsed = JSON.parse(code);
-        mssv = parsed.ticketId ? parsed.name : null; // fallback
-        // Try to match by ticketId in participants via localStorage
         const tickets = JSON.parse(localStorage.getItem("tickets") || "[]");
         const ticket  = tickets.find(t => t.ticketId === parsed.ticketId);
-        if (ticket) {
-          mssv = ticket.name; eventName = ticket.event;
-        }
+        if (ticket) { mssv = ticket.name; eventName = ticket.event; }
       } catch {
         [mssv, eventName] = code.split("|");
       }
@@ -791,13 +758,11 @@
 
     let qrScanner;
     function startScan() {
-      if (qrScanner) {
-        qrScanner.stop().catch(() => {});
-      }
+      if (qrScanner) qrScanner.stop().catch(()=>{});
       qrScanner = new Html5Qrcode("qrVideo");
       Html5Qrcode.getCameras().then(devices => {
         if (!devices.length) return showToast("❌ Không tìm thấy camera!", "error");
-        qrScanner.start(devices[0].id, { fps: 10, qrbox: 250 }, qrCodeMessage => {
+        qrScanner.start(devices[0].id, { fps:10, qrbox:250 }, qrCodeMessage => {
           handleCheckin(qrCodeMessage);
           qrScanner.stop();
         }).catch(err => showToast("❌ Lỗi camera: " + err, "error"));
@@ -808,8 +773,8 @@
     function renderDashboard() {
       const total   = participants.length;
       const checked = participants.filter(p => p.checkedIn).length;
-      document.getElementById("totalP").innerText    = total;
-      document.getElementById("checkedInP").innerText= checked;
+      document.getElementById("totalP").innerText     = total;
+      document.getElementById("checkedInP").innerText = checked;
       document.getElementById("notCheckedP").innerText= total - checked;
 
       document.getElementById("eventStats").innerHTML = events.map(e => {
@@ -829,7 +794,7 @@
     // ── Reminders ──────────────────────────────────────────
     function renderReminders() {
       const now = new Date();
-      let html = "";
+      let html  = "";
       participants.forEach(p => {
         const ev = events.find(e => e.t === p.event);
         if (!ev) return;
@@ -837,7 +802,7 @@
         const hours = (eventTime - now) / 3600000;
         if (hours > 0 && hours <= 24) {
           html += `<div style="background:#fff0f6;padding:15px;border-radius:12px;margin-bottom:10px;border-left:4px solid #ff6a88;">
-            <b>📢 ${ev.t}</b><br>⏰ ${ev.d} ${ev.time || ""}<br>📍 ${ev.location || ""}
+            <b>📢 ${ev.t}</b><br>⏰ ${ev.d} ${ev.time||""}<br>📍 ${ev.location||""}
             ${p.qrLink ? `<br>🎟 <a href="${p.qrLink}" target="_blank">Xem vé QR</a>` : ""}
           </div>`;
         }
@@ -846,12 +811,7 @@
         html || "<p style='text-align:center;color:#aaa;'>❌ Không có sự kiện nào sắp diễn ra trong 24 giờ tới.</p>";
     }
 
-    function toggleNotify() {
-      notifyEnabled = !notifyEnabled;
-      localStorage.setItem("notifyEnabled", notifyEnabled);
-      showToast(notifyEnabled ? "🔔 Đã bật thông báo" : "🔕 Đã tắt thông báo");
-    }
-
+    // ── Auto-notify ────────────────────────────────────────
     setInterval(() => {
       if (!notifyEnabled) return;
       const now = new Date();
@@ -878,44 +838,31 @@
       let email = prompt("📧 Nhập email đã đăng ký:");
       if (!email) return;
       email = email.trim().toLowerCase();
-      const user = users.find(u => u.email?.toLowerCase() === email);
+      const user = users.find(u => (u.email||"").toLowerCase() === email);
       if (!user) { showToast("❌ Email không tồn tại!", "error"); return; }
       const newPass = prompt("🔑 Nhập mật khẩu mới (≥6 ký tự):");
       if (!newPass || newPass.length < 6) { showToast("❌ Mật khẩu không hợp lệ!", "error"); return; }
-      update(ref(db, "users/" + user.id), { pass: newPass });
-      showToast("✅ Đổi mật khẩu thành công! Hãy đăng nhập lại.");
-      location.reload();
-      document.getElementById("auth_pass").value = "";
+      const nodeName = user.role === "admin" ? "admins" : "users";
+      sha256(newPass).then(hash => {
+        update(ref(db, `${nodeName}/${user.id}`), { pass: newPass, passHash: hash });
+        showToast("✅ Đổi mật khẩu thành công! Hãy đăng nhập lại.");
+      });
     }
 
-    function cancelRegister() {
-      const mssv = prompt("Nhập MSSV để hủy đăng ký:");
-      if (!mssv) return;
-      const p = participants.find(p => p.mssv === mssv);
-      if (!p) { showToast("❌ Không tìm thấy MSSV!", "error"); return; }
-      if (confirm(`Hủy đăng ký của ${p.name} - ${p.event}?`)) {
-        remove(ref(db, "participants/" + p.id));
-        showToast("✅ Đã hủy đăng ký!");
-      }
-    }
-
-    function viewGallery() {
-      window.location.href = "scrum22.html";
-    }
+    function viewGallery() { window.location.href = "scrum22.html"; }
 
     // ── Global Search ──────────────────────────────────────
     function globalSearchFunction() {
       const keyword = document.getElementById("globalSearch").value.toLowerCase().trim();
       if (!keyword) return;
       const cmds = {
-        "trang chủ": "home", "tạo sự kiện": "create", "quản lý": "manage",
-        "tham gia": "join", "đăng nhập": "login", "checkin": "checkin",
-        "check-in": "checkin", "dashboard": "dashboard"
+        "trang chủ":"home","tạo sự kiện":"create","quản lý":"manage",
+        "tham gia":"join","đăng nhập":"login","checkin":"checkin",
+        "check-in":"checkin","dashboard":"dashboard","ngân sách":"budget"
       };
-      for (const [k, v] of Object.entries(cmds)) {
+      for (const [k,v] of Object.entries(cmds)) {
         if (keyword.includes(k)) { go(v); return; }
       }
-      // Search in table
       go("manage");
       setTimeout(() => {
         const rows = document.querySelectorAll("#eventTable tr");
@@ -940,67 +887,57 @@
     function showToast(msg, type = "success") {
       const t = document.getElementById("toast");
       if (!t) return;
-      t.innerText = msg;
+      t.textContent = msg;
       t.className = `toast ${type} show`;
-      setTimeout(() => t.classList.remove("show"), 3000);
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => t.classList.remove("show"), 3000);
     }
 
-    // ── Init ───────────────────────────────────────────────
-    updateUI();
+    // ── EXPOSE TO GLOBAL ───────────────────────────────────
+    window.toggleMenu          = toggleMenu;
+    window.go                  = go;
+    window.showToast           = showToast;
+    window.renderEvents        = renderEvents;
+    window.renderParticipants  = renderParticipants;
+    window.updateEventDropdown = updateEventDropdown;
+    window.selectStatus        = selectStatus;
+    window.submitEvent         = submitEvent;
+    window.delEvent            = delEvent;
+    window.addParticipant      = addParticipant;
+    window.delP                = delP;
+    window.exportCSV           = exportCSV;
+    window.resetForm           = resetForm;
+    window.handleAuth          = handleAuth;
+    window.toggleAuthMode      = toggleAuthMode;
+    window.logout              = logout;
+    window.globalSearchFunction= globalSearchFunction;
+    window.handleCheckin       = handleCheckin;
+    window.manualCheckin       = manualCheckin;
+    window.startScan           = startScan;
+    window.renderDashboard     = renderDashboard;
+    window.renderReminders     = renderReminders;
+    window.forgotPassword      = forgotPassword;
+    window.viewGallery         = viewGallery;
 
-    // ══════════════════════════════════════════════════════
-    // EXPOSE ALL FUNCTIONS TO GLOBAL SCOPE
-    // Required for: inline onclicks, external JS files,
-    // quanLyChiTieu.js, xemVaChinhSuaThongTinSuKien.js,
-    // NhanQRCode.js, dongBoDuLieuNguoiDung.js, etc.
-    // ══════════════════════════════════════════════════════
-    window.toggleMenu         = toggleMenu;
-    window.go                 = go;
-    window.showToast          = showToast;
-    window.renderEvents       = renderEvents;
-    window.renderParticipants = renderParticipants;
-    window.updateEventDropdown= updateEventDropdown;
-    window.selectStatus       = selectStatus;
-    window.submitEvent        = submitEvent;
-    window.delEvent           = delEvent;
-    window.addParticipant     = addParticipant;
-    window.delP               = delP;
-    window.exportCSV          = exportCSV;
-    window.resetForm          = resetForm;
-    window.handleAuth         = handleAuth;
-    window.toggleAuthMode     = toggleAuthMode;
-    window.logout             = logout;
-    window.globalSearchFunction = globalSearchFunction;
-    window.handleCheckin      = handleCheckin;
-    window.manualCheckin      = manualCheckin;
-    window.startScan          = startScan;
-    window.renderDashboard    = renderDashboard;
-    window.toggleNotify       = toggleNotify;
-    window.renderReminders    = renderReminders;
-    window.forgotPassword     = forgotPassword;
-    window.cancelRegister     = cancelRegister;
-    window.viewGallery        = viewGallery;
-
-    // Expose Firebase ref/update/remove for external scripts that need them
+    // Firebase refs cho các script ngoài
     window._db     = db;
     window._ref    = ref;
     window._update = update;
     window._remove = remove;
     window._push   = push;
 
-    // Expose data arrays (read-only references)
-    Object.defineProperty(window, '_events',       { get: () => events });
-    Object.defineProperty(window, '_participants',  { get: () => participants });
-    Object.defineProperty(window, '_users',         { get: () => users });
-
+    // Expose data arrays (reactive getters)
+    Object.defineProperty(window, "_events",      { get: () => events });
+    Object.defineProperty(window, "_participants", { get: () => participants });
+    Object.defineProperty(window, "_users",        { get: () => users });
   </script>
 
-  <!-- External feature scripts — load AFTER module via DOMContentLoaded -->
+  <!-- External feature scripts -->
   <script src="xemVaChinhSuaThongTinSuKien.js"></script>
   <script src="quanLyChiTieu.js"></script>
   <script src="NhanQRCode.js"></script>
   <script src="dongBoDuLieuNguoiDung.js"></script>
   <script src="quenMatKhau.js"></script>
-
+  <script src="dangnhap-dangxuat-phanquyen.js"></script>
 </body>
 </html>
